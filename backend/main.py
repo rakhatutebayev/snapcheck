@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import models
-from .database import engine, SessionLocal
-from .models import User
-from .auth import router as auth_router
-from .slides import router as slides_router
-from .admin import router as admin_router
-from .slides_admin import router as slides_admin_router
-from .files import router as files_router
-from .utils.security import hash_password
+import models
+from database import engine, SessionLocal
+from models import User
+from auth import router as auth_router
+from slides import router as slides_router
+from admin import router as admin_router
+from slides_admin import router as slides_admin_router
+from files import router as files_router
+from user import router as user_router
+from utils.security import hash_password
 
 # Создание таблиц
 models.Base.metadata.create_all(bind=engine)
@@ -53,7 +54,7 @@ app = FastAPI(
 # CORS конфигурация
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+    allow_origins=["*"],  # Разрешить все origins для разработки
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,6 +66,7 @@ app.include_router(slides_router)
 app.include_router(admin_router)
 app.include_router(slides_admin_router)
 app.include_router(files_router)
+app.include_router(user_router)
 
 @app.get("/")
 def root():
