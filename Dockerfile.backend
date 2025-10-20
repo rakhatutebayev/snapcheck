@@ -2,19 +2,21 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Установка зависимостей системы
+# ⚡ Установка зависимостей системы ОТДЕЛЬНО
 RUN apt-get update && apt-get install -y \
     gcc \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Копирование requirements.txt
-COPY backend/requirements.txt .
+# ⚡ Копирование requirements.txt ОТДЕЛЬНО (для кеширования слоя!)
+COPY requirements.txt .
 
-# Установка Python зависимостей
+# ⚡ Установка Python зависимостей ОДИН РАЗ
+# Если requirements.txt не изменился - этот слой не пересобирается!
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копирование приложения
+# ⚡ Копирование приложения ПОСЛЕДНИМ (часто меняется)
 COPY backend/ .
 
 # Создание директорий для данных

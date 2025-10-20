@@ -1,58 +1,118 @@
 version: '3.8'
 
 services:
+  # 🗄️ PostgreSQL БД (используется на продакшене вместо SQLite)
+  db:
+    image: postgres:15-alpine
+    container_name: snapcheck-db
+    environment:
+      - POSTGRES_DB=snapcheck
+      - POSTGRES_USER=snapcheck
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-SlideConfirm12345}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - snapcheck_snapcheck-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U snapcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # 🔄 Миграции БД (выполняются ДО backend)
+  db-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: snapcheck-migrate
+    command: sh -c "cd backend && alembic upgrade head && echo '✅ Migrations completed'"
+    environment:
+      - DATABASE_URL=postgresql://snapcheck:${DB_PASSWORD:-SlideConfirm12345}@db:5432/snapcheck
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - snapcheck_snapcheck-net
+    profiles:
+      - donotstart  # Запускается перед backend как: docker-compose run --rm db-migrate
+
+  # 🐍 Backend API (FastAPI)
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./data/db:/app/data/db
-      - ./data/uploads:/tmp/slideconfirm_uploads
-      - ./logs/backend:/app/logs
+    container_name: snapcheck-backend
     environment:
-      - DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+      - DATABASE_URL=postgresql://snapcheck:${DB_PASSWORD:-SlideConfirm12345}@db:5432/snapcheck
       - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
       - LOG_LEVEL=info
       - WORKERS=4
-    restart: unless-stopped
+    volumes:
+      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./logs/backend:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck_snapcheck-net
+      - traefik_proxy  # ← Подключение к Traefik сети
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      # ✅ Traefik конфигурация для backend
+      - "traefik.enable=true"
+      - "traefik.http.routers.snapcheck-backend.rule=Host(`${DOMAIN:-lms.it-uae.com}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.snapcheck-backend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-backend.tls.certresolver=myresolver"
+      - "traefik.http.services.snapcheck-backend.loadbalancer.server.port=8000"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.snapcheck-backend.middlewares=api-strip"
 
+  # 🌐 Frontend (React + Nginx)
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
-    ports:
-      - "3000:80"
-    volumes:
-      - ./logs/nginx:/var/log/nginx
+    container_name: snapcheck-frontend
+    restart: always
+    networks:
+      - snapcheck_snapcheck-net
+      - traefik_proxy  # ← Подключение к Traefik сети
     depends_on:
       - backend
-    restart: unless-stopped
-    networks:
-      - slideconfirm-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
+    labels:
+      # ✅ Traefik конфигурация для frontend
+      - "traefik.enable=true"
+      - "traefik.http.routers.snapcheck-frontend.rule=Host(`${DOMAIN:-lms.it-uae.com}`)"
+      - "traefik.http.routers.snapcheck-frontend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.snapcheck-frontend.loadbalancer.server.port=80"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.routers.snapcheck-frontend.priority=1"
 
 networks:
-  slideconfirm-network:
+  snapcheck_snapcheck-net:
     driver: bridge
+  traefik_proxy:
+    external: true  # ← Используем существующую сеть Traefik
 
 volumes:
   db_data:
-    driver: local
-  uploads_data:
     driver: local
