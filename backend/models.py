@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .database import Base
+from database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -59,3 +59,18 @@ class UserCompletion(Base):
     completed_at = Column(DateTime(timezone=True), server_default=func.now())
     
     user = relationship("User", back_populates="completions")
+
+class UserPresentationPosition(Base):
+    """✅ Сохраняет последнюю просмотренную позицию пользователя в презентации"""
+    __tablename__ = "user_presentation_position"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    presentation_id = Column(Integer, ForeignKey("presentations.id"), index=True)
+    last_slide_index = Column(Integer, default=0)  # Индекс последнего слайда
+    last_viewed_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Уникальный индекс для быстрого поиска
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )

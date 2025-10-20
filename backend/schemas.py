@@ -34,6 +34,7 @@ class SlideResponse(BaseModel):
     title: Optional[str] = None
     order: int
     viewed: bool = False
+    can_view: bool = True  # ✅ Поле для проверки доступности слайда
 
     class Config:
         from_attributes = True
@@ -42,6 +43,7 @@ class SlidesListResponse(BaseModel):
     presentation_id: int
     total_slides: int
     slides: list[SlideResponse]
+    last_slide_index: int = 0  # ✅ Последняя просмотренная позиция
 
 # Progress Schemas
 class ProgressResponse(BaseModel):

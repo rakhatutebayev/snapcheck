@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from pathlib import Path
 
-from .database import get_db
-from .models import User, Presentation, UserCompletion
-from .utils.security import decode_access_token, hash_password
+from database import get_db
+from models import User, Presentation, UserCompletion
+from utils.security import decode_access_token, hash_password
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -122,9 +122,17 @@ def set_user_role(user_id: int, role: str, admin: User = Depends(get_current_adm
 @router.get("/report")
 def get_report(admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     """Получить отчет об ознакомлении с презентациями"""
+    from backend.models import Presentation
+    
     # Получаем всех пользователей (не админов)
     all_users = db.query(User).filter(User.role == "user").all()
     users_count = len(all_users)
+    
+    # Получаем все опубликованные презентации
+    all_presentations = db.query(Presentation).filter(
+        Presentation.status == "published"
+    ).all()
+    presentation_list = [p.title for p in all_presentations]
     
     # Получаем пользователей, которые завершили
     completed_users = db.query(UserCompletion.user_id).distinct().all()
@@ -135,7 +143,22 @@ def get_report(admin: User = Depends(get_current_admin), db: Session = Depends(g
     users_data = []
     for user in all_users:
         is_completed = user.id in completed_user_ids
-        completion_count = db.query(UserCompletion).filter(UserCompletion.user_id == user.id).count()
+        
+        # Get completed presentations for this user
+        completed_presentations = db.query(UserCompletion).filter(
+            UserCompletion.user_id == user.id
+        ).all()
+        
+        # Get presentation names
+        completed_presentation_names = []
+        for uc in completed_presentations:
+            presentation = db.query(Presentation).filter(
+                Presentation.id == uc.presentation_id
+            ).first()
+            if presentation:
+                completed_presentation_names.append(presentation.title)
+        
+        completion_count = len(completed_presentations)
         
         users_data.append({
             "id": user.id,
@@ -143,7 +166,8 @@ def get_report(admin: User = Depends(get_current_admin), db: Session = Depends(g
             "last_name": user.last_name,
             "email": user.email,
             "completion_count": completion_count,
-            "is_completed": is_completed
+            "is_completed": is_completed,
+            "completed_presentations": completed_presentation_names
         })
     
     return {
@@ -153,6 +177,7 @@ def get_report(admin: User = Depends(get_current_admin), db: Session = Depends(g
             "completed": completed,
             "pending": users_count - completed,
             "completion_percentage": (completed / users_count * 100) if users_count > 0 else 0,
-            "users": users_data
+            "users": users_data,
+            "all_presentations": presentation_list
         }
     }

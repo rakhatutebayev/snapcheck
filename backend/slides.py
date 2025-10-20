@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import User, Slide, UserSlideProgress, UserCompletion, Presentation
-from .schemas import ProgressResponse, SlidesListResponse, SlideResponse
-from .utils.security import decode_access_token
+from database import get_db
+from models import User, Slide, UserSlideProgress, UserCompletion, Presentation, UserPresentationPosition
+from schemas import ProgressResponse, SlidesListResponse, SlideResponse
+from utils.security import decode_access_token
 
 router = APIRouter(prefix="/slides", tags=["slides"])
 
@@ -24,9 +24,16 @@ def get_current_user(authorization: str = Header(None), db: Session = Depends(ge
     return user
 
 @router.get("/list", response_model=SlidesListResponse)
-def list_slides(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Получаем первую опубликованную презентацию
-    presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+def list_slides(presentation_id: int = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Если presentation_id не указан, берём первую опубликованную
+    if presentation_id:
+        presentation = db.query(Presentation).filter(
+            Presentation.id == presentation_id,
+            Presentation.status == "published"
+        ).first()
+    else:
+        presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+    
     if not presentation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No published presentations found")
     
@@ -36,26 +43,54 @@ def list_slides(user: User = Depends(get_current_user), db: Session = Depends(ge
     if not slides:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No slides found")
     
+    # ✅ Получаем последнюю позицию пользователя
+    position = db.query(UserPresentationPosition).filter(
+        UserPresentationPosition.user_id == user.id,
+        UserPresentationPosition.presentation_id == presentation_id
+    ).first()
+    
+    last_slide_index = position.last_slide_index if position else 0
+    
     # Получаем статус просмотра для каждого слайда
     slide_responses = []
-    for slide in slides:
+    for idx, slide in enumerate(slides):
         progress = db.query(UserSlideProgress).filter(
             UserSlideProgress.user_id == user.id,
             UserSlideProgress.slide_id == slide.id
         ).first()
+        
+        # ✅ Проверяем, разрешено ли просмотреть этот слайд
+        # Слайд доступен если:
+        # 1. Это первый слайд
+        # 2. Все предыдущие слайды просмотрены
+        can_view = idx == 0  # Первый слайд всегда доступен
+        
+        if not can_view and idx > 0:
+            # Проверяем просмотрены ли все предыдущие слайды
+            previous_slides = [s for s in slides[:idx]]
+            can_view = all(
+                db.query(UserSlideProgress).filter(
+                    UserSlideProgress.user_id == user.id,
+                    UserSlideProgress.slide_id == prev_slide.id,
+                    UserSlideProgress.viewed == True
+                ).first() is not None
+                for prev_slide in previous_slides
+            )
         
         slide_responses.append(SlideResponse(
             id=slide.id,
             presentation_id=slide.presentation_id,
             filename=slide.filename,
             order=slide.order,
-            viewed=progress.viewed if progress else False
+            viewed=progress.viewed if progress else False,
+            can_view=can_view  # ✅ Добавляем информацию о доступности
         ))
     
     return SlidesListResponse(
         presentation_id=presentation_id,
         total_slides=len(slides),
-        slides=slide_responses
+        slides=slide_responses,
+        last_slide_index=last_slide_index  # ✅ Возвращаем позицию
     )
 
 @router.post("/mark/{slide_id}")
@@ -64,6 +99,33 @@ def mark_slide_viewed(slide_id: int, user: User = Depends(get_current_user), db:
     slide = db.query(Slide).filter(Slide.id == slide_id).first()
     if not slide:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Slide not found")
+    
+    # ✅ Проверяем последовательность просмотра
+    # Получаем все слайды этой презентации в порядке
+    all_slides = db.query(Slide).filter(
+        Slide.presentation_id == slide.presentation_id
+    ).order_by(Slide.order).all()
+    
+    # Находим индекс текущего слайда
+    current_index = next((idx for idx, s in enumerate(all_slides) if s.id == slide_id), None)
+    
+    if current_index is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slide")
+    
+    # Проверяем просмотрены ли все предыдущие слайды
+    if current_index > 0:
+        for prev_slide in all_slides[:current_index]:
+            prev_progress = db.query(UserSlideProgress).filter(
+                UserSlideProgress.user_id == user.id,
+                UserSlideProgress.slide_id == prev_slide.id,
+                UserSlideProgress.viewed == True
+            ).first()
+            
+            if not prev_progress:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"You must view slides in order. Please review slide {prev_slide.order + 1} first."
+                )
     
     # Обновляем или создаём запись о просмотре
     progress = db.query(UserSlideProgress).filter(
@@ -77,13 +139,37 @@ def mark_slide_viewed(slide_id: int, user: User = Depends(get_current_user), db:
         progress = UserSlideProgress(user_id=user.id, slide_id=slide_id, viewed=True)
         db.add(progress)
     
+    # ✅ Обновляем последнюю позицию
+    position = db.query(UserPresentationPosition).filter(
+        UserPresentationPosition.user_id == user.id,
+        UserPresentationPosition.presentation_id == slide.presentation_id
+    ).first()
+    
+    if position:
+        position.last_slide_index = current_index
+    else:
+        position = UserPresentationPosition(
+            user_id=user.id,
+            presentation_id=slide.presentation_id,
+            last_slide_index=current_index
+        )
+        db.add(position)
+    
     db.commit()
     return {"status": "success", "message": "Slide marked as viewed"}
 
+
 @router.post("/complete")
-def complete_presentation(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Получаем первую опубликованную презентацию
-    presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+def complete_presentation(presentation_id: int = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Если presentation_id не указан, берём первую опубликованную
+    if presentation_id:
+        presentation = db.query(Presentation).filter(
+            Presentation.id == presentation_id,
+            Presentation.status == "published"
+        ).first()
+    else:
+        presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+    
     if not presentation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No published presentations found")
     
@@ -128,9 +214,16 @@ def complete_presentation(user: User = Depends(get_current_user), db: Session = 
     return {"status": "success", "message": "Presentation completed"}
 
 @router.get("/progress", response_model=ProgressResponse)
-def get_progress(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Получаем первую опубликованную презентацию
-    presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+def get_progress(presentation_id: int = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Если presentation_id не указан, берём первую опубликованную
+    if presentation_id:
+        presentation = db.query(Presentation).filter(
+            Presentation.id == presentation_id,
+            Presentation.status == "published"
+        ).first()
+    else:
+        presentation = db.query(Presentation).filter(Presentation.status == "published").first()
+    
     if not presentation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No published presentations found")
     

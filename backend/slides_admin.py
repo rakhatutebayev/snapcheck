@@ -9,9 +9,9 @@ import shutil
 from typing import List
 import re
 
-from .database import get_db
-from .models import Presentation, Slide, User
-from .utils.security import decode_access_token
+from database import get_db
+from models import Presentation, Slide, User
+from utils.security import decode_access_token
 
 router = APIRouter(prefix="/admin", tags=["admin-slides"])
 
