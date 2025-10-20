@@ -19,8 +19,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ⚡ Копирование приложения ПОСЛЕДНИМ (часто меняется)
 COPY backend/ .
 
-# Создание директорий для данных
-RUN mkdir -p /app/data/db /tmp/slideconfirm_uploads
+# Создание директорий для данных и __init__.py для пакета
+RUN mkdir -p /app/data/db /tmp/slideconfirm_uploads && \
+    touch /app/__init__.py
 
 # Переменные окружения
 ENV PYTHONUNBUFFERED=1
@@ -32,4 +33,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Запуск приложения
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Запускаем как модуль Python вместо скрипта
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
