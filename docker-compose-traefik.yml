@@ -1,0 +1,207 @@
+version: '3.8'
+
+# 🐳 Docker Compose для SlideConfirm с Traefik
+# 
+# Использование:
+# 1. Отредактировать .env файл (DOMAIN, SECRET_KEY, DB_PASSWORD)
+# 2. docker-compose up -d
+# 3. Приложение будет доступно на https://DOMAIN
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Backend (FastAPI)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: slideconfirm-backend
+    
+    environment:
+      # Database
+      - DATABASE_URL=postgresql://slideconfirm:${DB_PASSWORD}@db:5432/slideconfirm
+      
+      # Security
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=${ENVIRONMENT}
+      
+      # API
+      - VITE_API_URL=https://${DOMAIN}/api
+      - LOG_LEVEL=${LOG_LEVEL}
+      
+      # Python
+      - PYTHONUNBUFFERED=1
+    
+    volumes:
+      # Файлы загруженные пользователями
+      - ./data/uploads:/tmp/slideconfirm_uploads
+      # Логи приложения
+      - ./logs/backend:/app/logs
+    
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    restart: unless-stopped
+    
+    # ✅ ВАЖНО: Использовать сеть Traefik
+    networks:
+      - traefik-net
+    
+    # Health check для Docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # ✅ Labels для Traefik маршрутизации
+    labels:
+      # Включить Traefik для этого контейнера
+      - "traefik.enable=true"
+      
+      # Маршрут: domain.com/api/* идет на backend
+      - "traefik.http.routers.slideconfirm-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      
+      # Использовать HTTPS
+      - "traefik.http.routers.slideconfirm-backend.entrypoints=websecure"
+      
+      # Let's Encrypt сертификат
+      - "traefik.http.routers.slideconfirm-backend.tls.certresolver=letsencrypt"
+      
+      # Port контейнера
+      - "traefik.http.services.slideconfirm-backend.loadbalancer.server.port=8000"
+      
+      # Удалить /api префикс перед проксированием
+      - "traefik.http.middlewares.api-prefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.slideconfirm-backend.middlewares=api-prefix"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Frontend (Nginx + React)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: slideconfirm-frontend
+    
+    restart: unless-stopped
+    
+    # ✅ ВАЖНО: Использовать сеть Traefik
+    networks:
+      - traefik-net
+    
+    depends_on:
+      - backend
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # ✅ Labels для Traefik маршрутизации
+    labels:
+      # Включить Traefik
+      - "traefik.enable=true"
+      
+      # Маршрут: domain.com идет на frontend
+      - "traefik.http.routers.slideconfirm-frontend.rule=Host(`${DOMAIN}`)"
+      
+      # Использовать HTTPS
+      - "traefik.http.routers.slideconfirm-frontend.entrypoints=websecure"
+      
+      # Let's Encrypt сертификат
+      - "traefik.http.routers.slideconfirm-frontend.tls.certresolver=letsencrypt"
+      
+      # Port контейнера
+      - "traefik.http.services.slideconfirm-frontend.loadbalancer.server.port=80"
+      
+      # Приоритет маршрута (более специфичный маршрут /api имеет приоритет)
+      - "traefik.http.routers.slideconfirm-frontend.priority=1"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Database (PostgreSQL)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  db:
+    image: postgres:15-alpine
+    container_name: slideconfirm-db
+    
+    environment:
+      - POSTGRES_DB=slideconfirm
+      - POSTGRES_USER=slideconfirm
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=en_US.UTF-8
+    
+    volumes:
+      # Данные БД (чтобы сохранялись между перезагрузками)
+      - db_data:/var/lib/postgresql/data
+      # Логи БД (опционально)
+      - ./logs/postgres:/var/log/postgresql
+    
+    restart: unless-stopped
+    
+    # ✅ Использовать сеть Traefik (чтобы backend мог подключиться)
+    networks:
+      - traefik-net
+    
+    # Health check для БД
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slideconfirm -d slideconfirm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Networks
+# ═══════════════════════════════════════════════════════════════════════════
+
+networks:
+  traefik-net:
+    external: true  # ✅ ВАЖНО: Использовать СУЩЕСТВУЮЩУЮ сеть Traefik
+                     # Если сети нет, создать:
+                     # docker network create traefik-net
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Volumes
+# ═══════════════════════════════════════════════════════════════════════════
+
+volumes:
+  db_data:
+    driver: local
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ПРИМЕЧАНИЯ
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Перед запуском создайте .env файл с переменными:
+#    - DOMAIN=yourdomain.com
+#    - SECRET_KEY=very-secure-key-here
+#    - DB_PASSWORD=strong-db-password
+#    - ENVIRONMENT=production
+#    - LOG_LEVEL=info
+#
+# 2. Убедитесь что Traefik запущен и сеть traefik-net существует:
+#    docker network ls | grep traefik-net
+#
+# 3. Если сети нет, создайте её:
+#    docker network create traefik-net
+#
+# 4. Запустить:
+#    docker-compose up -d
+#
+# 5. Проверить логи:
+#    docker-compose logs -f
+#
+# 6. Приложение будет доступно на:
+#    https://yourdomain.com (frontend)
+#    https://yourdomain.com/api/health (API)
+#
+# ═══════════════════════════════════════════════════════════════════════════

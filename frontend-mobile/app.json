@@ -1,0 +1,86 @@
+{
+  "expo": {
+    "name": "SnapCheck",
+    "slug": "snapcheck",
+    "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.slideconfirm.snapcheck",
+      "buildNumber": "1",
+      "usesNonExemptEncryption": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Приложение использует камеру для сканирования QR кодов",
+        "NSPhotoLibraryUsageDescription": "Приложение использует фото для выбора изображений",
+        "NSPhotoLibraryAddUsageDescription": "Приложение может сохранять фото в библиотеку"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": true,
+      "icon": "./assets/adaptive-icon.png",
+      "package": "com.slideconfirm.snapcheck",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "INTERNET"
+      ],
+      "useNextNotifee": true,
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Позволить SnapCheck использовать камеру"
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Позволить SnapCheck использовать галерею",
+          "savePhotosPermission": "Позволить SnapCheck сохранять фото",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      },
+      "apiUrl": "https://api.slideconfirm.com",
+      "appName": "SnapCheck",
+      "appVersion": "1.0.0"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_APP_RESUME",
+      "fallbackToCacheTimeout": 30000,
+      "url": "https://u.expo.dev/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    },
+    "owner": "your_expo_username",
+    "privacy": "public",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ]
+  }
+}

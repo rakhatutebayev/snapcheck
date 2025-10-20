@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Slides from './pages/Slides';
+import PresentationsList from './pages/PresentationsList';
 import AdminPanel from './pages/AdminPanel';
 
 const PrivateRoute = ({ children }) => {
@@ -18,7 +19,7 @@ const RootRedirect = () => {
     return <Navigate to="/login" />;
   }
   
-  return <Navigate to={role === 'admin' ? '/admin' : '/slides'} />;
+  return <Navigate to={role === 'admin' ? '/admin' : '/presentations'} />;
 };
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/presentations" element={<PrivateRoute><PresentationsList /></PrivateRoute>} />
         <Route path="/slides" element={<PrivateRoute><Slides /></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPanel /></PrivateRoute>} />
         <Route path="/" element={<RootRedirect />} />

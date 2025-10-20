@@ -1,0 +1,37 @@
+{
+  "cli": {
+    "version": ">= 5.4.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "autoIncrement": true
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleTeamId": "YOUR_TEAM_ID",
+        "appleId": "your_apple_id@example.com",
+        "ascAppId": "YOUR_APP_ID",
+        "appleAppSpecificPassword": "YOUR_APP_PASSWORD"
+      },
+      "android": {
+        "serviceAccount": "./google-play-key.json",
+        "track": "production"
+      }
+    }
+  }
+}

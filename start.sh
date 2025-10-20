@@ -41,7 +41,7 @@ echo -e "${GREEN}✓ Node.js найден${NC}"
 # Запускаем бэкенд
 echo -e "\n${YELLOW}🔧 Запуск бэкенда на порту 8000...${NC}"
 cd "$(dirname "$0")"
-python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 > /tmp/backend.log 2>&1 &
+python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
 echo "Backend PID: $BACKEND_PID"
 sleep 3
@@ -75,7 +75,9 @@ echo -e "\n${GREEN}================================${NC}"
 echo -e "${GREEN}✅ Система запущена успешно!${NC}"
 echo -e "${GREEN}================================${NC}"
 echo ""
-echo -e "${YELLOW}📱 Откройте браузер:${NC} http://localhost:5173"
+echo -e "${YELLOW}📱 Откройте браузер:${NC}"
+echo -e "   • Локально: http://localhost:5173"
+echo -e "   • По сети: http://<ваш-IP>:5173"
 echo ""
 echo -e "${YELLOW}🔐 Вход как администратор:${NC}"
 echo -e "   Email: admin@gss.aero"

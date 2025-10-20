@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { LogIn, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +9,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,15 +28,16 @@ const Login = () => {
 
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('role', res.data.role);
-      setSuccess('Успешный вход! Перенаправление...');
+      localStorage.setItem('email', email);
+      setSuccess('Login successful! Redirecting...');
       
-      // Редирект в зависимости от роли
+      // Redirect based on role
       const redirectPath = res.data.role === 'admin' ? '/admin' : '/slides';
       setTimeout(() => {
         navigate(redirectPath);
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка при входе. Проверьте учетные данные.');
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -45,86 +47,85 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full shadow-lg mb-4">
-            <LogIn className="text-white" size={32} />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">SlideConfirm</h1>
-          <p className="text-gray-500">Корпоративная система подтверждения ознакомления</p>
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">SnapCheck</h1>
+          <p className="text-xs text-gray-500">Corporate presentation acknowledgment system</p>
         </div>
 
         {/* Form Card */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-5 space-y-3">
           {/* Error Message */}
           {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <AlertCircle className="text-red-600" size={20} />
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="flex items-center gap-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+              <AlertCircle className="text-red-600" size={18} />
+              <p className="text-red-700 text-xs">{error}</p>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <CheckCircle className="text-green-600" size={20} />
-              <p className="text-green-700 text-sm">{success}</p>
+            <div className="flex items-center gap-3 p-2 bg-green-50 border border-green-200 rounded-lg">
+              <CheckCircle className="text-green-600" size={18} />
+              <p className="text-green-700 text-xs">{success}</p>
             </div>
           )}
 
           {/* Email Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email адрес
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Email address
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="user@gss.aero"
+              className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              placeholder="user@example.com"
               required
             />
           </div>
 
           {/* Password Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Пароль
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="••••••"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-1.5 pr-9 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-sm py-2 rounded-lg hover:from-blue-700 hover:to-blue-800 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Вход в систему...' : 'Войти'}
+            {loading ? 'Logging in...' : 'Sign In'}
           </button>
 
           {/* Register Link */}
-          <p className="text-center text-gray-600 text-sm">
-            Нет аккаунта?{' '}
+          <p className="text-center text-gray-600 text-xs">
+            Don't have an account?{' '}
             <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Зарегистрироваться
+              Register here
             </Link>
           </p>
         </form>
-
-        {/* Test Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-xs font-semibold text-blue-900 mb-2">Тестовые учетные данные:</p>
-          <p className="text-xs text-blue-800">👤 user@gss.aero / 123456</p>
-          <p className="text-xs text-blue-800">👨‍💼 admin@gss.aero / 123456</p>
-        </div>
       </div>
     </div>
   );

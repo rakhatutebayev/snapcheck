@@ -379,6 +379,70 @@ killall -9 python3 node npm
 rm /tmp/slideconfirm.db
 ```
 
+---
+
+## 🚀 Развертывание в продакшене
+
+### Быстрый старт (5 минут):
+
+```bash
+# На сервере Ubuntu 20.04+
+sudo bash /opt/SlideConfirm/install-prod.sh
+```
+
+Или вручную:
+
+```bash
+# 1. Установить Docker
+curl -fsSL https://get.docker.com | sudo sh
+
+# 2. Установить Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 3. Запустить контейнеры
+cd /opt/SlideConfirm
+docker-compose -f docker-compose.prod.yml up -d
+
+# 4. Открыть браузер
+# http://YOUR_SERVER_IP:3000
+```
+
+### Платформы:
+- ✅ **DigitalOcean** - $5/месяц (рекомендуется)
+- ✅ **AWS EC2** - Бесплатно (год)
+- ✅ **Heroku** - $7/месяц
+- ✅ **Любой Linux VPS**
+
+### Полная документация:
+- 📖 **PRODUCTION_INSTALL_GUIDE.md** - Полный гайд
+- ⚡ **QUICK_DEPLOY.md** - Быстрый старт
+- ❓ **PRODUCTION_FAQ.md** - 25+ ответов
+- 🛣️ **DEPLOYMENT_ROADMAP.md** - Дорожная карта
+
+### Затраты:
+- Сервер: $5/месяц
+- Домен: ~$1/месяц  
+- SSL: БЕСПЛАТНО (Let's Encrypt)
+- **ИТОГО: $6/месяц** 💰
+
+---
+
+## 📱 Мобильное приложение
+
+React Native приложение (Expo) в папке `frontend-mobile/`:
+
+```bash
+cd frontend-mobile
+npm install
+npm start
+
+# На телефоне установи Expo Go
+# и отсканируй QR код
+```
+
+---
+
 ### Ошибка при загрузке слайдов
 - Проверьте, что путь к папке правильный
 - Проверьте наличие файлов `slide1.jpg`, `slide2.jpg` и т.д.
