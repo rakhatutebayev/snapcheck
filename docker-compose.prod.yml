@@ -78,6 +78,7 @@ services:
       - "traefik.docker.network=traefik_proxy"
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.snapcheck-backend.middlewares=api-strip"
+      - "traefik.http.routers.snapcheck-backend.priority=100"
 
   # 🌐 Frontend (React + Nginx)
   frontend:
