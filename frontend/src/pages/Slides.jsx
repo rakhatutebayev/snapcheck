@@ -323,7 +323,7 @@ const Slides = () => {
           {/* Slide Image - Responsive */}
           <div className="flex-1 overflow-hidden flex items-center justify-center px-2 py-2">
             <img 
-              src={`/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
+              src={`/api/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
               alt={`Slide ${currentSlideIndex + 1}`}
               className="max-h-full max-w-full object-contain rounded shadow-md"
               onError={(e) => {
