@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/client';
 import { ChevronLeft, ChevronRight, Check, LogOut, AlertCircle, CheckCircle } from 'lucide-react';
 import Toast from '../components/Toast';
 import useToast from '../hooks/useToast';
@@ -47,7 +47,7 @@ const Slides = () => {
       try {
         console.log('🔄 Fetching slides for presentation:', pId);
         
-        const response = await axios.get(`/slides/list?presentation_id=${pId}`, {
+        const response = await api.get(`/slides/list?presentation_id=${pId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         console.log('✅ Slides loaded:', response.data);
@@ -97,7 +97,7 @@ const Slides = () => {
 
   const fetchProgress = async () => {
     try {
-      const response = await axios.get('/slides/progress', {
+      const response = await api.get('/slides/progress', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setProgress(response.data);
@@ -110,7 +110,7 @@ const Slides = () => {
     if (!slides[currentSlideIndex] || isPreviewMode) return;
 
     try {
-      await axios.post(
+      await api.post(
         `/slides/mark/${slides[currentSlideIndex].id}`,
         {},
         { headers: { 'Authorization': `Bearer ${token}` } }
@@ -139,7 +139,7 @@ const Slides = () => {
     clearAll();
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         '/slides/complete',
         {},
         { headers: { 'Authorization': `Bearer ${token}` } }

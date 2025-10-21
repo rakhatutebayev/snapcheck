@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/client';
 import { Play, LogOut, AlertCircle, CheckCircle, RotateCcw, Lock, Unlock } from 'lucide-react';
 
 const PresentationsList = () => {
@@ -25,7 +25,7 @@ const PresentationsList = () => {
       setLoading(true);
       console.log('🔄 Fetching presentations with token:', token?.substring(0, 20) + '...');
       
-      const response = await axios.get('/user/presentations', {
+      const response = await api.get('/user/presentations', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -64,7 +64,7 @@ const PresentationsList = () => {
 
   const handleRepeatPresentation = async (presentationId) => {
     try {
-      await axios.post(
+        await api.post(
         `/user/presentations/${presentationId}/reset`,
         {},
         { headers: { 'Authorization': `Bearer ${token}` } }

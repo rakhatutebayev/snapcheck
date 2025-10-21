@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/client';
 import { Upload, Users, LogOut, AlertCircle, CheckCircle, Trash2, FileUp, Play, X, Eye, EyeOff, Plus } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -105,9 +105,7 @@ const AdminPanel = () => {
       return;
     }
     try {
-      const response = await axios.get('/admin/users', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get('/admin/users');
       setUsers(response.data.data);
     } catch (err) {
       console.error('Ошибка при загрузке пользователей:', err);
@@ -125,9 +123,7 @@ const AdminPanel = () => {
       return;
     }
     try {
-      const response = await axios.get('/admin/presentations', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get('/admin/presentations');
       setPresentations(response.data.data);
     } catch (err) {
       console.error('Ошибка при загрузке презентаций:', err);
@@ -145,9 +141,7 @@ const AdminPanel = () => {
     setSuccess('');
     
     try {
-      await axios.post(`/admin/presentations/${presentationId}/publish`, {}, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      await api.post(`/admin/presentations/${presentationId}/publish`);
       setSuccess('✓ Презентация опубликована');
       fetchPresentations();
     } catch (err) {
@@ -162,9 +156,7 @@ const AdminPanel = () => {
     setSuccess('');
     
     try {
-      await axios.post(`/admin/presentations/${presentationId}/unpublish`, {}, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      await api.post(`/admin/presentations/${presentationId}/unpublish`);
       setSuccess('✓ Презентация удалена из опубликованных');
       fetchPresentations();
     } catch (err) {
@@ -178,9 +170,7 @@ const AdminPanel = () => {
     setSuccess('');
     
     try {
-      await axios.delete(`/admin/presentations/${presentationId}?confirm=true`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      await api.delete(`/admin/presentations/${presentationId}?confirm=true`);
       setSuccess('✓ Презентация и все ее слайды удалены');
       fetchPresentations();
     } catch (err) {
@@ -194,9 +184,7 @@ const AdminPanel = () => {
       return;
     }
     try {
-      const response = await axios.get('/admin/report', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get('/admin/report');
       setReport(response.data.data);
     } catch (err) {
       console.error('Ошибка при загрузке отчета:', err);
@@ -306,11 +294,7 @@ const AdminPanel = () => {
       });
 
       console.log('Sending request to server...');
-      const response = await axios.post('/admin/slides/upload-from-files', formData, {
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await api.post('/admin/slides/upload-from-files', formData);
       
       console.log('Server response:', response.data);
       setSuccess(`✅ Presentation uploaded successfully! Total slides: ${response.data.slides_count}`);
@@ -386,14 +370,7 @@ const AdminPanel = () => {
     }
 
     try {
-      await axios.post(
-        '/admin/create_user',
-        null,
-        {
-          params: newUser,
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
+      await api.post('/admin/create_user', null, { params: newUser });
       setSuccess('✓ User created successfully');
       setNewUser({ first_name: '', last_name: '', email: '', password: '', role: 'user' });
       setUserErrors({});
@@ -418,14 +395,7 @@ const AdminPanel = () => {
         }
       }
 
-      await axios.put(
-        `/admin/set_role/${userId}`,
-        null,
-        {
-          params: { role: newRole },
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
+      await api.put(`/admin/set_role/${userId}`, null, { params: { role: newRole } });
       setSuccess('✓ Role updated successfully');
       fetchUsers();
     } catch (err) {

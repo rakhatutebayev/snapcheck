@@ -41,10 +41,11 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      '/auth/': 'http://127.0.0.1:8000',
-      '/admin/': 'http://127.0.0.1:8000',
-      '/slides/': 'http://127.0.0.1:8000',
-      '/user/': 'http://127.0.0.1:8000',
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      }
     }
   },
   build: {

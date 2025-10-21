@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/client';
 import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
@@ -19,7 +19,7 @@ const Login = () => {
     setSuccess('');
 
     try {
-      const res = await axios.post('/auth/login', {
+      const res = await api.post('/auth/login', {
         email,
         password,
         first_name: '-',
