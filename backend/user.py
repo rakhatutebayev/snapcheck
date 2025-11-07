@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User, Slide, UserSlideProgress, UserCompletion, Presentation
-from utils.security import decode_access_token
+from .database import get_db
+from .models import User, Slide, UserSlideProgress, UserCompletion, Presentation
+from .utils.security import decode_access_token
 
 router = APIRouter(prefix="/user", tags=["user"])
 

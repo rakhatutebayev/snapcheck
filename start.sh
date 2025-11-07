@@ -12,6 +12,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Загружаем переменные окружения из .env, если файл существует
+if [ -f .env ]; then
+    echo -e "${YELLOW}📄 Загрузка .env переменных...${NC}"
+    set -a
+    # shellcheck disable=SC1091
+    source .env
+    set +a
+fi
+
 # Убиваем старые процессы
 echo -e "${YELLOW}⏹️  Остановка старых процессов...${NC}"
 killall -9 python3 node npm 2>/dev/null

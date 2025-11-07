@@ -3,12 +3,13 @@ API для управления пользователями и отчетами
 Старые функции PPTX перенесены в slides_admin.py
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Header
+from typing import Optional
 from sqlalchemy.orm import Session
 from pathlib import Path
 
-from database import get_db
-from models import User, Presentation, UserCompletion
-from utils.security import decode_access_token, hash_password
+from .database import get_db
+from .models import User, Presentation, UserCompletion
+from .utils.security import decode_access_token, hash_password
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -120,64 +121,141 @@ def set_user_role(user_id: int, role: str, admin: User = Depends(get_current_adm
 
 
 @router.get("/report")
-def get_report(admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
-    """Получить отчет об ознакомлении с презентациями"""
-    from backend.models import Presentation
-    
-    # Получаем всех пользователей (не админов)
+def get_report(
+    presentation_id: Optional[int] = None,
+    presentation_title: Optional[str] = None,
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Получить отчет об ознакомлении с презентациями.
+
+    Фильтрация (оба параметра опциональны):
+    - presentation_id: числовой идентификатор опубликованной презентации.
+    - presentation_title: точное название опубликованной презентации.
+
+    Специальные значения (регистр не важен) для возврата агрегата по всем презентациям:
+    "all", "all presentations", "все", "все презентации".
+
+    Возвращает:
+    - total_users / completed / pending / completion_percentage
+    - users: список пользователей с их статусом по выбранной презентации или по всем.
+    - all_presentations: список названий всех опубликованных презентаций (для UI).
+    - selected_presentation: {id,title} или {id: None, title: "All Presentations"}.
+
+    Примечание: при фильтрации по конкретной презентации поле completion_count для пользователя — бинарное (0 или 1), а список completed_presentations содержит только выбранную презентацию если она завершена.
+    """
+    from .models import Presentation
+
+    # Все пользователи (не админы)
     all_users = db.query(User).filter(User.role == "user").all()
     users_count = len(all_users)
-    
-    # Получаем все опубликованные презентации
+
+    # Все опубликованные презентации (для дропдауна на фронте)
     all_presentations = db.query(Presentation).filter(
         Presentation.status == "published"
     ).all()
     presentation_list = [p.title for p in all_presentations]
-    
-    # Получаем пользователей, которые завершили
-    completed_users = db.query(UserCompletion.user_id).distinct().all()
-    completed_user_ids = {uc[0] for uc in completed_users}
-    completed = len(completed_user_ids)
-    
-    # Формируем списки пользователей
-    users_data = []
-    for user in all_users:
-        is_completed = user.id in completed_user_ids
-        
-        # Get completed presentations for this user
-        completed_presentations = db.query(UserCompletion).filter(
-            UserCompletion.user_id == user.id
-        ).all()
-        
-        # Get presentation names
-        completed_presentation_names = []
-        for uc in completed_presentations:
-            presentation = db.query(Presentation).filter(
-                Presentation.id == uc.presentation_id
+
+    # Определяем выбранную презентацию (если передана)
+    selected_presentation = None
+    if presentation_id is not None:
+        selected_presentation = db.query(Presentation).filter(
+            Presentation.id == presentation_id,
+            Presentation.status == "published",
+        ).first()
+        if selected_presentation is None:
+            raise HTTPException(status_code=404, detail="Presentation not found or not published")
+    elif presentation_title:
+        # Обрабатываем специальные значения для "все презентации"
+        title_norm = presentation_title.strip().lower()
+        if title_norm in {"all", "all presentations", "all presentation", "все", "все презентации"}:
+            selected_presentation = None
+        else:
+            selected_presentation = db.query(Presentation).filter(
+                Presentation.title == presentation_title,
+                Presentation.status == "published",
             ).first()
-            if presentation:
-                completed_presentation_names.append(presentation.title)
-        
-        completion_count = len(completed_presentations)
-        
-        users_data.append({
-            "id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "completion_count": completion_count,
-            "is_completed": is_completed,
-            "completed_presentations": completed_presentation_names
-        })
-    
+            if selected_presentation is None:
+                raise HTTPException(status_code=404, detail="Presentation not found or not published")
+
+    # Считаем завершения
+    if selected_presentation is None:
+        # Сводный отчет по всем презентациям (как раньше)
+        completed_users = db.query(UserCompletion.user_id).distinct().all()
+        completed_user_ids = {uc[0] for uc in completed_users}
+
+        users_data = []
+        for user in all_users:
+            is_completed = user.id in completed_user_ids
+
+            # Все завершенные презентации пользователя
+            user_uc = db.query(UserCompletion).filter(
+                UserCompletion.user_id == user.id
+            ).all()
+
+            completed_presentation_names = []
+            for uc in user_uc:
+                presentation = db.query(Presentation).filter(
+                    Presentation.id == uc.presentation_id
+                ).first()
+                if presentation:
+                    completed_presentation_names.append(presentation.title)
+
+            completion_count = len(user_uc)
+
+            users_data.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "completion_count": completion_count,
+                "is_completed": is_completed,
+                "completed_presentations": completed_presentation_names,
+            })
+
+        completed = len(completed_user_ids)
+        pending = users_count - completed
+    else:
+        # Отчет по конкретной презентации
+        uc_q = db.query(UserCompletion.user_id).filter(
+            UserCompletion.presentation_id == selected_presentation.id
+        ).distinct().all()
+        completed_user_ids = {uc[0] for uc in uc_q}
+
+        users_data = []
+        for user in all_users:
+            is_completed = user.id in completed_user_ids
+
+            # Для конкретной презентации счетчик бинарный 0/1 и список имен содержит только выбранную при выполнении
+            completion_count = 1 if is_completed else 0
+            completed_presentation_names = [selected_presentation.title] if is_completed else []
+
+            users_data.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "completion_count": completion_count,
+                "is_completed": is_completed,
+                "completed_presentations": completed_presentation_names,
+            })
+
+        completed = len(completed_user_ids)
+        pending = users_count - completed
+
     return {
         "status": "success",
         "data": {
             "total_users": users_count,
             "completed": completed,
-            "pending": users_count - completed,
+            "pending": pending,
             "completion_percentage": (completed / users_count * 100) if users_count > 0 else 0,
             "users": users_data,
-            "all_presentations": presentation_list
-        }
+            "all_presentations": presentation_list,
+            "selected_presentation": (
+                {"id": selected_presentation.id, "title": selected_presentation.title}
+                if selected_presentation is not None
+                else {"id": None, "title": "All Presentations"}
+            ),
+        },
     }

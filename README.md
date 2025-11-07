@@ -85,12 +85,7 @@ SlideConfirm/
 │       ├── security.py   # JWT, хэширование паролей
 │       └── convert_pptx.py  # (deprecated)
 ├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Login.jsx              # Страница входа
-│   │   │   ├── UserPanel.jsx          # Просмотр для пользователей
 │   │   │   ├── AdminPanel.jsx         # ⭐ ОБНОВЛЕНА: Новый интерфейс загрузки
-│   │   │   └── PresentationView.jsx   # Просмотр презентации
 │   │   ├── App.jsx
 │   │   └── index.css
 │   ├── package.json
@@ -119,7 +114,6 @@ Response: {
   ]
 }
 ```
-
 ### Загрузка слайдов из папки
 ```
 POST /admin/slides/upload-from-folder
@@ -451,9 +445,45 @@ curl -X POST http://localhost:8000/admin/presentations/1/publish \
 
 ---
 
-**Версия**: 1.0.0  
-**Дата**: Октябрь 2025  
-**Статус**: Готово к использованию ✅
+**Версия**: 1.1.0  
+**Дата**: Ноябрь 2025  
+**Статус**: Production Ready ✅
+
+### Изменения в 1.1.0
+| Тип | Описание |
+|-----|----------|
+| ✨ Feature | Добавлен фильтр отчета по конкретной презентации (`GET /admin/report?presentation_title=...` или `presentation_id`) |
+| 🛠 Improvement | UI: Dropdown "All Presentations" + немедленная перезагрузка отчета при выборе |
+| 📊 Reporting | В ответе теперь есть поле `selected_presentation` и корректная бинарная метрика `completion_count` при узком фильтре |
+| 📄 Docs | Обновлено описание эндпоинта /admin/report и README | 
+| ♻ Refactor | Код отчета объединяет предыдущую агрегированную логику и точечную фильтрацию |
+
+#### Пример выборочного отчета по названию
+```
+GET /admin/report?presentation_title=Грамположительные%20бактерии
+Authorization: Bearer <TOKEN>
+Response:
+{
+  "status": "success",
+  "data": {
+    "total_users": 42,
+    "completed": 17,
+    "pending": 25,
+    "completion_percentage": 40.47,
+    "users": [ {"id":1, "completion_count":1, ...}, ... ],
+    "all_presentations": ["Грамположительные бактерии", "Основы безопасности"],
+    "selected_presentation": {"id": 7, "title": "Грамположительные бактерии"}
+  }
+}
+```
+
+#### Сброс к агрегату (все презентации)
+```
+GET /admin/report
+GET /admin/report?presentation_title=all
+```
+
+> Для production UI: рекомендуется кешировать список презентаций и подбирать `presentation_id` для уменьшения двусмысленности имен.
 
 ---
 

@@ -95,7 +95,7 @@ check_health() {
 
 # Начало деплоя
 log "========================================"
-log "Starting SnapCheck Deployment"
+log "Starting SnapCheck Deployment (API v1.1.0)"
 log "========================================"
 
 # 1. Проверка окружения
@@ -277,7 +277,7 @@ fi
 
 # 14. Итоговая информация
 log "========================================"
-log "Deployment Completed Successfully! 🎉"
+log "Deployment Completed Successfully! 🎉 (API v1.1.0)"
 log "========================================"
 log "Deployed commit: $NEW_COMMIT"
 log "Backend: https://$DOMAIN/api/health"

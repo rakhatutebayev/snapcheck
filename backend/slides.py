@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User, Slide, UserSlideProgress, UserCompletion, Presentation, UserPresentationPosition
-from schemas import ProgressResponse, SlidesListResponse, SlideResponse
-from utils.security import decode_access_token
+from .database import get_db
+from .models import User, Slide, UserSlideProgress, UserCompletion, Presentation, UserPresentationPosition
+from .schemas import ProgressResponse, SlidesListResponse, SlideResponse
+from .utils.security import decode_access_token
+from .email_service import EmailService
+from datetime import datetime
 
 router = APIRouter(prefix="/slides", tags=["slides"])
 
@@ -210,6 +212,20 @@ def complete_presentation(presentation_id: int = None, user: User = Depends(get_
         )
         db.add(completion)
         db.commit()
+        
+        # Отправить email уведомление о завершении
+        try:
+            email_service = EmailService(db)
+            user_full_name = f"{user.first_name} {user.last_name}"
+            email_service.send_completion_notification(
+                user_full_name,
+                user.email,
+                presentation.title,
+                datetime.utcnow()
+            )
+        except Exception as e:
+            print(f"Failed to send completion email: {e}")
+            # Не падаем, если email не отправился
     
     return {"status": "success", "message": "Presentation completed"}
 

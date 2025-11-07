@@ -1,6 +1,10 @@
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException, status, Header
+from sqlalchemy.orm import Session
+from ..database import get_db
+from ..models import User
 
 SECRET_KEY = "your-super-secret-key-change-in-production"
 ALGORITHM = "HS256"
@@ -27,3 +31,20 @@ def decode_access_token(token: str):
         return payload
     except JWTError:
         return None
+
+def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
+    """Get current authenticated user from Authorization header"""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
+    
+    token = authorization.split(" ")[1]
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    
+    user_id = int(payload["sub"])
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    
+    return user

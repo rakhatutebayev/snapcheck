@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User
-from schemas import UserCreate, UserLogin, TokenResponse, UserResponse
-from utils.security import hash_password, verify_password, create_access_token
+from .database import get_db
+from .models import User
+from .schemas import UserCreate, UserLogin, TokenResponse, UserResponse
+from .utils.security import hash_password, verify_password, create_access_token
+from .email_service import EmailService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,6 +29,16 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    # Отправить email уведомление о регистрации
+    try:
+        email_service = EmailService(db)
+        user_full_name = f"{db_user.first_name} {db_user.last_name}"
+        email_service.send_registration_notification(db_user.email, user_full_name)
+    except Exception as e:
+        print(f"Failed to send registration email: {e}")
+        # Не падаем, если email не отправился
+    
     return db_user
 
 @router.post("/login", response_model=TokenResponse)

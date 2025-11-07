@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import Slides from './pages/Slides';
 import PresentationsList from './pages/PresentationsList';
 import AdminPanel from './pages/AdminPanel';
+import EmailOAuthCallback from './pages/EmailOAuthCallback';
+import DesignSystemDemo from './pages/DesignSystemDemo';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -31,6 +33,8 @@ function App() {
         <Route path="/presentations" element={<PrivateRoute><PresentationsList /></PrivateRoute>} />
         <Route path="/slides" element={<PrivateRoute><Slides /></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPanel /></PrivateRoute>} />
+        <Route path="/admin/email/callback" element={<EmailOAuthCallback />} />
+        <Route path="/design" element={<DesignSystemDemo />} />
         <Route path="/" element={<RootRedirect />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

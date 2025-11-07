@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { Upload, Users, LogOut, AlertCircle, CheckCircle, Trash2, FileUp, Play, X, Eye, EyeOff, Plus } from 'lucide-react';
+import EmailSettings from './EmailSettings';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('presentations');
@@ -178,13 +179,20 @@ const AdminPanel = () => {
     }
   };
 
-  const fetchReport = async () => {
+  const fetchReport = async (overridePresentationFilter) => {
     if (!token) {
       navigate('/login');
       return;
     }
     try {
-      const response = await api.get('/admin/report');
+      // Decide which filter value to use (argument overrides state)
+      const filterValue = overridePresentationFilter !== undefined ? overridePresentationFilter : presentationNameFilter;
+      let params = {};
+      if (filterValue) {
+        // Pass either title (string) to backend; backend handles "All" keywords but we treat empty string as all
+        params.presentation_title = filterValue;
+      }
+      const response = await api.get('/admin/report', { params });
       setReport(response.data.data);
     } catch (err) {
       console.error('Ошибка при загрузке отчета:', err);
@@ -432,19 +440,8 @@ const AdminPanel = () => {
     data.push(['']);
     data.push(['Name', 'Email', 'Completed Presentations', 'Completed Count', 'Status']);
     
-    // Add filtered users data
-    const usersToExport = report.users
-      .filter(user => {
-        // Filter by presentation name if filter is set
-        if (!presentationNameFilter) return true;
-        
-        const matchesPresentationName = user.completed_presentations && 
-          user.completed_presentations.some(pres => 
-            pres === presentationNameFilter
-          );
-        
-        return matchesPresentationName;
-      });
+    // Add users data (don't hide users when filtering by presentation; status reflects selection)
+    const usersToExport = report.users;
 
     usersToExport.forEach(user => {
       const presentations = user.completed_presentations && user.completed_presentations.length > 0 
@@ -513,7 +510,7 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-4 border-b border-gray-200 overflow-x-auto">
-          {['presentations', 'upload', 'users', 'report'].map(tab => (
+          {['presentations', 'upload', 'users', 'report', 'email'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -527,6 +524,7 @@ const AdminPanel = () => {
               {tab === 'upload' && <span>📤 Upload</span>}
               {tab === 'users' && <span>👥 Users</span>}
               {tab === 'report' && <span>📊 Reports</span>}
+              {tab === 'email' && <span>📧 Email</span>}
             </button>
           ))}
         </div>
@@ -952,6 +950,11 @@ const AdminPanel = () => {
           </div>
         )}
 
+        {/* Email Tab */}
+        {activeTab === 'email' && (
+          <EmailSettings />
+        )}
+
         {/* Report Tab */}
         {activeTab === 'report' && (
           <div className="bg-white rounded-xl shadow-md p-4">
@@ -973,7 +976,12 @@ const AdminPanel = () => {
                 <p className="text-xs font-semibold text-gray-700 mb-2">Filter by Presentation Name:</p>
                 <select
                   value={presentationNameFilter}
-                  onChange={(e) => setPresentationNameFilter(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPresentationNameFilter(val);
+                    // Immediately refetch report with backend filtering (empty string => all)
+                    fetchReport(val);
+                  }}
                   className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">All Presentations</option>
@@ -1039,6 +1047,9 @@ const AdminPanel = () => {
                       {reportFilter === 'all' && 'All Users'}
                       {reportFilter === 'completed' && 'Completed'}
                       {reportFilter === 'pending' && 'In Progress'}
+                      {presentationNameFilter && report?.selected_presentation?.title && (
+                        <span className="block text-xs text-gray-500 mt-0.5">Filtered: {report.selected_presentation.title}</span>
+                      )}
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">
@@ -1053,17 +1064,6 @@ const AdminPanel = () => {
                         </thead>
                         <tbody>
                           {report.users
-                            .filter(user => {
-                              // Filter by presentation name if filter is set
-                              if (!presentationNameFilter) return true;
-                              
-                              const matchesPresentationName = user.completed_presentations && 
-                                user.completed_presentations.some(pres => 
-                                  pres === presentationNameFilter
-                                );
-                              
-                              return matchesPresentationName;
-                            })
                             .map(user => (
                               <tr key={user.id} className="border-b border-gray-200 hover:bg-gray-50">
                                 <td className="py-2 px-2 text-gray-800">

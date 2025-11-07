@@ -1,18 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import models
-from database import engine, SessionLocal
-from models import User
-from auth import router as auth_router
-from slides import router as slides_router
-from admin import router as admin_router
-from slides_admin import router as slides_admin_router
-from files import router as files_router
-from user import router as user_router
-from utils.security import hash_password
+
+# Используем относительные импорты, так как модуль запускается как "backend.main"
+from . import models
+from .database import engine, SessionLocal
+from .models import User
+from .auth import router as auth_router
+from .slides import router as slides_router
+from .admin import router as admin_router
+from .slides_admin import router as slides_admin_router
+from .files import router as files_router
+from .user import router as user_router
+from .email_api import router as email_router
+from .utils.security import hash_password
+from . import email_models
 
 # Создание таблиц
 models.Base.metadata.create_all(bind=engine)
+email_models.Base.metadata.create_all(bind=engine)
 
 # Создание начальных пользователей
 def create_initial_data():
@@ -45,10 +50,12 @@ def create_initial_data():
 create_initial_data()
 
 # Создание FastAPI приложения
+API_VERSION = "1.1.0"  # 🔄 Updated after adding report filtering & docs improvements
+
 app = FastAPI(
     title="SlideConfirm API",
     description="Corporate Slide Confirmation System",
-    version="1.0.0"
+    version=API_VERSION,
 )
 
 # CORS конфигурация
@@ -67,13 +74,14 @@ app.include_router(admin_router)
 app.include_router(slides_admin_router)
 app.include_router(files_router)
 app.include_router(user_router)
+app.include_router(email_router)
 
 @app.get("/")
 def root():
     return {
         "status": "success",
         "message": "SlideConfirm API is running",
-        "version": "1.0.0"
+        "version": API_VERSION
     }
 
 @app.get("/health")
