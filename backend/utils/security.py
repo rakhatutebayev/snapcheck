@@ -3,8 +3,14 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..models import User
+import sys
+import os
+
+# Добавляем родительскую директорию в путь для абсолютных импортов
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from database import get_db
+from models import User
 
 SECRET_KEY = "your-super-secret-key-change-in-production"
 ALGORITHM = "HS256"

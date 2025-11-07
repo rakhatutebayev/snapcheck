@@ -12,7 +12,7 @@ import requests
 from sqlalchemy.orm import Session
 import os
 
-from .email_models import EmailSettings, EmailLog
+from email_models import EmailSettings, EmailLog
 
 
 class EmailService:

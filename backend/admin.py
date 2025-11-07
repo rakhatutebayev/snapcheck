@@ -7,9 +7,9 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from pathlib import Path
 
-from .database import get_db
-from .models import User, Presentation, UserCompletion
-from .utils.security import decode_access_token, hash_password
+from database import get_db
+from models import User, Presentation, UserCompletion
+from utils.security import decode_access_token, hash_password
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -144,7 +144,7 @@ def get_report(
 
     Примечание: при фильтрации по конкретной презентации поле completion_count для пользователя — бинарное (0 или 1), а список completed_presentations содержит только выбранную презентацию если она завершена.
     """
-    from .models import Presentation
+    from models import Presentation
 
     # Все пользователи (не админы)
     all_users = db.query(User).filter(User.role == "user").all()
