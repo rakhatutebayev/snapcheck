@@ -396,15 +396,17 @@ const Slides = () => {
           )}
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
-          {/* Fullscreen Toggle Button */}
-          <button
-            onClick={toggleFullscreen}
-            className="flex items-center gap-0.5 bg-purple-600 text-white px-2 py-1 rounded-lg hover:bg-purple-700 transition text-xs flex-shrink-0"
-            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          >
-            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
-            <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Full'}</span>
-          </button>
+          {/* Fullscreen Toggle Button - Hidden when in fullscreen */}
+          {!isFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              className="flex items-center gap-0.5 bg-purple-600 text-white px-2 py-1 rounded-lg hover:bg-purple-700 transition text-xs flex-shrink-0"
+              title="Enter fullscreen"
+            >
+              <Maximize size={14} />
+              <span className="hidden sm:inline">Full</span>
+            </button>
+          )}
           
           <div className="text-right hidden sm:block">
             <p className="text-xs font-medium text-gray-700">{userName}</p>
@@ -484,10 +486,11 @@ const Slides = () => {
               }}
             />
 
-            {/* Controls Overlay - Shows on tap in fullscreen, always visible on desktop */}
-            <div className={`controls-area absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
-              showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
-            }`}>
+            {/* Controls Overlay - Shows ONLY in fullscreen mode */}
+            {isFullscreen && (
+              <div className={`controls-area absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
+                showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+              }`}>
               {/* Top Row - Slide Counter and Fullscreen Button */}
               <div className="flex items-center justify-between mb-3">
                 <p className="text-white text-sm font-semibold">
@@ -564,6 +567,7 @@ const Slides = () => {
                 </button>
               </div>
             </div>
+            )}
           </div>
 
           {/* Original Controls - Visible when NOT in fullscreen */}
