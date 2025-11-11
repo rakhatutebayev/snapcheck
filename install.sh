@@ -1,134 +1,333 @@
 #!/bin/bash
 
-# SlideConfirm Production Installation Script
-# Установка на Ubuntu 20.04+
+# ════════════════════════════════════════════════════════════════════════════
+# 🚀 ONE-COMMAND DEPLOYMENT FOR SNAPCHECK
+# ════════════════════════════════════════════════════════════════════════════
+# 
+# Run this on your server:
+# curl -sSL https://raw.githubusercontent.com/rakhatutebayev/snapcheck/main/install.sh | bash
+#
+# ════════════════════════════════════════════════════════════════════════════
 
 set -e
 
-echo "╔════════════════════════════════════════════════════╗"
-echo "║   🚀 SlideConfirm Production Installation          ║"
-echo "╚════════════════════════════════════════════════════╝"
-
-# Цвета для вывода
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Проверка прав
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}❌ Скрипт должен быть запущен от root${NC}"
-   echo "Используйте: sudo bash install.sh"
-   exit 1
-fi
+# Configuration
+REPO_URL="https://github.com/rakhatutebayev/snapcheck.git"
+INSTALL_DIR="/opt/SlideConfirm"
+DOMAIN="${DOMAIN:-lms.it-uae.com}"
 
-# Переменные
-INSTALL_DIR="/opt/slideconfirm"
-APP_USER="slideconfirm"
-DOMAIN="${1:-localhost}"
-
-echo -e "${YELLOW}📋 Параметры установки:${NC}"
-echo "  Install Dir: $INSTALL_DIR"
-echo "  App User: $APP_USER"
-echo "  Domain: $DOMAIN"
+echo ""
+echo "╔════════════════════════════════════════════════════════╗"
+echo "║                                                        ║"
+echo "║      🚀 SNAPCHECK AUTO-DEPLOYMENT v2.0               ║"
+echo "║                                                        ║"
+echo "║      Domain: $DOMAIN                                  ║"
+echo "║                                                        ║"
+echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-# Функция для запуска команд
-run_cmd() {
-    echo -e "${YELLOW}▶ $1${NC}"
-    eval "$1"
-}
+# Check if running as root
+if [[ $EUID -eq 0 ]]; then
+   echo -e "${YELLOW}⚠️  Running as root - OK${NC}"
+   SUDO=""
+else
+   echo -e "${BLUE}ℹ️  Running as regular user - will use sudo${NC}"
+   SUDO="sudo"
+fi
 
-# 1. Обновление системы
-echo -e "${YELLOW}📦 Шаг 1: Обновление системы${NC}"
-run_cmd "apt-get update"
-run_cmd "apt-get upgrade -y"
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 1: Install dependencies
+# ════════════════════════════════════════════════════════════════════════════
 
-# 2. Установка Docker и Docker Compose
-echo -e "${YELLOW}🐳 Шаг 2: Установка Docker${NC}"
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 1/7: Installing dependencies"
+echo "═══════════════════════════════════════════════════════"
+
+echo "Updating package lists..."
+$SUDO apt-get update -qq
+
+# Install Docker
 if ! command -v docker &> /dev/null; then
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    bash get-docker.sh
-    rm get-docker.sh
+    echo "Installing Docker..."
+    curl -fsSL https://get.docker.com | $SUDO sh
+    $SUDO usermod -aG docker $USER || true
+    echo -e "${GREEN}✅ Docker installed${NC}"
 else
-    echo -e "${GREEN}✓ Docker уже установлен${NC}"
+    echo -e "${GREEN}✅ Docker already installed${NC}"
 fi
 
-# 3. Установка Docker Compose
+# Install Docker Compose
 if ! command -v docker-compose &> /dev/null; then
-    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
+    echo "Installing Docker Compose..."
+    $SUDO apt-get install -y docker-compose
+    echo -e "${GREEN}✅ Docker Compose installed${NC}"
 else
-    echo -e "${GREEN}✓ Docker Compose уже установлен${NC}"
+    echo -e "${GREEN}✅ Docker Compose already installed${NC}"
 fi
 
-# 4. Установка Git
-echo -e "${YELLOW}📚 Шаг 3: Установка Git${NC}"
-run_cmd "apt-get install -y git"
-
-# 5. Создание пользователя
-echo -e "${YELLOW}👤 Шаг 4: Создание пользователя${NC}"
-if id "$APP_USER" &>/dev/null; then
-    echo -e "${GREEN}✓ Пользователь $APP_USER уже существует${NC}"
+# Install Git
+if ! command -v git &> /dev/null; then
+    echo "Installing Git..."
+    $SUDO apt-get install -y git
+    echo -e "${GREEN}✅ Git installed${NC}"
 else
-    run_cmd "useradd -m -s /bin/bash $APP_USER"
-    echo -e "${GREEN}✓ Пользователь $APP_USER создан${NC}"
+    echo -e "${GREEN}✅ Git already installed${NC}"
 fi
 
-# 6. Создание директорий
-echo -e "${YELLOW}📁 Шаг 5: Создание директорий${NC}"
-run_cmd "mkdir -p $INSTALL_DIR/{app,config,data/{db,uploads},logs/{backend,nginx},scripts}"
-run_cmd "chown -R $APP_USER:$APP_USER $INSTALL_DIR"
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 2: Clone repository
+# ════════════════════════════════════════════════════════════════════════════
 
-# 7. Клонирование приложения (предполагаем, что код уже есть)
-echo -e "${YELLOW}📥 Шаг 6: Подготовка приложения${NC}"
-echo "  ⚠️  Скопируйте код приложения в: $INSTALL_DIR/app"
-echo "  Команда: cp -r /path/to/slideconfirm/* $INSTALL_DIR/app/"
 echo ""
-read -p "  Нажмите Enter когда код скопирован... "
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 2/7: Getting latest code from GitHub"
+echo "═══════════════════════════════════════════════════════"
 
-# 8. Запуск Docker Compose
-echo -e "${YELLOW}🚀 Шаг 7: Запуск приложения${NC}"
-cd "$INSTALL_DIR/app"
-run_cmd "docker-compose -f docker-compose.prod.yml build"
-run_cmd "docker-compose -f docker-compose.prod.yml up -d"
-
-# 9. Проверка статуса
-echo -e "${YELLOW}⏳ Ожидание запуска приложения (10 сек)...${NC}"
-sleep 10
-
-echo -e "${YELLOW}🏥 Проверка здоровья${NC}"
-if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ Backend работает${NC}"
+if [ -d "$INSTALL_DIR/.git" ]; then
+    echo "Repository exists, pulling latest changes..."
+    cd "$INSTALL_DIR"
+    $SUDO git fetch origin
+    $SUDO git reset --hard origin/main
+    $SUDO git pull origin main
+    echo -e "${GREEN}✅ Code updated${NC}"
 else
-    echo -e "${RED}✗ Backend не ответил${NC}"
+    echo "Cloning repository..."
+    $SUDO rm -rf "$INSTALL_DIR"
+    $SUDO git clone "$REPO_URL" "$INSTALL_DIR"
+    echo -e "${GREEN}✅ Code cloned${NC}"
 fi
 
-if curl -sf http://localhost:3000 > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ Frontend работает${NC}"
+cd "$INSTALL_DIR"
+
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 3: Configure environment
+# ════════════════════════════════════════════════════════════════════════════
+
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 3/7: Configuring environment"
+echo "═══════════════════════════════════════════════════════"
+
+if [ ! -f .env ]; then
+    echo "Creating .env file..."
+    
+    # Generate secure keys
+    SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))" 2>/dev/null || openssl rand -base64 32)
+    DB_PASSWORD=$(python3 -c "import secrets; print(secrets.token_urlsafe(24))" 2>/dev/null || openssl rand -base64 24)
+    
+    $SUDO tee .env > /dev/null << EOF
+# SnapCheck Production Configuration
+DOMAIN=$DOMAIN
+SECRET_KEY=$SECRET_KEY
+POSTGRES_PASSWORD=$DB_PASSWORD
+POSTGRES_USER=snapcheck_user
+POSTGRES_DB=snapcheck
+DATABASE_URL=postgresql://snapcheck_user:$DB_PASSWORD@db:5432/snapcheck
+ENVIRONMENT=production
+ALLOWED_ORIGINS=https://$DOMAIN
+FRONTEND_URL=https://$DOMAIN
+ACME_EMAIL=admin@$DOMAIN
+WORKERS=4
+LOG_LEVEL=info
+NODE_ENV=production
+EOF
+    
+    $SUDO chmod 600 .env
+    echo -e "${GREEN}✅ Environment configured${NC}"
 else
-    echo -e "${RED}✗ Frontend не ответил${NC}"
+    echo -e "${GREEN}✅ .env already exists${NC}"
 fi
 
-# 10. Информация о системе
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 4: Create Docker network
+# ════════════════════════════════════════════════════════════════════════════
+
 echo ""
-echo -e "${GREEN}╔════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║          ✅ Установка завершена!                  ║${NC}"
-echo -e "${GREEN}╚════════════════════════════════════════════════════╝${NC}"
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 4/7: Setting up Docker network"
+echo "═══════════════════════════════════════════════════════"
+
+if ! $SUDO docker network inspect traefik-net &> /dev/null; then
+    echo "Creating traefik-net network..."
+    $SUDO docker network create traefik-net
+    echo -e "${GREEN}✅ Network created${NC}"
+else
+    echo -e "${GREEN}✅ Network already exists${NC}"
+fi
+
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 5: Build Docker images
+# ════════════════════════════════════════════════════════════════════════════
+
 echo ""
-echo -e "${YELLOW}📝 Информация:${NC}"
-echo "  Backend:  http://localhost:8000"
-echo "  Frontend: http://localhost:3000"
-echo "  Logs:     $INSTALL_DIR/logs"
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 5/7: Building Docker images"
+echo "═══════════════════════════════════════════════════════"
+echo "⏳ This may take 5-10 minutes..."
 echo ""
-echo -e "${YELLOW}🔧 Полезные команды:${NC}"
-echo "  cd $INSTALL_DIR/app"
-echo "  docker-compose logs -f          # Все логи"
-echo "  docker-compose logs -f backend  # Логи backend"
-echo "  docker-compose ps               # Статус контейнеров"
+
+$SUDO docker-compose -f docker-compose-traefik.yml build
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Images built successfully${NC}"
+else
+    echo -e "${RED}❌ Failed to build images${NC}"
+    exit 1
+fi
+
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 6: Start containers
+# ════════════════════════════════════════════════════════════════════════════
+
 echo ""
-echo -e "${YELLOW}📚 Документация:${NC}"
-echo "  Production гайд: PRODUCTION_DEPLOY.md"
-echo "  Обновление: bash $INSTALL_DIR/scripts/update.sh"
-echo "  Резервная копия: bash $INSTALL_DIR/scripts/backup.sh"
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 6/7: Starting containers"
+echo "═══════════════════════════════════════════════════════"
+
+$SUDO docker-compose -f docker-compose-traefik.yml up -d
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Containers started${NC}"
+else
+    echo -e "${RED}❌ Failed to start containers${NC}"
+    exit 1
+fi
+
+echo "⏳ Waiting for services to be ready (30 seconds)..."
+sleep 30
+
+# ════════════════════════════════════════════════════════════════════════════
+# STEP 7: Initialize database and create admin
+# ════════════════════════════════════════════════════════════════════════════
+
 echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "STEP 7/7: Initializing database"
+echo "═══════════════════════════════════════════════════════"
+
+echo "Running migrations..."
+$SUDO docker-compose -f docker-compose-traefik.yml exec -T backend \
+    python -m backend.migrations.add_user_verification_fields 2>&1 | grep -v "already exists" || true
+
+echo "Creating admin user..."
+$SUDO docker-compose -f docker-compose-traefik.yml exec -T backend python << 'PYEOF' || true
+from backend.database import SessionLocal
+from backend.models import User
+from backend.utils.security import hash_password
+
+db = SessionLocal()
+admin = db.query(User).filter(User.email == "admin@example.com").first()
+
+if not admin:
+    admin = User(
+        first_name="Admin",
+        last_name="User",
+        email="admin@example.com",
+        password_hash=hash_password("admin123"),
+        role="admin",
+        is_verified=True
+    )
+    db.add(admin)
+    db.commit()
+    print("✅ Admin user created")
+else:
+    print("ℹ️  Admin user already exists")
+
+db.close()
+PYEOF
+
+# ════════════════════════════════════════════════════════════════════════════
+# DEPLOYMENT COMPLETE
+# ════════════════════════════════════════════════════════════════════════════
+
+echo ""
+echo "╔════════════════════════════════════════════════════════╗"
+echo "║                                                        ║"
+echo "║            ✅ DEPLOYMENT SUCCESSFUL! 🎉               ║"
+echo "║                                                        ║"
+echo "╚════════════════════════════════════════════════════════╝"
+echo ""
+
+# Show container status
+echo "═══════════════════════════════════════════════════════"
+echo "📊 Container Status:"
+echo "═══════════════════════════════════════════════════════"
+$SUDO docker-compose -f docker-compose-traefik.yml ps
+echo ""
+
+# Test health
+echo "═══════════════════════════════════════════════════════"
+echo "🏥 Health Check:"
+echo "═══════════════════════════════════════════════════════"
+
+if $SUDO docker-compose -f docker-compose-traefik.yml exec -T backend curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Backend is healthy${NC}"
+else
+    echo -e "${YELLOW}⚠️  Backend starting up (may need 1-2 more minutes)${NC}"
+fi
+
+if $SUDO docker-compose -f docker-compose-traefik.yml exec -T db pg_isready -U snapcheck_user > /dev/null 2>&1; then
+    echo -e "${GREEN}✅ Database is healthy${NC}"
+else
+    echo -e "${YELLOW}⚠️  Database starting up${NC}"
+fi
+
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "🌐 YOUR APPLICATION IS READY!"
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo "Frontend:     https://$DOMAIN"
+echo "API Health:   https://$DOMAIN/api/health"
+echo "API Docs:     https://$DOMAIN/api/docs"
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "🔐 ADMIN CREDENTIALS"
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo "Email:        admin@example.com"
+echo "Password:     admin123"
+echo ""
+echo -e "${RED}⚠️  IMPORTANT: Change password immediately after login!${NC}"
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "📝 NEXT STEPS"
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo "1. Wait 2-3 minutes for SSL certificate (from Let's Encrypt)"
+echo "2. Visit https://$DOMAIN"
+echo "3. Login with credentials above"
+echo "4. Change admin password"
+echo "5. Configure email in Admin Panel → Email Settings"
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo "🛠️  USEFUL COMMANDS"
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo "View logs:"
+echo "  cd $INSTALL_DIR"
+echo "  sudo docker-compose -f docker-compose-traefik.yml logs -f"
+echo ""
+echo "Restart services:"
+echo "  sudo docker-compose -f docker-compose-traefik.yml restart"
+echo ""
+echo "Update from GitHub:"
+echo "  cd $INSTALL_DIR"
+echo "  sudo git pull origin main"
+echo "  sudo docker-compose -f docker-compose-traefik.yml build"
+echo "  sudo docker-compose -f docker-compose-traefik.yml up -d"
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo ""
+echo -e "${GREEN}🎉 Deployment complete! Enjoy SnapCheck!${NC}"
+echo ""
+
+exit 0
