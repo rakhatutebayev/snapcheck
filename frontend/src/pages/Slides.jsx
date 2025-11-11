@@ -20,10 +20,14 @@ const Slides = () => {
   const [showControls, setShowControls] = useState(true);
   const [controlsTimeout, setControlsTimeout] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hideControlsTimer, setHideControlsTimer] = useState(null);
   const slideContainerRef = React.useRef(null);
   
   // ✅ Используем новый модуль Toast
   const { toasts, error, success, info, warning, clearAll } = useToast();
+  
+  // Проверка, все ли слайды просмотрены
+  const allSlidesViewed = slides.every(slide => slide.viewed);
   
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -189,6 +193,55 @@ const Slides = () => {
     localStorage.removeItem('role');
     localStorage.removeItem('email');
     navigate('/login');
+  };
+
+  // Обработчик клика по слайду для toggle меню (как в YouTube)
+  const handleSlideClick = (e) => {
+    // Игнорировать клики по кнопкам и контролам
+    if (e.target.closest('button') || e.target.closest('.controls-area')) {
+      return;
+    }
+    
+    // Toggle показ контролов
+    setShowControls(prev => !prev);
+    
+    // Если показали контролы, установить таймер автоскрытия
+    if (!showControls && isFullscreen) {
+      if (hideControlsTimer) {
+        clearTimeout(hideControlsTimer);
+      }
+      
+      const timer = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+      
+      setHideControlsTimer(timer);
+    }
+  };
+
+  // Cleanup таймера при unmount
+  useEffect(() => {
+    return () => {
+      if (hideControlsTimer) {
+        clearTimeout(hideControlsTimer);
+      }
+    };
+  }, [hideControlsTimer]);
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+    
+    // Clear existing timeout
+    if (controlsTimeout) {
+      clearTimeout(controlsTimeout);
+    }
+    
+    // Hide controls after 3 seconds of inactivity
+    const timeout = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+    
+    setControlsTimeout(timeout);
   };
 
   // Handle screen tap to show/hide controls on mobile
@@ -369,8 +422,8 @@ const Slides = () => {
       {/* Main Content Area - Flexible */}
       <div 
         className="flex-1 overflow-hidden flex flex-col relative md:px-2 md:py-2 md:gap-1"
-        onClick={handleScreenTap}
-        onTouchStart={handleScreenTap}
+        onClick={handleSlideClick}
+        onTouchStart={handleSlideClick}
       >
         {/* ✅ Оповещения - используем новый модуль Toast */}
         <div className={`space-y-2 flex-shrink-0 transition-all duration-300 px-2 ${
@@ -432,7 +485,7 @@ const Slides = () => {
             />
 
             {/* Controls Overlay - Shows on tap in fullscreen, always visible on desktop */}
-            <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
+            <div className={`controls-area absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
               showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
             }`}>
               {/* Top Row - Slide Counter and Fullscreen Button */}
@@ -468,7 +521,7 @@ const Slides = () => {
                   {currentSlide.viewed ? (
                     <div className="flex items-center gap-1 bg-blue-500 px-3 py-2 rounded-lg text-sm justify-center h-full shadow-lg">
                       <Check className="text-white" size={14} />
-                      <span className="text-white font-semibold">Viewed</span>
+                      <span className="text-white font-semibold">{allSlidesViewed ? 'Completed' : 'Viewed'}</span>
                     </div>
                   ) : (
                     <button
@@ -515,7 +568,7 @@ const Slides = () => {
 
           {/* Original Controls - Visible when NOT in fullscreen */}
           {!isFullscreen && (
-            <div className={`border-t border-gray-100 px-2 py-1 flex-shrink-0 transition-all duration-300 ${
+            <div className={`controls-area border-t border-gray-100 px-2 py-1 flex-shrink-0 transition-all duration-300 ${
               showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
             }`}>
               <div className="flex items-center gap-1">
@@ -535,7 +588,7 @@ const Slides = () => {
                   {currentSlide.viewed ? (
                     <div className="flex items-center gap-0.5 bg-blue-50 border border-blue-200 px-2 py-1 rounded text-xs justify-center h-full">
                       <Check className="text-blue-600" size={12} />
-                      <span className="text-blue-700 font-semibold">Viewed</span>
+                      <span className="text-blue-700 font-semibold">{allSlidesViewed ? 'Completed' : 'Viewed'}</span>
                     </div>
                   ) : (
                     <button

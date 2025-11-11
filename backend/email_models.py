@@ -7,43 +7,32 @@ from .database import Base
 
 
 class EmailSettings(Base):
-    """Настройки email для уведомлений"""
+    """Настройки SMTP для отправки уведомлений"""
     __tablename__ = "email_settings"
     
     id = Column(Integer, primary_key=True, index=True)
     
-    # Провайдер: office365, google, smtp
-    provider = Column(String(50), nullable=False, default="smtp")
+    # SMTP Server Configuration
+    smtp_host = Column(String(255), nullable=False)
+    smtp_port = Column(Integer, nullable=False, default=587)
     
-    # OAuth2 данные (для Office365 и Google)
-    client_id = Column(String(255), nullable=True)
-    client_secret = Column(Text, nullable=True)
-    access_token = Column(Text, nullable=True)
-    refresh_token = Column(Text, nullable=True)
-    token_expires_at = Column(DateTime, nullable=True)
+    # Security: ssl, tls, starttls, none
+    encryption = Column(String(50), nullable=False, default="tls")
     
-    # SMTP данные (для обычного SMTP)
-    smtp_host = Column(String(255), nullable=True)
-    smtp_port = Column(Integer, nullable=True)
-    smtp_username = Column(String(255), nullable=True)
-    smtp_password = Column(String(255), nullable=True)
-    use_tls = Column(Boolean, default=True)
+    # SMTP Authentication
+    smtp_username = Column(String(255), nullable=False)
+    smtp_password = Column(Text, nullable=False)
     
-    # От кого отправлять
+    # From settings
     from_email = Column(String(255), nullable=False)
-    from_name = Column(String(255), nullable=True, default="SnapCheck System")
+    from_name = Column(String(255), nullable=True, default="SlideConfirm System")
     
-    # Кому отправлять уведомления (JSON list)
-    notification_recipients = Column(Text, nullable=True)  # JSON array of emails
-    
-    # Включены ли уведомления
+    # Notifications configuration
     notifications_enabled = Column(Boolean, default=False)
-    
-    # События для уведомлений
     notify_on_registration = Column(Boolean, default=True)
     notify_on_completion = Column(Boolean, default=True)
     
-    # Системная информация
+    # System info
     is_verified = Column(Boolean, default=False)
     last_test_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
@@ -61,3 +50,15 @@ class EmailLog(Base):
     status = Column(String(50), nullable=False)  # success, failed
     error_message = Column(Text, nullable=True)
     sent_at = Column(DateTime, server_default=func.now())
+
+
+class NotificationAdmin(Base):
+    """Админы для получения уведомлений"""
+    __tablename__ = "notification_admins"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+    receive_registration_notifications = Column(Boolean, default=True)
+    receive_completion_notifications = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())

@@ -16,7 +16,7 @@ import hashlib
 
 from database import get_db
 from .utils.security import get_current_user
-from .email_models import EmailSettings, EmailLog
+from .email_models import EmailSettings, EmailLog, NotificationAdmin
 from .email_service import EmailService
 from .models import User
 
@@ -43,27 +43,18 @@ def _cleanup_state_store():
 # ============================================================================
 
 class EmailSettingsCreate(BaseModel):
-    provider: str  # smtp, office365, google
+    # SMTP settings only (system is SMTP-only now)
+    smtp_host: str
+    smtp_port: int
+    encryption: str = "starttls"  # "starttls", "ssl", "tls", or "none"
+    smtp_username: str
+    smtp_password: str
     
-    # OAuth2 (для office365 и google) — больше не обязательно хранить в БД
-    client_id: Optional[str] = None
-    client_secret: Optional[str] = None
-    
-    # SMTP
-    smtp_host: Optional[str] = None
-    smtp_port: Optional[int] = None
-    smtp_username: Optional[str] = None
-    smtp_password: Optional[str] = None
-    use_tls: bool = True
-    
-    # От кого
+    # From settings
     from_email: EmailStr
-    from_name: str = "SnapCheck System"
+    from_name: str = "Training System"
     
-    # Кому отправлять уведомления
-    notification_recipients: List[EmailStr]
-    
-    # Настройки уведомлений
+    # Notification settings
     notifications_enabled: bool = True
     notify_on_registration: bool = True
     notify_on_completion: bool = True
@@ -71,22 +62,16 @@ class EmailSettingsCreate(BaseModel):
 
 class EmailSettingsResponse(BaseModel):
     id: int
-    provider: str
+    smtp_host: str
+    smtp_port: int
+    encryption: str
     from_email: str
     from_name: str
-    notification_recipients: List[str]
     notifications_enabled: bool
     notify_on_registration: bool
     notify_on_completion: bool
     is_verified: bool
     last_test_at: Optional[datetime] = None
-    
-    # OAuth status (не возвращаем токены!)
-    has_oauth_configured: bool
-    oauth_expires_at: Optional[datetime] = None
-    effective_client_id: Optional[str] = None
-    ready_for_oauth: bool = False
-    stored_client_id: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -94,6 +79,30 @@ class EmailSettingsResponse(BaseModel):
 
 class TestEmailRequest(BaseModel):
     test_recipient: EmailStr
+
+
+class NotificationAdminCreate(BaseModel):
+    email: EmailStr
+    receive_registration_notifications: bool = True
+    receive_completion_notifications: bool = True
+
+
+class NotificationAdminUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    receive_registration_notifications: Optional[bool] = None
+    receive_completion_notifications: Optional[bool] = None
+
+
+class NotificationAdminResponse(BaseModel):
+    id: int
+    email: str
+    is_active: bool
+    receive_registration_notifications: bool
+    receive_completion_notifications: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 
 class OAuth2InitRequest(BaseModel):
@@ -166,24 +175,18 @@ async def get_email_settings(
     if not settings:
         return None
     
-    recipients = json.loads(settings.notification_recipients or "[]")
-    
     return EmailSettingsResponse(
         id=settings.id,
-        provider=settings.provider,
+        smtp_host=settings.smtp_host,
+        smtp_port=settings.smtp_port,
+        encryption=settings.encryption,
         from_email=settings.from_email,
         from_name=settings.from_name,
-        notification_recipients=recipients,
         notifications_enabled=settings.notifications_enabled,
         notify_on_registration=settings.notify_on_registration,
         notify_on_completion=settings.notify_on_completion,
         is_verified=settings.is_verified,
-        last_test_at=settings.last_test_at,
-        has_oauth_configured=bool(settings.access_token),
-        oauth_expires_at=settings.token_expires_at,
-        effective_client_id=(settings.client_id or (os.getenv("MICROSOFT_CLIENT_ID") if settings.provider=="office365" else os.getenv("GOOGLE_CLIENT_ID") if settings.provider=="google" else None)),
-        ready_for_oauth=(settings.provider in ["office365","google"] and bool(settings.client_id or (os.getenv("MICROSOFT_CLIENT_ID") if settings.provider=="office365" else os.getenv("GOOGLE_CLIENT_ID") if settings.provider=="google" else None))),
-        stored_client_id=settings.client_id
+        last_test_at=settings.last_test_at
     )
 
 
@@ -193,20 +196,14 @@ async def create_or_update_email_settings(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Создать или обновить настройки email"""
+    """Создать или обновить настройки email (SMTP-only)"""
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    # Валидация
-    if settings_data.provider not in ["smtp", "office365", "google"]:
-        raise HTTPException(status_code=400, detail="Invalid provider")
-    
-    if settings_data.provider == "smtp":
-        if not all([settings_data.smtp_host, settings_data.smtp_port, 
-                   settings_data.smtp_username, settings_data.smtp_password]):
-            raise HTTPException(status_code=400, detail="SMTP settings incomplete")
-    
-    # Для OAuth провайдеров теперь не требуем client_id/secret — они берутся из окружения
+    # Валидация SMTP настроек
+    if not all([settings_data.smtp_host, settings_data.smtp_port, 
+               settings_data.smtp_username, settings_data.smtp_password]):
+        raise HTTPException(status_code=400, detail="SMTP settings incomplete")
     
     # Получить или создать настройки
     settings = db.query(EmailSettings).first()
@@ -214,30 +211,28 @@ async def create_or_update_email_settings(
         settings = EmailSettings()
         db.add(settings)
     
-    # Обновить поля
-    settings.provider = settings_data.provider
+    # Обновить SMTP поля
+    settings.smtp_host = settings_data.smtp_host
+    settings.smtp_port = settings_data.smtp_port
+    settings.encryption = settings_data.encryption
+    settings.smtp_username = settings_data.smtp_username
+    settings.smtp_password = settings_data.smtp_password
+    
+    # Обновить поля "От кого"
     settings.from_email = settings_data.from_email
     settings.from_name = settings_data.from_name
-    settings.notification_recipients = json.dumps(settings_data.notification_recipients)
+    
+    # Обновить настройки уведомлений
     settings.notifications_enabled = settings_data.notifications_enabled
     settings.notify_on_registration = settings_data.notify_on_registration
     settings.notify_on_completion = settings_data.notify_on_completion
     
-    if settings_data.provider == "smtp":
-        settings.smtp_host = settings_data.smtp_host
-        settings.smtp_port = settings_data.smtp_port
-        settings.smtp_username = settings_data.smtp_username
-        settings.smtp_password = settings_data.smtp_password
-        settings.use_tls = settings_data.use_tls
-        settings.is_verified = True  # Для SMTP считаем сразу верифицированным
-    
-    if settings_data.provider in ["office365", "google"]:
-        # Сохраняем, только если были переданы (опционально). В противном случае используем ENV.
-        settings.client_id = settings_data.client_id or settings.client_id
-        settings.client_secret = settings_data.client_secret or settings.client_secret
-        # OAuth токены будут получены через отдельный flow (PKCE)
+    settings.is_verified = True  # SMTP считаем сразу верифицированным
     
     db.commit()
+    db.refresh(settings)
+    
+    return settings
     db.refresh(settings)
     
     return {"status": "success", "message": "Email settings saved"}
@@ -509,3 +504,100 @@ async def delete_email_settings(
         db.commit()
     
     return {"status": "success", "message": "Email settings deleted"}
+
+
+# ============================================================================
+# Notification Admins Management
+# ============================================================================
+
+@router.get("/notification-admins", response_model=List[NotificationAdminResponse])
+async def get_notification_admins(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Получить список администраторов для уведомлений"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    admins = db.query(NotificationAdmin).order_by(NotificationAdmin.created_at.desc()).all()
+    return admins
+
+
+@router.post("/notification-admins", response_model=NotificationAdminResponse)
+async def create_notification_admin(
+    admin_data: NotificationAdminCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Добавить администратора для получения уведомлений"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Проверить, существует ли уже такой email
+    existing = db.query(NotificationAdmin).filter(
+        NotificationAdmin.email == admin_data.email
+    ).first()
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="This email is already added")
+    
+    new_admin = NotificationAdmin(
+        email=admin_data.email,
+        receive_registration_notifications=admin_data.receive_registration_notifications,
+        receive_completion_notifications=admin_data.receive_completion_notifications,
+        is_active=True
+    )
+    
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
+    
+    return new_admin
+
+
+@router.patch("/notification-admins/{admin_id}", response_model=NotificationAdminResponse)
+async def update_notification_admin(
+    admin_id: int,
+    admin_data: NotificationAdminUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Обновить настройки администратора"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    admin = db.query(NotificationAdmin).filter(NotificationAdmin.id == admin_id).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    
+    if admin_data.is_active is not None:
+        admin.is_active = admin_data.is_active
+    if admin_data.receive_registration_notifications is not None:
+        admin.receive_registration_notifications = admin_data.receive_registration_notifications
+    if admin_data.receive_completion_notifications is not None:
+        admin.receive_completion_notifications = admin_data.receive_completion_notifications
+    
+    db.commit()
+    db.refresh(admin)
+    
+    return admin
+
+
+@router.delete("/notification-admins/{admin_id}")
+async def delete_notification_admin(
+    admin_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Удалить администратора из списка получателей"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    admin = db.query(NotificationAdmin).filter(NotificationAdmin.id == admin_id).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    
+    db.delete(admin)
+    db.commit()
+    
+    return {"status": "success", "message": "Admin deleted"}
