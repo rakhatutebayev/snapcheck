@@ -416,11 +416,12 @@ const Slides = () => {
             </h2>
           </div>
 
-          {/* Slide Image - Responsive - FULL SCREEN ON MOBILE */}
+          {/* Slide Image Container with Fullscreen Support - FULL SCREEN ON MOBILE */}
           <div 
             ref={slideContainerRef}
-            className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black"
+            className="flex-1 overflow-hidden flex flex-col items-center justify-center md:px-2 md:py-2 bg-black relative"
           >
+            {/* Slide Image */}
             <img 
               src={`/api/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
               alt={`Slide ${currentSlideIndex + 1}`}
@@ -429,72 +430,147 @@ const Slides = () => {
                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3Ctext x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%239CA3AF" font-size="18"%3ESlide Preview%3C/text%3E%3C/svg%3E';
               }}
             />
-          </div>
 
-          {/* Slide Status and Controls - Bottom Row - Hidden on mobile when controls hidden */}
-          <div className={`border-t border-gray-100 px-2 py-1 flex-shrink-0 transition-all duration-300 ${
-            showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
-          }`}>
-            <div className="flex items-center gap-1">
-              {/* Left - Prev Button */}
-              <button
-                onClick={handlePrev}
-                disabled={isFirstSlide}
-                className="flex items-center justify-center gap-0.5 bg-gray-600 text-white px-2 py-1 rounded-lg hover:bg-gray-700 transition disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-xs flex-shrink-0"
-                title="Previous slide"
-              >
-                <ChevronLeft size={14} />
-                <span className="hidden sm:inline">Prev</span>
-              </button>
+            {/* Controls Overlay - Shows on tap in fullscreen */}
+            <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
+              showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+            }`}>
+              {/* Navigation Controls */}
+              <div className="flex items-center gap-2 mb-3">
+                {/* Left - Prev Button */}
+                <button
+                  onClick={handlePrev}
+                  disabled={isFirstSlide}
+                  className="flex items-center justify-center gap-1 bg-white/90 text-gray-900 px-3 py-2 rounded-lg hover:bg-white transition disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-sm flex-shrink-0 shadow-lg"
+                  title="Previous slide"
+                >
+                  <ChevronLeft size={16} />
+                  <span className="hidden sm:inline">Prev</span>
+                </button>
 
-              {/* Center - Mark as Viewed or Viewed Badge */}
-              <div className="flex-1">
-                {currentSlide.viewed ? (
-                  <div className="flex items-center gap-0.5 bg-blue-50 border border-blue-200 px-2 py-1 rounded text-xs justify-center h-full">
-                    <Check className="text-blue-600" size={12} />
-                    <span className="text-blue-700 font-semibold">Viewed</span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleMarkViewed}
-                    disabled={isPreviewMode}
-                    className={`w-full font-semibold py-1 px-2 rounded flex items-center justify-center gap-1 text-xs transition ${
-                      isPreviewMode 
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white hover:from-yellow-600 hover:to-yellow-700'
-                    }`}
-                    title={isPreviewMode ? 'Disabled in preview mode' : 'Mark this slide as viewed'}
-                  >
-                    <Check size={12} />
-                    {isPreviewMode ? <span className="hidden sm:inline">Preview Mode</span> : <span>Mark as Viewed</span>}
-                  </button>
-                )}
+                {/* Center - Mark as Viewed or Viewed Badge */}
+                <div className="flex-1">
+                  {currentSlide.viewed ? (
+                    <div className="flex items-center gap-1 bg-blue-500 px-3 py-2 rounded-lg text-sm justify-center h-full shadow-lg">
+                      <Check className="text-white" size={14} />
+                      <span className="text-white font-semibold">Viewed</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleMarkViewed}
+                      disabled={isPreviewMode}
+                      className={`w-full font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1 text-sm transition shadow-lg ${
+                        isPreviewMode 
+                          ? 'bg-gray-400 text-white cursor-not-allowed' 
+                          : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                      }`}
+                      title={isPreviewMode ? 'Disabled in preview mode' : 'Mark this slide as viewed'}
+                    >
+                      <Check size={14} />
+                      {isPreviewMode ? <span className="hidden sm:inline">Preview Mode</span> : <span>Mark as Viewed</span>}
+                    </button>
+                  )}
+                </div>
+
+                {/* Right - Next Button */}
+                <button
+                  onClick={handleNext}
+                  disabled={isLastSlide || (!isPreviewMode && !currentSlide.viewed)}
+                  className={`flex items-center justify-center gap-1 px-3 py-2 rounded-lg font-semibold text-sm flex-shrink-0 transition shadow-lg ${
+                    isLastSlide 
+                      ? 'bg-white/90 text-gray-900 opacity-30 cursor-not-allowed'
+                      : !isPreviewMode && !currentSlide.viewed
+                      ? 'bg-orange-500 text-white hover:bg-orange-600 cursor-not-allowed'
+                      : 'bg-white/90 text-gray-900 hover:bg-white'
+                  }`}
+                  title={
+                    isLastSlide 
+                      ? 'Last slide' 
+                      : !isPreviewMode && !currentSlide.viewed
+                      ? 'Mark current slide as viewed first'
+                      : 'Next slide'
+                  }
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight size={16} />
+                </button>
               </div>
 
-              {/* Right - Next Button */}
-              <button
-                onClick={handleNext}
-                disabled={isLastSlide || (!isPreviewMode && !currentSlide.viewed)}
-                className={`flex items-center justify-center gap-0.5 px-2 py-1 rounded-lg font-semibold text-xs flex-shrink-0 transition ${
-                  isLastSlide 
-                    ? 'bg-gray-600 text-white opacity-30 cursor-not-allowed'
-                    : !isPreviewMode && !currentSlide.viewed
-                    ? 'bg-orange-500 text-white hover:bg-orange-600 cursor-not-allowed'
-                    : 'bg-gray-600 text-white hover:bg-gray-700'
-                }`}
-                title={
-                  isLastSlide 
-                    ? 'Last slide' 
-                    : !isPreviewMode && !currentSlide.viewed
-                    ? 'Mark current slide as viewed first'
-                    : 'Next slide'
-                }
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight size={14} />
-              </button>
+              {/* Slide Counter */}
+              <div className="text-center">
+                <p className="text-white text-sm font-semibold">
+                  Slide {currentSlideIndex + 1} of {slides.length}
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Original Controls - Visible when NOT in fullscreen */}
+          {!isFullscreen && (
+            <div className={`border-t border-gray-100 px-2 py-1 flex-shrink-0 transition-all duration-300 ${
+              showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
+            }`}>
+              <div className="flex items-center gap-1">
+                {/* Left - Prev Button */}
+                <button
+                  onClick={handlePrev}
+                  disabled={isFirstSlide}
+                  className="flex items-center justify-center gap-0.5 bg-gray-600 text-white px-2 py-1 rounded-lg hover:bg-gray-700 transition disabled:opacity-30 disabled:cursor-not-allowed font-semibold text-xs flex-shrink-0"
+                  title="Previous slide"
+                >
+                  <ChevronLeft size={14} />
+                  <span className="hidden sm:inline">Prev</span>
+                </button>
+
+                {/* Center - Mark as Viewed or Viewed Badge */}
+                <div className="flex-1">
+                  {currentSlide.viewed ? (
+                    <div className="flex items-center gap-0.5 bg-blue-50 border border-blue-200 px-2 py-1 rounded text-xs justify-center h-full">
+                      <Check className="text-blue-600" size={12} />
+                      <span className="text-blue-700 font-semibold">Viewed</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleMarkViewed}
+                      disabled={isPreviewMode}
+                      className={`w-full font-semibold py-1 px-2 rounded flex items-center justify-center gap-1 text-xs transition ${
+                        isPreviewMode 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white hover:from-yellow-600 hover:to-yellow-700'
+                      }`}
+                      title={isPreviewMode ? 'Disabled in preview mode' : 'Mark this slide as viewed'}
+                    >
+                      <Check size={12} />
+                      {isPreviewMode ? <span className="hidden sm:inline">Preview Mode</span> : <span>Mark as Viewed</span>}
+                    </button>
+                  )}
+                </div>
+
+                {/* Right - Next Button */}
+                <button
+                  onClick={handleNext}
+                  disabled={isLastSlide || (!isPreviewMode && !currentSlide.viewed)}
+                  className={`flex items-center justify-center gap-0.5 px-2 py-1 rounded-lg font-semibold text-xs flex-shrink-0 transition ${
+                    isLastSlide 
+                      ? 'bg-gray-600 text-white opacity-30 cursor-not-allowed'
+                      : !isPreviewMode && !currentSlide.viewed
+                      ? 'bg-orange-500 text-white hover:bg-orange-600 cursor-not-allowed'
+                      : 'bg-gray-600 text-white hover:bg-gray-700'
+                  }`}
+                  title={
+                    isLastSlide 
+                      ? 'Last slide' 
+                      : !isPreviewMode && !currentSlide.viewed
+                      ? 'Mark current slide as viewed first'
+                      : 'Next slide'
+                  }
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Bottom Controls - Fixed Height - Hidden on mobile when controls hidden */}
