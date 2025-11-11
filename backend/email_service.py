@@ -161,7 +161,7 @@ class EmailService:
             print(f"Google send error: {e}")
             return False
     
-    def _send_via_smtp(self, to_emails: List[str], subject: str, html_body: str) -> bool:
+    def _send_via_smtp(self, to_emails: List[str], subject: str, html_body: str) -> tuple[bool, str]:
         """Отправка через обычный SMTP"""
         settings = self.settings
         
@@ -178,35 +178,63 @@ class EmailService:
             
             # Подключиться к SMTP и отправить
             if settings.use_tls:
-                server = smtplib.SMTP(settings.smtp_host, settings.smtp_port)
+                server = smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10)
                 server.starttls()
             else:
-                server = smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port)
+                server = smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=10)
             
             server.login(settings.smtp_username, settings.smtp_password)
             server.sendmail(settings.from_email, to_emails, msg.as_string())
             server.quit()
             
-            return True
+            return True, "Email sent successfully"
             
+        except smtplib.SMTPAuthenticationError as e:
+            error_msg = f"Authentication failed: {str(e)}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
+        except smtplib.SMTPConnectError as e:
+            error_msg = f"Connection failed: Unable to connect to {settings.smtp_host}:{settings.smtp_port}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
+        except smtplib.SMTPServerDisconnected as e:
+            error_msg = f"Server disconnected unexpectedly: {str(e)}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
+        except smtplib.SMTPRecipientsRefused as e:
+            error_msg = f"Recipients refused: {str(e)}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
+        except smtplib.SMTPException as e:
+            error_msg = f"SMTP error: {str(e)}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
+        except TimeoutError:
+            error_msg = f"Connection timeout: Could not connect to {settings.smtp_host}:{settings.smtp_port}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
         except Exception as e:
-            print(f"SMTP send error: {e}")
-            return False
+            error_msg = f"Unexpected error: {type(e).__name__}: {str(e)}"
+            print(f"SMTP send error: {error_msg}")
+            return False, error_msg
     
-    def send_email(self, to_emails: List[str], subject: str, html_body: str, event_type: str) -> bool:
+    def send_email(self, to_emails: List[str], subject: str, html_body: str, event_type: str) -> tuple[bool, str]:
         """Отправить email уведомление"""
         if not self.settings or not self.settings.notifications_enabled:
-            return False
+            return False, "Email notifications are disabled"
         
         # Выбрать метод отправки
         if self.settings.provider == "office365":
             success = self._send_via_office365(to_emails, subject, html_body)
+            error_msg = "Failed to send via Office365" if not success else None
         elif self.settings.provider == "google":
             success = self._send_via_google(to_emails, subject, html_body)
+            error_msg = "Failed to send via Google" if not success else None
         elif self.settings.provider == "smtp":
-            success = self._send_via_smtp(to_emails, subject, html_body)
+            success, error_msg = self._send_via_smtp(to_emails, subject, html_body)
         else:
             success = False
+            error_msg = f"Unknown provider: {self.settings.provider}"
         
         # Логировать отправку
         for email in to_emails:
@@ -215,12 +243,12 @@ class EmailService:
                 subject=subject,
                 event_type=event_type,
                 status="success" if success else "failed",
-                error_message=None if success else "Failed to send"
+                error_message=None if success else error_msg
             )
             self.db.add(log)
         
         self.db.commit()
-        return success
+        return success, error_msg if not success else "Email sent successfully"
     
     def send_registration_notification(self, user_email: str, user_name: str):
         """Отправить уведомление о регистрации"""
