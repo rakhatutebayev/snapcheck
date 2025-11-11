@@ -12,8 +12,14 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Загружаем переменные окружения из .env, если файл существует
-if [ -f .env ]; then
+# Загружаем переменные окружения из .env.local (для локальной разработки) или .env
+if [ -f .env.local ]; then
+    echo -e "${YELLOW}📄 Загрузка .env.local переменных (dev mode)...${NC}"
+    set -a
+    # shellcheck disable=SC1091
+    source .env.local
+    set +a
+elif [ -f .env ]; then
     echo -e "${YELLOW}📄 Загрузка .env переменных...${NC}"
     set -a
     # shellcheck disable=SC1091

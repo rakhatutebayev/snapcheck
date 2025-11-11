@@ -15,10 +15,10 @@ import base64
 import hashlib
 
 from database import get_db
-from utils.security import get_current_user
-from email_models import EmailSettings, EmailLog
-from email_service import EmailService
-from models import User
+from .utils.security import get_current_user
+from .email_models import EmailSettings, EmailLog
+from .email_service import EmailService
+from .models import User
 
 
 router = APIRouter(prefix="/admin/email", tags=["email-settings"])

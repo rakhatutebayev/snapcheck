@@ -1,19 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Используем абсолютные импорты для совместимости с production Dockerfile
-import models
-from database import engine, SessionLocal
-from models import User
-from auth import router as auth_router
-from slides import router as slides_router
-from admin import router as admin_router
-from slides_admin import router as slides_admin_router
-from files import router as files_router
-from user import router as user_router
-from email_api import router as email_router
-from utils.security import hash_password
-import email_models
+# Используем относительные импорты для локальной разработки
+from . import models
+from .database import engine, SessionLocal
+from .models import User
+from .auth import router as auth_router
+from .slides import router as slides_router
+from .admin import router as admin_router
+from .slides_admin import router as slides_admin_router
+from .files import router as files_router
+from .user import router as user_router
+from .email_api import router as email_router
+from .utils.security import hash_password
+from . import email_models
 
 # Создание таблиц
 models.Base.metadata.create_all(bind=engine)

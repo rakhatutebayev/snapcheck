@@ -9,8 +9,8 @@ import os
 # Добавляем родительскую директорию в путь для абсолютных импортов
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database import get_db
-from models import User
+from ..database import get_db
+from ..models import User
 
 SECRET_KEY = "your-super-secret-key-change-in-production"
 ALGORITHM = "HS256"

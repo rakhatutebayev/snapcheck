@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User, Slide, UserSlideProgress, UserCompletion, Presentation, UserPresentationPosition
-from schemas import ProgressResponse, SlidesListResponse, SlideResponse
-from utils.security import decode_access_token
-from email_service import EmailService
+from .database import get_db
+from .models import User, Slide, UserSlideProgress, UserCompletion, Presentation, UserPresentationPosition
+from .schemas import ProgressResponse, SlidesListResponse, SlideResponse
+from .utils.security import decode_access_token
+from .email_service import EmailService
 from datetime import datetime
 
 router = APIRouter(prefix="/slides", tags=["slides"])
