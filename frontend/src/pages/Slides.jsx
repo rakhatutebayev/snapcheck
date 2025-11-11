@@ -17,6 +17,8 @@ const Slides = () => {
   const [lastPosition, setLastPosition] = useState(null);
   const [presentationId, setPresentationId] = useState(null);
   const [showSkipWarning, setShowSkipWarning] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [controlsTimeout, setControlsTimeout] = useState(null);
   
   // ✅ Используем новый модуль Toast
   const { toasts, error, success, info, warning, clearAll } = useToast();
@@ -187,6 +189,32 @@ const Slides = () => {
     navigate('/login');
   };
 
+  // Handle screen tap to show/hide controls on mobile
+  const handleScreenTap = () => {
+    setShowControls(true);
+    
+    // Clear existing timeout
+    if (controlsTimeout) {
+      clearTimeout(controlsTimeout);
+    }
+    
+    // Hide controls after 3 seconds of inactivity
+    const timeout = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+    
+    setControlsTimeout(timeout);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (controlsTimeout) {
+        clearTimeout(controlsTimeout);
+      }
+    };
+  }, [controlsTimeout]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -238,16 +266,16 @@ const Slides = () => {
 
   return (
     <div className="min-h-screen h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-blue-100 overflow-hidden">
-      {/* Header - Fixed Height */}
-      <div className="flex items-center justify-between px-2 py-2 bg-white bg-opacity-90 flex-shrink-0 border-b border-gray-200">
+      {/* Header - Fixed Height - Hidden on mobile when controls hidden */}
+      <div className={`flex items-center justify-between px-2 py-2 bg-white bg-opacity-90 flex-shrink-0 border-b border-gray-200 transition-all duration-300 ${
+        showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0'
+      }`}>
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={() => {
               if (isPreviewMode) {
-                // Admin preview mode - go back to admin panel
                 navigate('/admin');
               } else {
-                // User normal mode - go back to presentations list
                 navigate('/presentations');
               }
             }}
@@ -256,9 +284,9 @@ const Slides = () => {
             <ChevronLeft size={12} />
             Back
           </button>
-          <h1 className="text-lg font-bold text-gray-900 truncate">SnapCheck</h1>
+          <h1 className="text-base md:text-lg font-bold text-gray-900 truncate">SnapCheck</h1>
           {isPreviewMode && (
-            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-semibold hidden sm:inline-block">
               🔍 Preview Mode
             </span>
           )}
@@ -267,7 +295,7 @@ const Slides = () => {
           onClick={handleLogout}
           className="flex items-center gap-1 flex-shrink-0"
         >
-          <div className="text-right">
+          <div className="text-right hidden sm:block">
             <p className="text-xs font-medium text-gray-700">{userName}</p>
           </div>
           <button
@@ -275,24 +303,32 @@ const Slides = () => {
             className="flex items-center gap-0.5 bg-red-600 text-white px-2 py-1 rounded-lg hover:bg-red-700 transition text-xs flex-shrink-0"
           >
             <LogOut size={12} />
-            Logout
+            <span className="hidden sm:inline">Logout</span>
           </button>
         </button>
       </div>
 
       {/* Main Content Area - Flexible */}
-      <div className="flex-1 overflow-hidden flex flex-col relative px-2 py-2 gap-1">
+      <div 
+        className="flex-1 overflow-hidden flex flex-col relative md:px-2 md:py-2 md:gap-1"
+        onClick={handleScreenTap}
+        onTouchStart={handleScreenTap}
+      >
         {/* ✅ Оповещения - используем новый модуль Toast */}
-        <div className="space-y-2 flex-shrink-0">
+        <div className={`space-y-2 flex-shrink-0 transition-all duration-300 px-2 ${
+          showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0 absolute top-0 pointer-events-none'
+        }`}>
           {toasts.error && <Toast type="error" message={toasts.error} duration={5000} />}
           {toasts.success && <Toast type="success" message={toasts.success} duration={4000} />}
           {toasts.info && <Toast type="info" message={toasts.info} duration={4000} />}
           {toasts.warning && <Toast type="warning" message={toasts.warning} duration={5000} />}
         </div>
 
-        {/* Progress Bar - Minimal Height */}
+        {/* Progress Bar - Minimal Height - Hidden on mobile when controls hidden */}
         {progress && (
-          <div className="bg-white rounded-lg shadow-sm p-1.5 flex-shrink-0">
+          <div className={`bg-white rounded-lg shadow-sm p-1.5 flex-shrink-0 mx-2 md:mx-0 transition-all duration-300 ${
+            showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0 absolute top-0 pointer-events-none'
+          }`}>
             <div className="flex items-center justify-between mb-0.5">
               <span className="text-xs font-semibold text-gray-700">Progress</span>
               <span className="text-xs font-bold text-blue-600">{Math.round(progress.percentage)}%</span>
@@ -309,31 +345,35 @@ const Slides = () => {
           </div>
         )}
 
-        {/* Slide Container - Main Content */}
-        <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-lg shadow-lg relative">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-0.5"></div>
+        {/* Slide Container - Main Content - Full screen on mobile */}
+        <div className="flex-1 overflow-hidden flex flex-col bg-white md:rounded-lg md:shadow-lg relative md:mx-0">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 h-0.5 hidden md:block"></div>
           
-          {/* Slide Info - Minimal */}
-          <div className="text-center px-2 py-1 flex-shrink-0 border-b border-gray-100">
+          {/* Slide Info - Minimal - Hidden on mobile when controls hidden */}
+          <div className={`text-center px-2 py-1 flex-shrink-0 border-b border-gray-100 transition-all duration-300 ${
+            showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0 h-0 overflow-hidden md:h-auto md:overflow-visible'
+          }`}>
             <h2 className="text-xs font-bold text-gray-900">
               Slide {currentSlideIndex + 1} of {slides.length}
             </h2>
           </div>
 
-          {/* Slide Image - Responsive */}
-          <div className="flex-1 overflow-hidden flex items-center justify-center px-2 py-2">
+          {/* Slide Image - Responsive - FULL SCREEN ON MOBILE */}
+          <div className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black md:bg-transparent">
             <img 
               src={`/api/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
               alt={`Slide ${currentSlideIndex + 1}`}
-              className="max-h-full max-w-full object-contain rounded shadow-md"
+              className="w-full h-full object-contain md:max-h-full md:max-w-full md:rounded md:shadow-md"
               onError={(e) => {
                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3Ctext x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%239CA3AF" font-size="18"%3ESlide Preview%3C/text%3E%3C/svg%3E';
               }}
             />
           </div>
 
-          {/* Slide Status and Controls - Bottom Row */}
-          <div className="border-t border-gray-100 px-2 py-1 flex-shrink-0">
+          {/* Slide Status and Controls - Bottom Row - Hidden on mobile when controls hidden */}
+          <div className={`border-t border-gray-100 px-2 py-1 flex-shrink-0 transition-all duration-300 ${
+            showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
+          }`}>
             <div className="flex items-center gap-1">
               {/* Left - Prev Button */}
               <button
@@ -343,7 +383,7 @@ const Slides = () => {
                 title="Previous slide"
               >
                 <ChevronLeft size={14} />
-                Prev
+                <span className="hidden sm:inline">Prev</span>
               </button>
 
               {/* Center - Mark as Viewed or Viewed Badge */}
@@ -365,7 +405,7 @@ const Slides = () => {
                     title={isPreviewMode ? 'Disabled in preview mode' : 'Mark this slide as viewed'}
                   >
                     <Check size={12} />
-                    {isPreviewMode ? 'Preview Mode' : 'Mark as Viewed'}
+                    {isPreviewMode ? <span className="hidden sm:inline">Preview Mode</span> : <span>Mark as Viewed</span>}
                   </button>
                 )}
               </div>
@@ -389,15 +429,17 @@ const Slides = () => {
                     : 'Next slide'
                 }
               >
-                Next
+                <span className="hidden sm:inline">Next</span>
                 <ChevronRight size={14} />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Bottom Controls - Fixed Height */}
-        <div className="flex gap-1 flex-shrink-0 relative">
+        {/* Bottom Controls - Fixed Height - Hidden on mobile when controls hidden */}
+        <div className={`flex gap-1 flex-shrink-0 relative mx-2 md:mx-0 transition-all duration-300 ${
+          showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
+        }`}>
           <button
             onClick={handleComplete}
             disabled={completing || isPreviewMode}
@@ -412,7 +454,7 @@ const Slides = () => {
             
             {/* Tooltip */}
             {!isPreviewMode && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 hidden md:block">
                 {isPreviewMode ? 'Preview mode - cannot complete' : 'Complete your review after viewing all slides'}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
               </div>
@@ -420,15 +462,16 @@ const Slides = () => {
           </button>
         </div>
 
-        {/* Slide Thumbnails - Fixed Height */}
-        <div className="bg-white rounded-lg shadow-sm p-1 flex-shrink-0 max-h-[70px] overflow-y-auto">
+        {/* Slide Thumbnails - Fixed Height - Hidden on mobile when controls hidden */}
+        <div className={`bg-white rounded-lg shadow-sm p-1 flex-shrink-0 max-h-[70px] overflow-y-auto mx-2 md:mx-0 transition-all duration-300 ${
+          showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
+        }`}>
           <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(32px, 1fr))` }}>
             {slides.map((slide, idx) => {
               // ✅ Определяем доступность слайда
-              let isAccessible = idx === 0; // Первый слайд всегда доступен
+              let isAccessible = idx === 0;
               
               if (!isAccessible && idx > 0 && !isPreviewMode) {
-                // Проверяем просмотрены ли все предыдущие слайды
                 isAccessible = slides.slice(0, idx).every(s => s.viewed);
               }
               
