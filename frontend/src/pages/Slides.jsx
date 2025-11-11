@@ -20,6 +20,7 @@ const Slides = () => {
   const [showControls, setShowControls] = useState(true);
   const [controlsTimeout, setControlsTimeout] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const slideContainerRef = React.useRef(null);
   
   // ✅ Используем новый модуль Toast
   const { toasts, error, success, info, warning, clearAll } = useToast();
@@ -218,7 +219,8 @@ const Slides = () => {
 
   // Toggle fullscreen mode
   const toggleFullscreen = async () => {
-    const elem = document.documentElement;
+    const elem = slideContainerRef.current;
+    if (!elem) return;
     
     if (!isFullscreen) {
       // Enter fullscreen
@@ -231,7 +233,6 @@ const Slides = () => {
       } else if (elem.msRequestFullscreen) { // IE/Edge
         await elem.msRequestFullscreen();
       }
-      setIsFullscreen(true);
     } else {
       // Exit fullscreen
       if (document.exitFullscreen) {
@@ -243,7 +244,6 @@ const Slides = () => {
       } else if (document.msExitFullscreen) { // IE/Edge
         await document.msExitFullscreen();
       }
-      setIsFullscreen(false);
     }
   };
 
@@ -417,7 +417,10 @@ const Slides = () => {
           </div>
 
           {/* Slide Image - Responsive - FULL SCREEN ON MOBILE */}
-          <div className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black">
+          <div 
+            ref={slideContainerRef}
+            className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black"
+          >
             <img 
               src={`/api/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
               alt={`Slide ${currentSlideIndex + 1}`}
