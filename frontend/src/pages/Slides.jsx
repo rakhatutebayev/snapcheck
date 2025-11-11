@@ -435,8 +435,23 @@ const Slides = () => {
             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
               showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
             }`}>
+              {/* Top Row - Slide Counter and Fullscreen Button */}
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-white text-sm font-semibold">
+                  Slide {currentSlideIndex + 1} of {slides.length}
+                </p>
+                <button
+                  onClick={toggleFullscreen}
+                  className="flex items-center gap-1 bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition text-sm font-semibold shadow-lg"
+                  title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                >
+                  {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                  <span>{isFullscreen ? 'Exit' : 'Full'}</span>
+                </button>
+              </div>
+
               {/* Navigation Controls */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2">
                 {/* Left - Prev Button */}
                 <button
                   onClick={handlePrev}
@@ -494,13 +509,6 @@ const Slides = () => {
                   <span className="hidden sm:inline">Next</span>
                   <ChevronRight size={16} />
                 </button>
-              </div>
-
-              {/* Slide Counter */}
-              <div className="text-center">
-                <p className="text-white text-sm font-semibold">
-                  Slide {currentSlideIndex + 1} of {slides.length}
-                </p>
               </div>
             </div>
           </div>
