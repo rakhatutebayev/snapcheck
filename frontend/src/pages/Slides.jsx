@@ -431,9 +431,9 @@ const Slides = () => {
               }}
             />
 
-            {/* Controls Overlay - Shows on tap in fullscreen */}
+            {/* Controls Overlay - Shows on tap in fullscreen, always visible on desktop */}
             <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent pt-20 pb-4 px-4 transition-all duration-300 ${
-              showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+              showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 translate-y-full opacity-0'
             }`}>
               {/* Top Row - Slide Counter and Fullscreen Button */}
               <div className="flex items-center justify-between mb-3">
