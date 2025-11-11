@@ -6,7 +6,7 @@ import { CheckCircle, XCircle, Loader } from 'lucide-react';
 const EmailOAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState('processing');
-  const [message, setMessage] = useState('Обработка OAuth авторизации...');
+  const [message, setMessage] = useState('Processing OAuth authorization...');
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -15,7 +15,7 @@ const EmailOAuthCallback = () => {
 
     if (error) {
       setStatus('error');
-      setMessage(`Ошибка авторизации: ${error}`);
+      setMessage(`Authorization error: ${error}`);
       
       // Отправить сообщение родительскому окну
       if (window.opener) {
@@ -28,7 +28,7 @@ const EmailOAuthCallback = () => {
 
     if (!code) {
       setStatus('error');
-      setMessage('Не получен код авторизации');
+      setMessage('Authorization code not received');
       
       if (window.opener) {
         window.opener.postMessage({ type: 'oauth_error', error: 'No code' }, window.location.origin);
@@ -38,7 +38,7 @@ const EmailOAuthCallback = () => {
       return;
     }
 
-    // Отправить code на backend
+    // Send code to backend
     handleOAuthCallback(code, state);
   }, [searchParams]);
 
@@ -46,8 +46,8 @@ const EmailOAuthCallback = () => {
     try {
       await api.get(`/admin/email/oauth/callback?code=${code}&state=${state}`);
       
-      setStatus('success');
-      setMessage('✅ Авторизация успешна! Окно закроется автоматически...');
+  setStatus('success');
+  setMessage('✅ Authorization successful! This window will close automatically...');
       
       // Отправить сообщение родительскому окну
       if (window.opener) {
@@ -57,8 +57,8 @@ const EmailOAuthCallback = () => {
       setTimeout(() => window.close(), 2000);
       
     } catch (err) {
-      setStatus('error');
-      setMessage(`Ошибка: ${err.response?.data?.detail || err.message}`);
+  setStatus('error');
+  setMessage(`Error: ${err.response?.data?.detail || err.message}`);
       
       if (window.opener) {
         window.opener.postMessage({ 
@@ -78,21 +78,21 @@ const EmailOAuthCallback = () => {
           {status === 'processing' && (
             <>
               <Loader className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Обработка...</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Processing...</h2>
             </>
           )}
           
           {status === 'success' && (
             <>
               <CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Успешно!</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Success!</h2>
             </>
           )}
           
           {status === 'error' && (
             <>
               <XCircle className="mx-auto text-red-600 mb-4" size={48} />
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Ошибка</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
             </>
           )}
           

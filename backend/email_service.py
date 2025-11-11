@@ -4,6 +4,7 @@ SMTP-only configuration
 """
 import smtplib
 import json
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -14,23 +15,23 @@ from .email_models import EmailSettings, EmailLog
 
 
 class EmailService:
-    """Сервис отправки email уведомлений через SMTP"""
+    """Email notification service via SMTP"""
     
     def __init__(self, db: Session):
         self.db = db
         self.settings = self._get_settings()
     
     def _get_settings(self) -> Optional[EmailSettings]:
-        """Получить настройки email"""
+        """Fetch email settings"""
         return self.db.query(EmailSettings).first()
     
     def send_email(self, to_emails: List[str], subject: str, html_body: str, event_type: str) -> tuple[bool, str]:
-        """Отправить email уведомление через SMTP"""
+        """Send an email notification via SMTP"""
         if not self.settings or not self.settings.notifications_enabled:
             return False, "Email notifications are disabled"
         
         try:
-            # Динамическое имя отправителя в зависимости от типа события
+            # Dynamic sender name by event type
             if event_type == "registration":
                 from_name = f"{self.settings.from_name} - User Registration"
             elif event_type == "completion":
@@ -40,26 +41,26 @@ class EmailService:
             else:
                 from_name = self.settings.from_name
             
-            # Создать MIME сообщение
+            # Create MIME message
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
             msg["From"] = f"{from_name} <{self.settings.from_email}>"
             msg["To"] = ", ".join(to_emails)
             
-            # Добавить HTML тело
+            # Attach HTML body
             html_part = MIMEText(html_body, "html")
             msg.attach(html_part)
             
-            # Подключиться к SMTP и отправить
+            # Connect to SMTP and send
             encryption = self.settings.encryption.lower() if self.settings.encryption else "tls"
             
             if encryption == "starttls":
-                server = smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=10)
+                server = smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=5)
                 server.starttls()
             elif encryption == "ssl":
-                server = smtplib.SMTP_SSL(self.settings.smtp_host, self.settings.smtp_port, timeout=10)
+                server = smtplib.SMTP_SSL(self.settings.smtp_host, self.settings.smtp_port, timeout=5)
             else:  # tls by default
-                server = smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=10)
+                server = smtplib.SMTP(self.settings.smtp_host, self.settings.smtp_port, timeout=5)
                 server.starttls()
             
             server.login(self.settings.smtp_username, self.settings.smtp_password)
@@ -90,7 +91,7 @@ class EmailService:
             success, error_msg = False, f"Unexpected error: {type(e).__name__}: {str(e)}"
             print(f"SMTP send error: {error_msg}")
         
-        # Логировать отправку
+        # Log send attempt
         for email in to_emails:
             log = EmailLog(
                 recipient=email,
@@ -105,11 +106,11 @@ class EmailService:
         return success, error_msg or "Email sent successfully"
     
     def send_registration_notification(self, user_email: str, user_name: str):
-        """Отправить уведомление о регистрации"""
+        """Send registration notification (to admins)"""
         if not self.settings or not self.settings.notify_on_registration:
             return
         
-        # Получить адреса администраторов из таблицы NotificationAdmin
+        # Get active admin recipients
         from .email_models import NotificationAdmin
         admins = self.db.query(NotificationAdmin).filter(
             NotificationAdmin.is_active == True,
@@ -120,23 +121,23 @@ class EmailService:
         if not recipients:
             return
         
-        subject = f"✅ Новая регистрация: {user_name}"
+        subject = f"✅ New registration: {user_name}"
         html_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                 <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
-                    🎉 Новый пользователь зарегистрирован
+                    🎉 New user registered
                 </h2>
                 
                 <div style="background-color: #f0f9ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <p style="margin: 5px 0;"><strong>Имя:</strong> {user_name}</p>
+                    <p style="margin: 5px 0;"><strong>Name:</strong> {user_name}</p>
                     <p style="margin: 5px 0;"><strong>Email:</strong> {user_email}</p>
-                    <p style="margin: 5px 0;"><strong>Дата:</strong> {datetime.now().strftime("%d.%m.%Y %H:%M")}</p>
+                    <p style="margin: 5px 0;"><strong>Date:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
                 </div>
                 
                 <p style="color: #666; font-size: 14px; margin-top: 20px;">
-                    Это автоматическое уведомление из системы SnapCheck.
+                    This is an automated notification from SnapCheck.
                 </p>
             </div>
         </body>
@@ -147,11 +148,11 @@ class EmailService:
     
     def send_completion_notification(self, user_name: str, user_email: str, 
                                      presentation_title: str, completed_at: datetime):
-        """Отправить уведомление о прохождении презентации"""
+        """Send presentation completion notification (to admins)"""
         if not self.settings or not self.settings.notify_on_completion:
             return
         
-        # Получить адреса администраторов из таблицы NotificationAdmin
+        # Get active admin recipients
         from .email_models import NotificationAdmin
         admins = self.db.query(NotificationAdmin).filter(
             NotificationAdmin.is_active == True,
@@ -162,30 +163,30 @@ class EmailService:
         if not recipients:
             return
         
-        subject = f"✅ Презентация пройдена: {presentation_title}"
+        subject = f"✅ Presentation completed: {presentation_title}"
         html_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                 <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">
-                    ✅ Презентация успешно завершена
+                    ✅ Presentation successfully completed
                 </h2>
                 
                 <div style="background-color: #f0fdf4; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <p style="margin: 5px 0;"><strong>Пользователь:</strong> {user_name}</p>
+                    <p style="margin: 5px 0;"><strong>User:</strong> {user_name}</p>
                     <p style="margin: 5px 0;"><strong>Email:</strong> {user_email}</p>
-                    <p style="margin: 5px 0;"><strong>Презентация:</strong> {presentation_title}</p>
-                    <p style="margin: 5px 0;"><strong>Дата завершения:</strong> {completed_at.strftime("%d.%m.%Y %H:%M")}</p>
+                    <p style="margin: 5px 0;"><strong>Presentation:</strong> {presentation_title}</p>
+                    <p style="margin: 5px 0;"><strong>Completion date:</strong> {completed_at.strftime("%Y-%m-%d %H:%M")}</p>
                 </div>
                 
                 <div style="background-color: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
                     <p style="margin: 0; color: #1e40af;">
-                        <strong>✓</strong> Пользователь успешно ознакомился со всеми слайдами презентации.
+                        <strong>✓</strong> The user has reviewed all slides of the presentation.
                     </p>
                 </div>
                 
                 <p style="color: #666; font-size: 14px; margin-top: 20px;">
-                    Это автоматическое уведомление из системы SnapCheck.
+                    This is an automated notification from SnapCheck.
                 </p>
             </div>
         </body>
@@ -195,25 +196,25 @@ class EmailService:
         self.send_email(recipients, subject, html_body, "completion")
     
     def send_test_email(self, test_recipient: str) -> tuple[bool, str]:
-        """Отправить тестовое письмо"""
-        subject = "🧪 Тестовое письмо от SnapCheck"
+        """Send a test email"""
+        subject = "🧪 Test email from SnapCheck"
         html_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                 <h2 style="color: #7c3aed; border-bottom: 2px solid #7c3aed; padding-bottom: 10px;">
-                    🧪 Тестовое сообщение
+                    🧪 Test message
                 </h2>
                 
                 <div style="background-color: #faf5ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <p style="margin: 5px 0;">✅ Настройки email работают корректно!</p>
-                    <p style="margin: 5px 0;"><strong>SMTP Host:</strong> {self.settings.smtp_host if self.settings else 'Не настроен'}</p>
-                    <p style="margin: 5px 0;"><strong>From Email:</strong> {self.settings.from_email if self.settings else 'Не настроен'}</p>
-                    <p style="margin: 5px 0;"><strong>Время отправки:</strong> {datetime.now().strftime("%d.%m.%Y %H:%M:%S")}</p>
+                    <p style="margin: 5px 0;">✅ Email settings are working correctly!</p>
+                    <p style="margin: 5px 0;"><strong>SMTP Host:</strong> {self.settings.smtp_host if self.settings else 'Not configured'}</p>
+                    <p style="margin: 5px 0;"><strong>From Email:</strong> {self.settings.from_email if self.settings else 'Not configured'}</p>
+                    <p style="margin: 5px 0;"><strong>Sent at:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
                 </div>
                 
                 <p style="color: #666; font-size: 14px; margin-top: 20px;">
-                    Это тестовое уведомление из системы SnapCheck.
+                    This is a test notification from SnapCheck.
                 </p>
             </div>
         </body>
@@ -223,12 +224,111 @@ class EmailService:
         try:
             success, error_msg = self.send_email([test_recipient], subject, html_body, "test")
             if success:
-                # Обновить время последнего теста
+                # Update last test time
                 if self.settings:
                     self.settings.last_test_at = datetime.utcnow()
                     self.db.commit()
-                return True, "Тестовое письмо успешно отправлено"
+                return True, "Test email sent successfully"
             else:
-                return False, error_msg or "Ошибка отправки письма"
+                return False, error_msg or "Email sending error"
         except Exception as e:
             return False, str(e)
+    
+    def send_verification_email(self, user_email: str, user_name: str, verification_token: str):
+        """Send email verification message to user"""
+        # Получить базовый URL приложения
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+        
+        subject = "✅ Verify your email - Training System"
+        html_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+                    ✅ Email verification
+                </h2>
+                
+                <p style="font-size: 16px;">Hello, {user_name}!</p>
+                
+                <p style="font-size: 14px; color: #555;">
+                    Thank you for registering in Training System. To complete your registration, please verify your email address.
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{verification_link}" 
+                       style="display: inline-block; padding: 15px 30px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Verify Email
+                    </a>
+                </div>
+                
+                <p style="font-size: 13px; color: #666;">
+                    If the button does not work, copy and paste this link into your browser:
+                </p>
+                <p style="font-size: 12px; color: #999; word-break: break-all;">
+                    {verification_link}
+                </p>
+                
+                <p style="font-size: 13px; color: #999; margin-top: 30px;">
+                    This link is valid for 24 hours.
+                </p>
+                
+                <p style="color: #666; font-size: 14px; margin-top: 20px;">
+                    If you did not register in our system, simply ignore this email.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        self.send_email([user_email], subject, html_body, "verification")
+    
+    def send_password_reset_email(self, user_email: str, user_name: str, reset_token: str):
+        """Send password reset email to user"""
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+        
+        subject = "🔐 Password reset - Training System"
+        html_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 10px;">
+                    🔐 Password reset
+                </h2>
+                
+                <p style="font-size: 16px;">Hello, {user_name}!</p>
+                
+                <p style="font-size: 14px; color: #555;">
+                    You requested a password reset for your Training System account.
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{reset_link}" 
+                       style="display: inline-block; padding: 15px 30px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Reset Password
+                    </a>
+                </div>
+                
+                <p style="font-size: 13px; color: #666;">
+                    If the button does not work, copy and paste this link into your browser:
+                </p>
+                <p style="font-size: 12px; color: #999; word-break: break-all;">
+                    {reset_link}
+                </p>
+                
+                <p style="font-size: 13px; color: #999; margin-top: 30px;">
+                    The link is valid for 1 hour.
+                </p>
+                
+                <div style="background-color: #fef2f2; padding: 15px; border-left: 4px solid #dc2626; margin: 20px 0;">
+                    <p style="margin: 0; font-size: 13px; color: #991b1b;">
+                        <strong>Important:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        self.send_email([user_email], subject, html_body, "password_reset")

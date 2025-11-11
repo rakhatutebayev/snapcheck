@@ -68,6 +68,7 @@ def get_users(admin: User = Depends(get_current_admin), db: Session = Depends(ge
                 "last_name": u.last_name,
                 "email": u.email,
                 "role": u.role,
+                "is_verified": u.is_verified if hasattr(u, 'is_verified') else True,
                 "created_at": u.created_at.isoformat() if u.created_at else None
             }
             for u in users
@@ -118,6 +119,44 @@ def set_user_role(user_id: int, role: str, admin: User = Depends(get_current_adm
     db.commit()
     
     return {"status": "success", "message": f"User role updated to {role}"}
+
+
+@router.put("/verify/{user_id}")
+def verify_user(user_id: int, is_verified: bool, admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Изменить статус верификации пользователя"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    if not hasattr(user, 'is_verified'):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User model does not support verification")
+    
+    user.is_verified = is_verified
+    # Очищаем токен верификации при ручной верификации
+    if is_verified:
+        user.verification_token = None
+        user.verification_token_expires = None
+    db.commit()
+    
+    return {"status": "success", "message": f"User verification status updated to {is_verified}"}
+
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int, admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Удалить пользователя"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    # Нельзя удалить самого себя
+    if user.id == admin.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete yourself")
+    
+    # Удаление пользователя (каскадно удалятся связанные записи благодаря cascade="all, delete-orphan")
+    db.delete(user)
+    db.commit()
+    
+    return {"status": "success", "message": "User deleted successfully"}
 
 
 @router.get("/report")

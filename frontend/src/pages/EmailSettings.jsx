@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import { Mail, Send, Settings, CheckCircle, XCircle, AlertCircle, UserPlus, Trash2, Users } from 'lucide-react';
 
+// Default sender name - change this value to customize email sender name
+const DEFAULT_SENDER_NAME = 'Training System';
+
 const EmailSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +20,7 @@ const EmailSettings = () => {
   const [smtpUsername, setSmtpUsername] = useState('');
   const [smtpPassword, setSmtpPassword] = useState('');
   const [fromEmail, setFromEmail] = useState('');
-  const [fromName, setFromName] = useState('Training System');
+  const [fromName, setFromName] = useState(DEFAULT_SENDER_NAME);
   
   // Notification settings
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -48,7 +51,7 @@ const EmailSettings = () => {
       info: 'Enable SMTP AUTH in Microsoft 365 Admin Center + use App Password'
     },
     yandex: {
-      name: 'Яндекс',
+      name: 'Yandex',
       host: 'smtp.yandex.ru',
       port: 587,
       encryption: 'starttls',
@@ -82,7 +85,7 @@ const EmailSettings = () => {
         setSmtpUsername(data.smtp_username || '');
         setSmtpPassword(data.smtp_password || '');
         setFromEmail(data.from_email || '');
-        setFromName(data.from_name || 'Training System');
+        setFromName(data.from_name || DEFAULT_SENDER_NAME);
         setNotificationsEnabled(data.notifications_enabled ?? true);
         setNotifyOnRegistration(data.notify_on_registration ?? true);
         setNotifyOnCompletion(data.notify_on_completion ?? true);
@@ -398,7 +401,7 @@ const EmailSettings = () => {
                   type="text"
                   value={fromName}
                   onChange={(e) => setFromName(e.target.value)}
-                  placeholder="Training System"
+                  placeholder={DEFAULT_SENDER_NAME}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>

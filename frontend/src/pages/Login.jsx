@@ -37,7 +37,12 @@ const Login = () => {
         navigate(redirectPath);
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      const errorDetail = err.response?.data?.detail || 'Login failed. Please check your credentials.';
+      if (err.response?.status === 403 && errorDetail.includes('not verified')) {
+        setError('Email not verified. Please check your email for the verification link.');
+      } else {
+        setError(errorDetail);
+      }
     } finally {
       setLoading(false);
     }
@@ -107,6 +112,13 @@ const Login = () => {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+          </div>
+
+          {/* Forgot Password Link */}
+          <div className="text-right mb-4">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+              Forgot Password?
+            </Link>
           </div>
 
           {/* Submit Button */}

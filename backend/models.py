@@ -14,6 +14,15 @@ class User(Base):
     role = Column(String, default="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
+    # Email verification
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True)
+    verification_token_expires = Column(DateTime(timezone=True), nullable=True)
+    
+    # Password reset
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    
     progress = relationship("UserSlideProgress", back_populates="user", cascade="all, delete-orphan")
     completions = relationship("UserCompletion", back_populates="user", cascade="all, delete-orphan")
 

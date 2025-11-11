@@ -39,6 +39,7 @@ const AdminPanel = () => {
   // const [editingSlideId, setEditingSlideId] = useState(null);
   // const [editingSlideTitle, setEditingSlideTitle] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [showDeleteUserConfirm, setShowDeleteUserConfirm] = useState(null);
   
   // For folder slide checking
   const [checkedSlides, setCheckedSlides] = useState([]);
@@ -68,7 +69,7 @@ const AdminPanel = () => {
   const role = localStorage.getItem('role');
   const currentUserEmail = localStorage.getItem('email');
 
-  // Проверка авторизации и роли при загрузке
+  // Auth and role check on load
   useEffect(() => {
     if (!token || role !== 'admin') {
       navigate('/login');
@@ -109,11 +110,11 @@ const AdminPanel = () => {
       const response = await api.get('/admin/users');
       setUsers(response.data.data);
     } catch (err) {
-      console.error('Ошибка при загрузке пользователей:', err);
+      console.error('Error loading users:', err);
       if (err.response?.status === 401 || err.response?.status === 403) {
         navigate('/login');
       } else {
-        setError('Ошибка при загрузке пользователей');
+        setError('Error loading users');
       }
     }
   };
@@ -127,11 +128,11 @@ const AdminPanel = () => {
       const response = await api.get('/admin/presentations');
       setPresentations(response.data.data);
     } catch (err) {
-      console.error('Ошибка при загрузке презентаций:', err);
+      console.error('Error loading presentations:', err);
       if (err.response?.status === 401 || err.response?.status === 403) {
         navigate('/login');
       } else {
-        setError('Ошибка при загрузке презентаций');
+        setError('Error loading presentations');
       }
     }
   };
@@ -143,10 +144,10 @@ const AdminPanel = () => {
     
     try {
       await api.post(`/admin/presentations/${presentationId}/publish`);
-      setSuccess('✓ Презентация опубликована');
+      setSuccess('✓ Presentation published');
       fetchPresentations();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка при публикации');
+      setError(err.response?.data?.detail || 'Error publishing presentation');
     } finally {
       setPublishingId(null);
     }
@@ -158,10 +159,10 @@ const AdminPanel = () => {
     
     try {
       await api.post(`/admin/presentations/${presentationId}/unpublish`);
-      setSuccess('✓ Презентация удалена из опубликованных');
+      setSuccess('✓ Presentation unpublished');
       fetchPresentations();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка при снятии с публикации');
+      setError(err.response?.data?.detail || 'Error unpublishing presentation');
     }
   };
 
@@ -172,10 +173,10 @@ const AdminPanel = () => {
     
     try {
       await api.delete(`/admin/presentations/${presentationId}?confirm=true`);
-      setSuccess('✓ Презентация и все ее слайды удалены');
+      setSuccess('✓ Presentation and all slides deleted');
       fetchPresentations();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Ошибка при удалении презентации');
+      setError(err.response?.data?.detail || 'Error deleting presentation');
     }
   };
 
@@ -195,11 +196,11 @@ const AdminPanel = () => {
       const response = await api.get('/admin/report', { params });
       setReport(response.data.data);
     } catch (err) {
-      console.error('Ошибка при загрузке отчета:', err);
+      console.error('Error loading report:', err);
       if (err.response?.status === 401 || err.response?.status === 403) {
         navigate('/login');
       } else {
-        setError('Ошибка при загрузке отчета');
+        setError('Error loading report');
       }
     }
   };
@@ -208,28 +209,27 @@ const AdminPanel = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    console.log('Все файлы в папке:', Array.from(files).map(f => f.name));
+  console.log('All files in folder:', Array.from(files).map(f => f.name));
 
-    // Получаем все файлы со слайдами - максимально гибкая фильтрация
-    // Принимаем: любые файлы .jpg/.jpeg, которые начинаются с "slide", или содержат цифры
+    // Gather slide files - flexible filtering
+    // Accept: any .jpg/.jpeg files that start with "slide" (numbered)
     const slideFiles = Array.from(files).filter(f => {
       const name = f.name.toLowerCase();
       const isImageFile = name.endsWith('.jpg') || name.endsWith('.jpeg');
       const isSlideFile = name.startsWith('slide');
-      // Принимаем файлы которые либо называются slide*, либо это JPG файлы с цифрами в имени
       return isImageFile && isSlideFile;
     }).sort((a, b) => {
-      // Извлекаем номер из имени файла
+      // Extract numeric order from filename
       const numA = parseInt(a.name.match(/\d+/)?.[0]) || 0;
       const numB = parseInt(b.name.match(/\d+/)?.[0]) || 0;
       return numA - numB;
     });
 
-    console.log('Найденные слайды:', slideFiles.map(f => f.name));
+    console.log('Found slides:', slideFiles.map(f => f.name));
 
     if (slideFiles.length === 0) {
       const allFiles = Array.from(files).map(f => f.name).join(', ');
-      setError(`В выбранной папке не найдены JPG слайды. Файлы должны начинаться с "slide" и быть в формате .jpg или .jpeg\n\nНайденные файлы: ${allFiles}`);
+      setError(`No JPG slides found in the selected folder. Files must start with "slide" and be .jpg or .jpeg.\n\nFound files: ${allFiles}`);
       setCheckedSlides([]);
       setSelectedFolderPath('');
       return;
@@ -242,8 +242,8 @@ const AdminPanel = () => {
       folderPath = firstFile.webkitRelativePath.split('/').slice(0, -1).join('/');
     }
 
-    // Подготавливаем данные о найденных слайдах
-    // Frontend автоматически переименует их в slide1.jpg, slide2.jpg, и т.д.
+    // Prepare found slides data
+    // Frontend will rename to slide1.jpg, slide2.jpg, etc.
     const slidesData = slideFiles.map((file, index) => ({
       filename: file.name,
       order: index + 1,
@@ -253,7 +253,7 @@ const AdminPanel = () => {
 
     setSelectedFolderPath(folderPath);
     setCheckedSlides(slidesData);
-    setSuccess(`✓ Найдено ${slidesData.length} слайдов`);
+    setSuccess(`✓ Found ${slidesData.length} slides`);
     setError('');
   };
 
@@ -408,6 +408,34 @@ const AdminPanel = () => {
       fetchUsers();
     } catch (err) {
       setError(err.response?.data?.detail || 'Error updating role');
+    }
+  };
+
+  const handleToggleVerification = async (userId, isVerified) => {
+    try {
+      await api.put(`/admin/verify/${userId}`, null, { params: { is_verified: isVerified } });
+      setSuccess(`✓ User ${isVerified ? 'verified' : 'unverified'} successfully`);
+      fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Error updating verification status');
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+      
+      await api.delete(`/admin/users/${userId}`);
+      setSuccess('✓ User deleted successfully');
+      setShowDeleteUserConfirm(null);
+      fetchUsers();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Error deleting user');
+      setShowDeleteUserConfirm(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -898,6 +926,47 @@ const AdminPanel = () => {
               </div>
             )}
 
+            {/* Delete User Confirmation Modal */}
+            {showDeleteUserConfirm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+                <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                      <AlertCircle className="text-red-600" size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Delete User</h2>
+                      <p className="text-sm text-gray-600">This action cannot be undone</p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-gray-700 mb-4">
+                    Are you sure you want to delete user <strong>{showDeleteUserConfirm.first_name} {showDeleteUserConfirm.last_name}</strong> ({showDeleteUserConfirm.email})?
+                  </p>
+                  
+                  <p className="text-xs text-red-600 mb-4">
+                    ⚠️ This will permanently delete the user and all their progress data.
+                  </p>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowDeleteUserConfirm(null)}
+                      className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition font-semibold text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(showDeleteUserConfirm.id)}
+                      disabled={loading}
+                      className="flex-1 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 font-semibold"
+                    >
+                      {loading ? 'Deleting...' : 'Delete User'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Users List */}
             <div className="bg-white rounded-xl shadow-md p-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Users</h2>
@@ -908,41 +977,70 @@ const AdminPanel = () => {
                       <th className="text-left py-2 px-2 font-semibold text-gray-700 text-xs">Name</th>
                       <th className="text-left py-2 px-2 font-semibold text-gray-700 text-xs">Email</th>
                       <th className="text-left py-2 px-2 font-semibold text-gray-700 text-xs">Role</th>
+                      <th className="text-left py-2 px-2 font-semibold text-gray-700 text-xs">Verified</th>
                       <th className="text-left py-2 px-2 font-semibold text-gray-700 text-xs">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map(user => (
-                      <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-2 px-2 text-xs">{user.first_name} {user.last_name}</td>
-                        <td className="py-2 px-2 text-xs">{user.email}</td>
-                        <td className="py-2 px-2">
-                          <span className={`px-2 py-0.5 rounded-full font-semibold text-xs ${
-                            user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {user.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
-                          </span>
-                        </td>
-                        <td className="py-2 px-2 space-x-1">
-                          {user.role !== 'admin' && (
+                    {users.map(user => {
+                      const currentUserEmail = localStorage.getItem('email');
+                      const isCurrentUser = user.email === currentUserEmail;
+                      const isVerified = user.is_verified !== undefined ? user.is_verified : true;
+                      
+                      return (
+                        <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-2 px-2 text-xs">{user.first_name} {user.last_name}</td>
+                          <td className="py-2 px-2 text-xs">{user.email}</td>
+                          <td className="py-2 px-2">
+                            <span className={`px-2 py-0.5 rounded-full font-semibold text-xs ${
+                              user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {user.role === 'admin' ? '👨‍💼 Admin' : '👤 User'}
+                            </span>
+                          </td>
+                          <td className="py-2 px-2">
                             <button
-                              onClick={() => handleSetRole(user.id, 'admin')}
-                              className="text-blue-600 hover:text-blue-700 font-semibold text-xs"
+                              onClick={() => handleToggleVerification(user.id, !isVerified)}
+                              className={`px-2 py-0.5 rounded-full font-semibold text-xs transition ${
+                                isVerified 
+                                  ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                  : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                              }`}
+                              title={`Click to ${isVerified ? 'unverify' : 'verify'}`}
                             >
-                              Make Admin
+                              {isVerified ? '✓ Verified' : '⚠ Not Verified'}
                             </button>
-                          )}
-                          {user.role === 'admin' && (
-                            <button
-                              onClick={() => handleSetRole(user.id, 'user')}
-                              className="text-gray-600 hover:text-gray-700 font-semibold text-xs"
-                            >
-                              Remove Admin
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="py-2 px-2 space-x-2 flex items-center">
+                            {user.role !== 'admin' && (
+                              <button
+                                onClick={() => handleSetRole(user.id, 'admin')}
+                                className="text-blue-600 hover:text-blue-700 font-semibold text-xs"
+                              >
+                                Make Admin
+                              </button>
+                            )}
+                            {user.role === 'admin' && (
+                              <button
+                                onClick={() => handleSetRole(user.id, 'user')}
+                                className="text-gray-600 hover:text-gray-700 font-semibold text-xs"
+                              >
+                                Remove Admin
+                              </button>
+                            )}
+                            {!isCurrentUser && (
+                              <button
+                                onClick={() => setShowDeleteUserConfirm(user)}
+                                className="text-red-600 hover:text-red-700 transition"
+                                title="Delete user"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

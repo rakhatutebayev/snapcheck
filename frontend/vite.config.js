@@ -8,11 +8,8 @@ function spaFallbackPlugin() {
     configureServer(server) {
       return () => {
         server.middlewares.use((req, res, next) => {
-          // Skip API endpoints
-          if (req.url.startsWith('/auth/') ||
-              req.url.startsWith('/admin/') ||
-              req.url.startsWith('/slides/') ||
-              req.url.startsWith('/user/')) {
+          // Skip only API proxy endpoints; SPA routes must fall back to index.html
+          if (req.url === '/api' || req.url.startsWith('/api/')) {
             return next();
           }
           

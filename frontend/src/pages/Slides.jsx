@@ -75,7 +75,7 @@ const Slides = () => {
           
           // ✅ Показываем сообщение только если позиция > 0
           if (validPosition > 0) {
-            success(`� Resuming from slide ${validPosition + 1}`, 4000);
+            success(`🔄 Resuming from slide ${validPosition + 1}`, 4000);
           }
         }
         
@@ -453,7 +453,7 @@ const Slides = () => {
               ></div>
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
-              Просмотрено {progress.viewed_count} из {progress.total_count} слайдов
+              Viewed {progress.viewed_count} of {progress.total_count} slides
             </p>
           </div>
         )}

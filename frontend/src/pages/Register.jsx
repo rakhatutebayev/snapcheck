@@ -66,10 +66,15 @@ const Register = () => {
         password: formData.password
       });
 
-      setSuccess('Registration successful! Redirecting to login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setSuccess('Registration successful! Please check your email to verify your account before logging in.');
+      // Don't auto-redirect, let user read the message
+      setFormData({
+        first_name: '',
+        last_name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration error');
     } finally {
