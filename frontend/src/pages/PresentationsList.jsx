@@ -98,13 +98,13 @@ const PresentationsList = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">📚 Available Presentations</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">📚 Available Presentations</h1>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition text-sm"
+            className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium w-full sm:w-auto"
           >
-            <LogOut size={14} />
+            <LogOut size={16} />
             Logout
           </button>
         </div>
@@ -117,125 +117,216 @@ const PresentationsList = () => {
           </div>
         )}
 
-        {/* Presentations Table */}
+        {/* Presentations List */}
         {presentations.length === 0 ? (
           <div className="text-center py-12">
             <Lock className="mx-auto text-gray-400 mb-3" size={48} />
             <p className="text-gray-600 text-sm">No presentations available yet</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                  <th className="px-4 py-2 text-left text-xs font-semibold">Presentation</th>
-                  <th className="px-4 py-2 text-center text-xs font-semibold">Slides</th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold">Status</th>
-                  <th className="px-4 py-2 text-center text-xs font-semibold">Progress</th>
-                  <th className="px-4 py-2 text-center text-xs font-semibold">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {presentations.map((presentation, idx) => (
-                  <tr key={presentation.id} className={`border-t border-gray-100 hover:bg-gray-50 transition ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    {/* Presentation Title */}
-                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 max-w-xs truncate">
-                      {presentation.title}
-                    </td>
-
-                    {/* Slides Count */}
-                    <td className="px-4 py-3 text-center text-sm text-gray-600">
-                      📊 {presentation.slides_count}
-                    </td>
-
-                    {/* Status Badge */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center min-h-[28px]">
-                        {presentation.status === 'not_started' && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                            <Unlock className="text-yellow-600 flex-shrink-0" size={12} />
-                            <span className="text-yellow-700 font-semibold">Not Started</span>
-                          </div>
-                        )}
-                        {presentation.status === 'in_progress' && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
-                            <Play className="text-blue-600 flex-shrink-0" size={12} />
-                            <span className="text-blue-700 font-semibold">In Progress</span>
-                          </div>
-                        )}
-                        {presentation.status === 'completed' && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs">
-                            <CheckCircle className="text-green-600 flex-shrink-0" size={12} />
-                            <span className="text-green-700 font-semibold">Completed</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Progress Bar and Percentage */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-                          <div
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-300"
-                            style={{ width: `${presentation.progress}%` }}
-                          ></div>
+          <>
+            {/* Desktop Table View - Hidden on Mobile */}
+            <div className="hidden md:block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                    <th className="px-4 py-2 text-left text-xs font-semibold">Presentation</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold">Slides</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold">Status</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold">Progress</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {presentations.map((presentation, idx) => (
+                    <tr key={presentation.id} className={`border-t border-gray-100 hover:bg-gray-50 transition ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                      <td className="px-4 py-3 text-sm font-semibold text-gray-900 max-w-xs truncate">
+                        {presentation.title}
+                      </td>
+                      <td className="px-4 py-3 text-center text-sm text-gray-600">
+                        📊 {presentation.slides_count}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center min-h-[28px]">
+                          {presentation.status === 'not_started' && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                              <Unlock className="text-yellow-600 flex-shrink-0" size={12} />
+                              <span className="text-yellow-700 font-semibold">Not Started</span>
+                            </div>
+                          )}
+                          {presentation.status === 'in_progress' && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                              <Play className="text-blue-600 flex-shrink-0" size={12} />
+                              <span className="text-blue-700 font-semibold">In Progress</span>
+                            </div>
+                          )}
+                          {presentation.status === 'completed' && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs">
+                              <CheckCircle className="text-green-600 flex-shrink-0" size={12} />
+                              <span className="text-green-700 font-semibold">Completed</span>
+                            </div>
+                          )}
                         </div>
-                        <span className="text-xs font-bold text-blue-600 min-w-[35px] text-right">
-                          {presentation.progress}%
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1 text-center">
-                        {presentation.viewed_slides}/{presentation.slides_count}
-                      </p>
-                    </td>
-
-                    {/* Action Buttons */}
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        {presentation.status === 'not_started' && (
-                          <button
-                            onClick={() => handleStartPresentation(presentation.id)}
-                            className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition font-semibold text-xs whitespace-nowrap"
-                          >
-                            <Play size={12} />
-                            Start
-                          </button>
-                        )}
-                        {presentation.status === 'in_progress' && (
-                          <button
-                            onClick={() => handleStartPresentation(presentation.id)}
-                            className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition font-semibold text-xs whitespace-nowrap"
-                          >
-                            <Play size={12} />
-                            Continue
-                          </button>
-                        )}
-                        {presentation.status === 'completed' && (
-                          <div className="flex gap-1">
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                            <div
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${presentation.progress}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs font-bold text-blue-600 min-w-[35px] text-right">
+                            {presentation.progress}%
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 text-center">
+                          {presentation.viewed_slides}/{presentation.slides_count}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          {presentation.status === 'not_started' && (
                             <button
                               onClick={() => handleStartPresentation(presentation.id)}
-                              className="flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 transition font-semibold text-xs whitespace-nowrap"
+                              className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition font-semibold text-xs whitespace-nowrap"
                             >
                               <Play size={12} />
-                              View
+                              Start
                             </button>
+                          )}
+                          {presentation.status === 'in_progress' && (
                             <button
-                              onClick={() => setShowConfirm(presentation.id)}
-                              className="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700 transition font-semibold text-xs whitespace-nowrap"
+                              onClick={() => handleStartPresentation(presentation.id)}
+                              className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition font-semibold text-xs whitespace-nowrap"
                             >
-                              <RotateCcw size={12} />
-                              Repeat
+                              <Play size={12} />
+                              Continue
                             </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          )}
+                          {presentation.status === 'completed' && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleStartPresentation(presentation.id)}
+                                className="flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 transition font-semibold text-xs whitespace-nowrap"
+                              >
+                                <Play size={12} />
+                                View
+                              </button>
+                              <button
+                                onClick={() => setShowConfirm(presentation.id)}
+                                className="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700 transition font-semibold text-xs whitespace-nowrap"
+                              >
+                                <RotateCcw size={12} />
+                                Repeat
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View - Hidden on Desktop */}
+            <div className="md:hidden space-y-4">
+              {presentations.map((presentation) => (
+                <div key={presentation.id} className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+                  {/* Title and Status */}
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-base font-bold text-gray-900 flex-1 pr-2 leading-tight">
+                      {presentation.title}
+                    </h3>
+                    <div className="flex-shrink-0">
+                      {presentation.status === 'not_started' && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                          <Unlock className="text-yellow-600 flex-shrink-0" size={12} />
+                          <span className="text-yellow-700 font-semibold">Not Started</span>
+                        </div>
+                      )}
+                      {presentation.status === 'in_progress' && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                          <Play className="text-blue-600 flex-shrink-0" size={12} />
+                          <span className="text-blue-700 font-semibold">In Progress</span>
+                        </div>
+                      )}
+                      {presentation.status === 'completed' && (
+                        <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded text-xs">
+                          <CheckCircle className="text-green-600 flex-shrink-0" size={12} />
+                          <span className="text-green-700 font-semibold">Completed</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Slides Count */}
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                    <span>📊 {presentation.slides_count} slides</span>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-gray-500">
+                      {presentation.viewed_slides}/{presentation.slides_count} viewed
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 font-medium">Progress</span>
+                      <span className="text-xs font-bold text-blue-600">{presentation.progress}%</span>
+                    </div>
+                    <div className="bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${presentation.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    {presentation.status === 'not_started' && (
+                      <button
+                        onClick={() => handleStartPresentation(presentation.id)}
+                        className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition font-semibold text-sm"
+                      >
+                        <Play size={16} />
+                        Start
+                      </button>
+                    )}
+                    {presentation.status === 'in_progress' && (
+                      <button
+                        onClick={() => handleStartPresentation(presentation.id)}
+                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 transition font-semibold text-sm"
+                      >
+                        <Play size={16} />
+                        Continue
+                      </button>
+                    )}
+                    {presentation.status === 'completed' && (
+                      <>
+                        <button
+                          onClick={() => handleStartPresentation(presentation.id)}
+                          className="flex-1 flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2.5 rounded-lg hover:bg-gray-700 transition font-semibold text-sm"
+                        >
+                          <Play size={16} />
+                          View
+                        </button>
+                        <button
+                          onClick={() => setShowConfirm(presentation.id)}
+                          className="flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2.5 rounded-lg hover:bg-orange-700 transition font-semibold text-sm"
+                        >
+                          <RotateCcw size={16} />
+                          Repeat
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Confirmation Modal - Repeat */}
