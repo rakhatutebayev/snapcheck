@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { ChevronLeft, ChevronRight, Check, LogOut, AlertCircle, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, LogOut, AlertCircle, CheckCircle, Maximize, Minimize } from 'lucide-react';
 import Toast from '../components/Toast';
 import useToast from '../hooks/useToast';
 import ConfirmModal from '../components/ConfirmModal';
@@ -19,6 +19,7 @@ const Slides = () => {
   const [showSkipWarning, setShowSkipWarning] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [controlsTimeout, setControlsTimeout] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   // ✅ Используем новый модуль Toast
   const { toasts, error, success, info, warning, clearAll } = useToast();
@@ -215,6 +216,56 @@ const Slides = () => {
     };
   }, [controlsTimeout]);
 
+  // Toggle fullscreen mode
+  const toggleFullscreen = async () => {
+    const elem = document.documentElement;
+    
+    if (!isFullscreen) {
+      // Enter fullscreen
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { // Safari
+        await elem.webkitRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) { // Firefox
+        await elem.mozRequestFullScreen();
+      } else if (elem.msRequestFullscreen) { // IE/Edge
+        await elem.msRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { // Safari
+        await document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) { // Firefox
+        await document.mozCancelFullScreen();
+      } else if (document.msExitFullscreen) { // IE/Edge
+        await document.msExitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement || !!document.webkitFullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -266,9 +317,9 @@ const Slides = () => {
 
   return (
     <div className="min-h-screen h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-blue-100 overflow-hidden">
-      {/* Header - Fixed Height - Hidden on mobile when controls hidden */}
-      <div className={`flex items-center justify-between px-2 py-2 bg-white bg-opacity-90 flex-shrink-0 border-b border-gray-200 transition-all duration-300 ${
-        showControls ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0'
+      {/* Header - Fixed Height - Hidden on mobile when controls hidden, always visible in fullscreen mode */}
+      <div className={`flex items-center justify-between px-2 py-2 bg-white bg-opacity-90 flex-shrink-0 border-b border-gray-200 transition-all duration-300 z-50 ${
+        showControls || isFullscreen ? 'translate-y-0 opacity-100' : 'md:translate-y-0 md:opacity-100 -translate-y-full opacity-0'
       }`}>
         <div className="flex items-center gap-2 min-w-0">
           <button
@@ -291,10 +342,17 @@ const Slides = () => {
             </span>
           )}
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 flex-shrink-0"
-        >
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Fullscreen Toggle Button */}
+          <button
+            onClick={toggleFullscreen}
+            className="flex items-center gap-0.5 bg-purple-600 text-white px-2 py-1 rounded-lg hover:bg-purple-700 transition text-xs flex-shrink-0"
+            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+            <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Full'}</span>
+          </button>
+          
           <div className="text-right hidden sm:block">
             <p className="text-xs font-medium text-gray-700">{userName}</p>
           </div>
@@ -305,7 +363,7 @@ const Slides = () => {
             <LogOut size={12} />
             <span className="hidden sm:inline">Logout</span>
           </button>
-        </button>
+        </div>
       </div>
 
       {/* Main Content Area - Flexible */}
@@ -359,11 +417,11 @@ const Slides = () => {
           </div>
 
           {/* Slide Image - Responsive - FULL SCREEN ON MOBILE */}
-          <div className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black md:bg-transparent">
+          <div className="flex-1 overflow-hidden flex items-center justify-center md:px-2 md:py-2 bg-black">
             <img 
               src={`/api/slides/image/${currentSlide.presentation_id}/${currentSlide.filename}`}
               alt={`Slide ${currentSlideIndex + 1}`}
-              className="w-full h-full object-contain md:max-h-full md:max-w-full md:rounded md:shadow-md"
+              className="w-full h-full object-contain"
               onError={(e) => {
                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3Ctext x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%239CA3AF" font-size="18"%3ESlide Preview%3C/text%3E%3C/svg%3E';
               }}
