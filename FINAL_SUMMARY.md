@@ -96,7 +96,7 @@ if (!previewMode) {
 
 ### Шаг 1: Обновить frontend код
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Если используется git
 git pull
@@ -328,4 +328,4 @@ const validPosition = Math.min(4, 3 - 1);  // = Math.min(4, 2) = 2
 **Дата:** October 20, 2025  
 **Время работы:** ✅ Завершено и готово к production! 🚀
 
-**Спасибо за использование SlideConfirm! 👍**
+**Спасибо за использование SnapCheck! 👍**

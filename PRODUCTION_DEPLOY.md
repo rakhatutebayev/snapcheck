@@ -1,4 +1,4 @@
-# 🚀 Production Deploy Guide - SlideConfirm
+# 🚀 Production Deploy Guide - SnapCheck
 
 Полное руководство по созданию production версии и развёртыванию на Ubuntu.
 
@@ -16,7 +16,7 @@
 ## Структура Production проекта
 
 ```
-/opt/slideconfirm/
+/opt/snapcheck/
 ├── app/                          # Основное приложение
 │   ├── backend/                  # FastAPI backend
 │   ├── frontend/                 # React frontend (собранный)
@@ -120,20 +120,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
+    container_name: snapcheck-backend
     ports:
       - "8000:8000"
     volumes:
       - ./data/db:/app/data/db
-      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./data/uploads:/tmp/snapcheck_uploads
       - ./logs:/app/logs
     environment:
-      - DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+      - DATABASE_URL=sqlite:///./data/db/snapcheck.db
       - ENVIRONMENT=production
       - LOG_LEVEL=info
     restart: unless-stopped
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -145,7 +145,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
+    container_name: snapcheck-frontend
     ports:
       - "80:80"
     volumes:
@@ -154,11 +154,11 @@ services:
       - backend
     restart: unless-stopped
     networks:
-      - slideconfirm-network
+      - snapcheck-network
 
   nginx-reverse-proxy:
     image: nginx:alpine
-    container_name: slideconfirm-nginx-proxy
+    container_name: snapcheck-nginx-proxy
     ports:
       - "443:443"
     volumes:
@@ -170,10 +170,10 @@ services:
       - frontend
     restart: unless-stopped
     networks:
-      - slideconfirm-network
+      - snapcheck-network
 
 networks:
-  slideconfirm-network:
+  snapcheck-network:
     driver: bridge
 
 volumes:
@@ -233,7 +233,7 @@ http {
     # HTTPS сервер
     server {
         listen 443 ssl http2;
-        server_name slideconfirm.example.com;
+        server_name snapcheck.example.com;
 
         # SSL сертификаты
         ssl_certificate /etc/nginx/certs/cert.pem;
@@ -288,24 +288,24 @@ http {
 
 ## SystemD сервисы
 
-### /etc/systemd/system/slideconfirm.service
+### /etc/systemd/system/snapcheck.service
 
 ```ini
 [Unit]
-Description=SlideConfirm Docker Compose Service
+Description=SnapCheck Docker Compose Service
 After=docker.service network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=slideconfirm
-WorkingDirectory=/opt/slideconfirm
+User=snapcheck
+WorkingDirectory=/opt/snapcheck
 ExecStart=/usr/bin/docker-compose up
 ExecStop=/usr/bin/docker-compose down
 Restart=always
 RestartSec=10
 
-Environment="COMPOSE_PROJECT_NAME=slideconfirm"
+Environment="COMPOSE_PROJECT_NAME=snapcheck"
 
 [Install]
 WantedBy=multi-user.target
@@ -320,7 +320,7 @@ WantedBy=multi-user.target
 
 set -e
 
-echo "🚀 SlideConfirm Production Installation"
+echo "🚀 SnapCheck Production Installation"
 echo "======================================="
 
 # Проверка прав
@@ -346,15 +346,15 @@ apt-get install -y \
     python3-certbot-nginx
 
 # Создание пользователя
-echo "👤 Создание пользователя slideconfirm..."
-useradd -m -s /bin/bash slideconfirm 2>/dev/null || true
+echo "👤 Создание пользователя snapcheck..."
+useradd -m -s /bin/bash snapcheck 2>/dev/null || true
 
 # Создание директорий
 echo "📁 Создание директорий..."
-mkdir -p /opt/slideconfirm/{app,config,data/db,data/uploads,logs,scripts}
+mkdir -p /opt/snapcheck/{app,config,data/db,data/uploads,logs,scripts}
 
 # Установка прав
-chown -R slideconfirm:slideconfirm /opt/slideconfirm
+chown -R snapcheck:snapcheck /opt/snapcheck
 
 # Копирование приложения
 echo "📋 Копирование приложения..."
@@ -363,29 +363,29 @@ echo "📋 Копирование приложения..."
 # Установка SSL сертификата (Let's Encrypt)
 echo "🔒 Генерация SSL сертификата..."
 certbot certonly --standalone \
-    -d slideconfirm.example.com \
+    -d snapcheck.example.com \
     --email admin@example.com \
     --agree-tos -q
 
 # Копирование сертификатов
-cp /etc/letsencrypt/live/slideconfirm.example.com/fullchain.pem /opt/slideconfirm/certs/cert.pem
-cp /etc/letsencrypt/live/slideconfirm.example.com/privkey.pem /opt/slideconfirm/certs/key.pem
+cp /etc/letsencrypt/live/snapcheck.example.com/fullchain.pem /opt/snapcheck/certs/cert.pem
+cp /etc/letsencrypt/live/snapcheck.example.com/privkey.pem /opt/snapcheck/certs/key.pem
 
 # Копирование SystemD сервиса
 echo "⚙️ Установка SystemD сервиса..."
-cp /opt/slideconfirm/config/systemd/slideconfirm.service /etc/systemd/system/
+cp /opt/snapcheck/config/systemd/snapcheck.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable slideconfirm.service
+systemctl enable snapcheck.service
 
 # Запуск приложения
 echo "🚀 Запуск приложения..."
-systemctl start slideconfirm.service
+systemctl start snapcheck.service
 
 # Проверка статуса
 echo "✅ Установка завершена!"
-echo "🌐 Ваше приложение доступно по адресу: https://slideconfirm.example.com"
+echo "🌐 Ваше приложение доступно по адресу: https://snapcheck.example.com"
 
-systemctl status slideconfirm.service
+systemctl status snapcheck.service
 ```
 
 ### update.sh
@@ -395,14 +395,14 @@ systemctl status slideconfirm.service
 
 set -e
 
-echo "🔄 Обновление SlideConfirm"
+echo "🔄 Обновление SnapCheck"
 echo "=========================="
 
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Резервное копирование БД
 echo "💾 Резервное копирование БД..."
-cp data/db/slideconfirm.db data/backups/slideconfirm.db.backup.$(date +%Y%m%d_%H%M%S)
+cp data/db/snapcheck.db data/backups/snapcheck.db.backup.$(date +%Y%m%d_%H%M%S)
 
 # Остановка контейнеров
 echo "🛑 Остановка контейнеров..."
@@ -437,21 +437,21 @@ fi
 ```bash
 #!/bin/bash
 
-BACKUP_DIR="/opt/slideconfirm/data/backups"
+BACKUP_DIR="/opt/snapcheck/data/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-echo "💾 Резервное копирование SlideConfirm"
+echo "💾 Резервное копирование SnapCheck"
 echo "===================================="
 
 # Резервная копия БД
 echo "📦 Архивирование БД..."
 tar -czf "$BACKUP_DIR/db_backup_$TIMESTAMP.tar.gz" \
-    /opt/slideconfirm/data/db/
+    /opt/snapcheck/data/db/
 
 # Резервная копия загружаемых файлов
 echo "📦 Архивирование загруженных файлов..."
 tar -czf "$BACKUP_DIR/uploads_backup_$TIMESTAMP.tar.gz" \
-    /tmp/slideconfirm_uploads/
+    /tmp/snapcheck_uploads/
 
 # Удаление старых резервных копий (старше 30 дней)
 echo "🗑️ Очистка старых резервных копий..."
@@ -466,7 +466,7 @@ echo "📁 Файлы сохранены в: $BACKUP_DIR"
 ```bash
 #!/bin/bash
 
-echo "🏥 Проверка здоровья SlideConfirm"
+echo "🏥 Проверка здоровья SnapCheck"
 echo "=================================="
 
 # Проверка Backend
@@ -487,14 +487,14 @@ fi
 
 # Проверка Docker контейнеров
 echo -n "Docker Backend: "
-if docker ps | grep slideconfirm-backend > /dev/null; then
+if docker ps | grep snapcheck-backend > /dev/null; then
     echo "✅ Running"
 else
     echo "❌ Stopped"
 fi
 
 echo -n "Docker Frontend: "
-if docker ps | grep slideconfirm-frontend > /dev/null; then
+if docker ps | grep snapcheck-frontend > /dev/null; then
     echo "✅ Running"
 else
     echo "❌ Stopped"
@@ -503,7 +503,7 @@ fi
 # Проверка дискового пространства
 echo ""
 echo "💾 Дисковое пространство:"
-df -h /opt/slideconfirm | tail -1
+df -h /opt/snapcheck | tail -1
 
 # Проверка использования памяти Docker
 echo ""
@@ -526,8 +526,8 @@ docker-compose logs -f backend
 docker-compose logs -f frontend
 
 # Логи Nginx
-tail -f /opt/slideconfirm/logs/nginx/access.log
-tail -f /opt/slideconfirm/logs/nginx/error.log
+tail -f /opt/snapcheck/logs/nginx/access.log
+tail -f /opt/snapcheck/logs/nginx/error.log
 ```
 
 ### Prometheus метрики (опционально)
@@ -551,7 +551,7 @@ async def metrics():
 
 ```bash
 # На сервере
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Запуск обновления
 bash scripts/update.sh
@@ -570,57 +570,57 @@ docker-compose logs -f backend
 ssh root@your-server.com
 
 # Запуск установки
-bash /opt/slideconfirm/scripts/install.sh
+bash /opt/snapcheck/scripts/install.sh
 
 # После установки
-systemctl status slideconfirm.service
+systemctl status snapcheck.service
 
 # Проверка приложения
-curl https://slideconfirm.example.com/health
+curl https://snapcheck.example.com/health
 ```
 
 ## Управление сервисом
 
 ```bash
 # Запуск
-systemctl start slideconfirm.service
+systemctl start snapcheck.service
 
 # Остановка
-systemctl stop slideconfirm.service
+systemctl stop snapcheck.service
 
 # Перезагрузка
-systemctl restart slideconfirm.service
+systemctl restart snapcheck.service
 
 # Статус
-systemctl status slideconfirm.service
+systemctl status snapcheck.service
 
 # Логи
-journalctl -u slideconfirm.service -f
+journalctl -u snapcheck.service -f
 ```
 
 ## Резервное копирование
 
 ```bash
 # Однократное резервное копирование
-bash /opt/slideconfirm/scripts/backup.sh
+bash /opt/snapcheck/scripts/backup.sh
 
 # Автоматическое резервное копирование каждый день в 2:00
-0 2 * * * /opt/slideconfirm/scripts/backup.sh >> /var/log/slideconfirm-backup.log 2>&1
+0 2 * * * /opt/snapcheck/scripts/backup.sh >> /var/log/snapcheck-backup.log 2>&1
 ```
 
 ## Переменные окружения
 
-Создать `/opt/slideconfirm/.env`:
+Создать `/opt/snapcheck/.env`:
 
 ```
 ENVIRONMENT=production
 DEBUG=false
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 SECRET_KEY=your-secret-key-here
 LOG_LEVEL=info
 WORKERS=4
 MAX_UPLOAD_SIZE=104857600
-DOMAIN=slideconfirm.example.com
+DOMAIN=snapcheck.example.com
 ```
 
 ## Требования к серверу

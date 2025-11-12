@@ -324,7 +324,7 @@ App
 
 ### Local Testing
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Build
 docker-compose build frontend --no-cache
@@ -339,7 +339,7 @@ open http://localhost:3000
 ### Production Deployment
 ```bash
 ssh root@88.99.124.218
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Update & build
 git pull

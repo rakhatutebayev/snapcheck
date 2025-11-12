@@ -20,7 +20,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_URL="https://github.com/rakhatutebayev/snapcheck.git"
-INSTALL_DIR="/opt/SlideConfirm"
+INSTALL_DIR="/opt/SnapCheck"
 DOMAIN="${DOMAIN:-lms.it-uae.com}"
 
 echo ""

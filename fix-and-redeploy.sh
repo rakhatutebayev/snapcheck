@@ -20,7 +20,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # Перейти в папку приложения
-cd /opt/SlideConfirm || { echo -e "${RED}Папка /opt/SlideConfirm не найдена${NC}"; exit 1; }
+cd /opt/snapcheck || { echo -e "${RED}Папка /opt/snapcheck не найдена${NC}"; exit 1; }
 
 echo -e "${YELLOW}Загрузка переменных из .env...${NC}"
 if [ -f .env ]; then

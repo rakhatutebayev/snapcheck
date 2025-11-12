@@ -240,7 +240,7 @@ return SlidesListResponse(
 ### 2. Пересобрать frontend
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose build frontend --no-cache
 ```
 

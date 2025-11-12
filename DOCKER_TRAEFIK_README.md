@@ -107,7 +107,7 @@ sudo ss -tlnp | grep -E ":80|:443"
 - 🚀 Быстрая установка (10 мин)
 - 📝 Полная пошаговая установка
 - 🛠️ Автоматический скрипт
-- 🐳 Развернуть SlideConfirm (11 шагов)
+- 🐳 Развернуть SnapCheck (11 шагов)
 - 📊 Командный набор
 - 🔄 Автоматическое обновление
 - ⚠️ Проблемы и решения
@@ -120,7 +120,7 @@ sudo ss -tlnp | grep -E ":80|:443"
 - 🚀 Быстрая установка (10 минут)
 - 📝 Полная установка Docker
 - 🛠️ Автоматический скрипт
-- 🐳 Развернуть SlideConfirm
+- 🐳 Развернуть SnapCheck
 - 📊 Командный набор
 - 🔄 Автоматическое обновление
 - ⚠️ Проблемы и решения
@@ -137,11 +137,11 @@ services:
   backend:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.slideconfirm-backend.rule=Host(...) && PathPrefix(/api)
+      - traefik.http.routers.snapcheck-backend.rule=Host(...) && PathPrefix(/api)
   frontend:
     labels:
       - traefik.enable=true
-      - traefik.http.routers.slideconfirm-frontend.rule=Host(...)
+      - traefik.http.routers.snapcheck-frontend.rule=Host(...)
   db:
     labels: # БД не нужны labels
 ```
@@ -171,7 +171,7 @@ server {
 
 ## 🔍 КАКИЕ ФАЙЛЫ НА UBUNTU СЕРВЕРЕ
 
-### /opt/slideconfirm/
+### /opt/snapcheck/
 
 ```
 ✅ .env                           # СОЗДАТЬ И ЗАПОЛНИТЬ
@@ -196,8 +196,8 @@ server {
 # На Ubuntu сервере:
 
 # 1. Загрузить проект
-git clone https://github.com/.../slideconfirm.git /opt/slideconfirm
-cd /opt/slideconfirm
+git clone https://github.com/.../snapcheck.git /opt/snapcheck
+cd /opt/snapcheck
 
 # 2. Создать .env
 nano .env  # Вставить DOMAIN, SECRET_KEY, DB_PASSWORD
@@ -218,7 +218,7 @@ docker-compose logs -f
 ### Сценарий 2: Обновление кода
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Загрузить обновления
 git pull
@@ -245,7 +245,7 @@ docker-compose logs -f frontend | head -30
 docker-compose logs -f db | head -30
 
 # Шаг 3: Проверить Traefik
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # Шаг 4: Запустить диагностику
 bash check-docker-traefik.sh
@@ -287,7 +287,7 @@ docker-compose restart
 ## 🎯 ГЛАВНЫЕ КОМАНДЫ
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Запустить
 docker-compose up -d

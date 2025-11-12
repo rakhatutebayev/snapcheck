@@ -24,7 +24,7 @@
 
 ### Шаг 1: Обновить код
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Если используется git
 git pull
@@ -127,7 +127,7 @@ curl "http://localhost/api/slides/list?presentation_id=1" \
 
 ### БД таблица существует?
 ```bash
-docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm \
+docker exec snapcheck-db psql -U snapcheck -d snapcheck \
   -c "SELECT * FROM user_presentation_position LIMIT 1;"
 ```
 - [ ] Таблица существует
@@ -165,7 +165,7 @@ curl "http://localhost/"
 
 ### Быстрый rollback (5 минут)
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Вернуться к последнему рабочему коммиту
 git revert HEAD
@@ -230,7 +230,7 @@ docker-compose up -d
 
 4. **Контакт:** 
    - Telegram: @rakhat
-   - Email: support@slideconfirm.com
+   - Email: support@snapcheck.com
    - Phone: +XXX
 
 ---

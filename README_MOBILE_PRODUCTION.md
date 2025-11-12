@@ -152,7 +152,7 @@ frontend-mobile/                    ← ВСЁ ПРИЛОЖЕНИЕ ЗДЕСЬ
 ### Документы в корне проекта
 
 ```
-/SlideConfirm/
+/SnapCheck/
 ├── MOBILE_APP_FILES_AND_DOCS.md ........... ← НАЧНИТЕ ОТСЮДА!
 ├── MOBILE_PRODUCTION_GUIDE.md ............ 📖 Обзор (5 мин)
 ├── MOBILE_APP_READY_FOR_PRODUCTION.md ... 📊 Полный отчет

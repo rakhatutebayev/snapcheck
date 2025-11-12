@@ -49,7 +49,7 @@
 4. Нажать + (новый)
 5. Выбрать App (not App Clip)
 6. Выбрать Explicit (не Wildcard)
-7. Bundle ID: com.slideconfirm.snapcheck
+7. Bundle ID: com.snapcheck.snapcheck
 8. Включить все capability (Camera, Photos)
 9. Register → Confirm
 ```
@@ -189,12 +189,12 @@ SnapCheck — приложение для презентаций с отслеж
 
 **3. URL поддержки:**
 ```
-https://slideconfirm.com/support
+https://snapcheck.com/support
 ```
 
 **4. URL политики конфиденциальности:**
 ```
-https://slideconfirm.com/privacy
+https://snapcheck.com/privacy
 ```
 
 **5. Рейтинг контента (Age Rating):**
@@ -223,12 +223,12 @@ SnapCheck — мобильное приложение для просмотра 
 
 **3. URL политики конфиденциальности:**
 ```
-https://slideconfirm.com/privacy
+https://snapcheck.com/privacy
 ```
 
 **4. Контактный Email:**
 ```
-support@slideconfirm.com
+support@snapcheck.com
 ```
 
 **5. Рейтинг контента:**
@@ -445,8 +445,8 @@ eas submit --platform all --latest
 
 ☐ app.json обновлен:
   ☐ version = "1.0.0"
-  ☐ bundleIdentifier = "com.slideconfirm.snapcheck"
-  ☐ package = "com.slideconfirm.snapcheck"
+  ☐ bundleIdentifier = "com.snapcheck.snapcheck"
+  ☐ package = "com.snapcheck.snapcheck"
   ☐ icon указана (1024x1024)
   ☐ splash указана
 
@@ -505,7 +505,7 @@ iOS App Store:
 https://apps.apple.com/app/snapcheck
 
 Google Play Store:
-https://play.google.com/store/apps/details?id=com.slideconfirm.snapcheck
+https://play.google.com/store/apps/details?id=com.snapcheck.snapcheck
 ```
 
 **Следующие шаги:**

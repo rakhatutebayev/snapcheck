@@ -14,11 +14,11 @@ SSH_USER = ____________________________  (обычно root)
 SSH_PASSWORD = ____________________________
 
 # 2. ДОМЕН
-DOMAIN = ____________________________  (например: slideconfirm.com)
+DOMAIN = ____________________________  (например: snapcheck.com)
 EMAIL_FOR_SSL = ____________________________  (например: admin@company.com)
 
 # 3. GITHUB
-GITHUB_REPO = ____________________________  (например: https://github.com/user/slideconfirm.git)
+GITHUB_REPO = ____________________________  (например: https://github.com/user/snapcheck.git)
 GITHUB_BRANCH = [ ] main  [ ] master  (выберите одну)
 
 # 4. ПАРОЛИ (оставьте пусто если хотите генерировать автоматически)
@@ -77,11 +77,11 @@ sudo usermod -aG docker $USER
 cd /opt
 
 # Загрузить проект из GitHub
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git slideconfirm
-cd slideconfirm
+git clone https://github.com/YOUR_USERNAME/snapcheck.git snapcheck
+cd snapcheck
 
 # Или если используется приватный репозиторий:
-# git clone git@github.com:YOUR_USERNAME/slideconfirm.git slideconfirm
+# git clone git@github.com:YOUR_USERNAME/snapcheck.git snapcheck
 
 # Проверить что загружено
 ls -la
@@ -91,7 +91,7 @@ ls -la
 
 ```bash
 # Перейти в директорию проекта
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Создать .env файл с вашими данными
 cat > .env << 'EOF'
@@ -100,7 +100,7 @@ ENVIRONMENT=production
 LOG_LEVEL=info
 SECRET_KEY=YOUR_SECRET_KEY_HERE
 DB_PASSWORD=YOUR_DB_PASSWORD_HERE
-DATABASE_URL=postgresql://slideconfirm:YOUR_DB_PASSWORD_HERE@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:YOUR_DB_PASSWORD_HERE@db:5432/snapcheck
 VITE_API_URL=https://YOUR_DOMAIN.COM/api
 NODE_ENV=production
 WORKERS=4
@@ -116,7 +116,7 @@ nano .env
 
 ```bash
 # Перейти в директорию проекта
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Создать Docker сеть (если не существует)
 sudo docker network create traefik-net 2>/dev/null || true
@@ -150,7 +150,7 @@ curl http://localhost:8000/health
 curl http://localhost/
 
 # Проверить что Traefik видит приложение
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 ```
 
 #### 7️⃣ ПРОВЕРКА ВЕБ-ИНТЕРФЕЙСА (на вашем ПК)
@@ -175,9 +175,9 @@ docker logs traefik | grep slideconfirm
 ssh root@YOUR_IP
 
 # 2. Скачать и выполнить скрипт установки
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy.sh
+curl -O https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy.sh
 chmod +x deploy.sh
-./deploy.sh https://github.com/YOUR_USERNAME/slideconfirm.git YOUR_DOMAIN DB_PASSWORD
+./deploy.sh https://github.com/YOUR_USERNAME/snapcheck.git YOUR_DOMAIN DB_PASSWORD
 
 # 3. Дождаться завершения (5-10 минут)
 # Скрипт сам всё установит и настроит
@@ -227,7 +227,7 @@ docker-compose ps
 - [ ] Все 3 контейнера запущены: `docker-compose ps`
 - [ ] Backend здоров: `curl http://localhost:8000/health`
 - [ ] Frontend доступен: `curl http://localhost/`
-- [ ] Traefik видит приложение: `docker logs traefik | grep slideconfirm`
+- [ ] Traefik видит приложение: `docker logs traefik | grep snapcheck`
 - [ ] Браузер показывает приложение: `https://YOUR_DOMAIN/`
 - [ ] API работает: `https://YOUR_DOMAIN/api/health`
 
@@ -331,7 +331,7 @@ docker-compose logs --tail 50
 docker stats
 
 # Проверяйте размер БД
-docker exec slideconfirm-db du -sh /var/lib/postgresql/data
+docker exec snapcheck-db du -sh /var/lib/postgresql/data
 ```
 
 ---
@@ -341,16 +341,16 @@ docker exec slideconfirm-db du -sh /var/lib/postgresql/data
 ### Сделать резервную копию сейчас:
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Дамп БД
-docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > backup-$(date +%Y%m%d-%H%M%S).sql
+docker-compose exec -T db pg_dump -U snapcheck snapcheck > backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Скачать на ПК (выполнить на ПК):
-scp root@YOUR_IP:/opt/slideconfirm/backup-*.sql ~/Downloads/
+scp root@YOUR_IP:/opt/snapcheck/backup-*.sql ~/Downloads/
 
 # Или архивировать всё
-tar -czf backup-slideconfirm-$(date +%Y%m%d).tar.gz -C /opt slideconfirm
+tar -czf backup-snapcheck-$(date +%Y%m%d).tar.gz -C /opt snapcheck
 ```
 
 ---
@@ -376,7 +376,7 @@ sudo apt install unattended-upgrades
 sudo dpkg-reconfigure unattended-upgrades
 
 # 4. Проверить что не логируются чувствительные данные
-grep -r "SECRET_KEY\|DB_PASSWORD\|password" /opt/slideconfirm/logs/ || echo "✅ OK"
+grep -r "SECRET_KEY\|DB_PASSWORD\|password" /opt/snapcheck/logs/ || echo "✅ OK"
 ```
 
 ---

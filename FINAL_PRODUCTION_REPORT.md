@@ -152,7 +152,7 @@ npm start
 ### Вариант 1: Ручной (безопасный)
 ```bash
 ssh root@YOUR_IP
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 git pull origin main
 docker-compose -f docker-compose.prod.yml restart
 ```
@@ -208,7 +208,7 @@ docker-compose -f docker-compose.prod.yml restart
 
 ## 📞 Полезные ссылки:
 
-- **GitHub репозиторий:** https://github.com/YOUR_REPO/SlideConfirm
+- **GitHub репозиторий:** https://github.com/YOUR_REPO/SnapCheck
 - **Документация:** ./PRODUCTION_INSTALL_GUIDE.md
 - **Быстрый старт:** ./QUICK_DEPLOY.md
 - **FAQ:** ./PRODUCTION_FAQ.md

@@ -13,7 +13,7 @@
 
 ### Production-Ready Files
 ```
-SlideConfirm/
+SnapCheck/
 ├── .env                           # ✅ Configured for lms.it-uae.com
 ├── frontend/dist/                 # ✅ Production build ready
 ├── docker-compose-traefik.yml     # ✅ Docker configuration
@@ -40,13 +40,13 @@ ENVIRONMENT=production
 
 ```bash
 # 1. Upload project to your server
-scp -r SlideConfirm/ user@your-server:/opt/
+scp -r SnapCheck/ user@your-server:/opt/
 
 # 2. SSH to server
 ssh user@your-server
 
 # 3. Run deployment script
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 sudo ./deploy-to-server.sh
 ```
 
@@ -70,11 +70,11 @@ sudo ./deploy-to-server.sh
 
 ```bash
 # 1. Upload project
-scp -r SlideConfirm/ user@server:/opt/
+scp -r SnapCheck/ user@server:/opt/
 
 # 2. SSH to server
 ssh user@server
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 
 # 3. Verify .env is configured
 cat .env | grep -E "^(DOMAIN|SECRET_KEY|POSTGRES_PASSWORD|FRONTEND_URL)="
@@ -142,7 +142,7 @@ curl http://localhost:8000/health
 docker network create traefik-net
 
 # 3. Build and start
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 docker-compose -f docker-compose-traefik.yml build
 docker-compose -f docker-compose-traefik.yml up -d
 
@@ -390,18 +390,18 @@ After deployment:
 **Upload and deploy in one command:**
 ```bash
 # Replace 'user' and 'your-server' with your values
-scp -r SlideConfirm/ user@your-server:/opt/ && \
-ssh user@your-server "cd /opt/SlideConfirm && sudo ./deploy-to-server.sh"
+scp -r SnapCheck/ user@your-server:/opt/ && \
+ssh user@your-server "cd /opt/SnapCheck && sudo ./deploy-to-server.sh"
 ```
 
 **Check deployment status:**
 ```bash
-ssh user@your-server "cd /opt/SlideConfirm && docker-compose -f docker-compose-traefik.yml ps"
+ssh user@your-server "cd /opt/SnapCheck && docker-compose -f docker-compose-traefik.yml ps"
 ```
 
 **View live logs:**
 ```bash
-ssh user@your-server "cd /opt/SlideConfirm && docker-compose -f docker-compose-traefik.yml logs -f"
+ssh user@your-server "cd /opt/SnapCheck && docker-compose -f docker-compose-traefik.yml logs -f"
 ```
 
 ---

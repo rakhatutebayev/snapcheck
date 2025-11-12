@@ -109,7 +109,7 @@ if (validPosition > 0) {
 ### Время: 5-10 минут
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 1. Обновить код
 git pull

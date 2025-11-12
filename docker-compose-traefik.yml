@@ -1,6 +1,6 @@
 version: '3.8'
 
-# 🐳 Docker Compose для SlideConfirm с Traefik
+# 🐳 Docker Compose для SnapCheck с Traefik
 # 
 # Использование:
 # 1. Отредактировать .env файл (DOMAIN, SECRET_KEY, DB_PASSWORD)
@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
+    container_name: snapcheck-backend
     
     environment:
       # Database
@@ -35,7 +35,7 @@ services:
     
     volumes:
       # Файлы загруженные пользователями
-      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./data/uploads:/tmp/snapcheck_uploads
       # Логи приложения
       - ./logs/backend:/app/logs
     
@@ -63,20 +63,20 @@ services:
       - "traefik.enable=true"
       
       # Маршрут: domain.com/api/* идет на backend
-      - "traefik.http.routers.slideconfirm-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.snapcheck-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
       
       # Использовать HTTPS
-      - "traefik.http.routers.slideconfirm-backend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-backend.entrypoints=websecure"
       
       # Let's Encrypt сертификат
-      - "traefik.http.routers.slideconfirm-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.snapcheck-backend.tls.certresolver=letsencrypt"
       
       # Port контейнера
-      - "traefik.http.services.slideconfirm-backend.loadbalancer.server.port=8000"
+      - "traefik.http.services.snapcheck-backend.loadbalancer.server.port=8000"
       
       # Удалить /api префикс перед проксированием
       - "traefik.http.middlewares.api-prefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.slideconfirm-backend.middlewares=api-prefix"
+      - "traefik.http.routers.snapcheck-backend.middlewares=api-prefix"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Frontend (Nginx + React)
@@ -86,7 +86,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
+    container_name: snapcheck-frontend
     
     restart: unless-stopped
     
@@ -111,19 +111,19 @@ services:
       - "traefik.enable=true"
       
       # Маршрут: domain.com идет на frontend
-      - "traefik.http.routers.slideconfirm-frontend.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.snapcheck-frontend.rule=Host(`${DOMAIN}`)"
       
       # Использовать HTTPS
-      - "traefik.http.routers.slideconfirm-frontend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-frontend.entrypoints=websecure"
       
       # Let's Encrypt сертификат
-      - "traefik.http.routers.slideconfirm-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.snapcheck-frontend.tls.certresolver=letsencrypt"
       
       # Port контейнера
-      - "traefik.http.services.slideconfirm-frontend.loadbalancer.server.port=80"
+      - "traefik.http.services.snapcheck-frontend.loadbalancer.server.port=80"
       
       # Приоритет маршрута (более специфичный маршрут /api имеет приоритет)
-      - "traefik.http.routers.slideconfirm-frontend.priority=1"
+      - "traefik.http.routers.snapcheck-frontend.priority=1"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Database (PostgreSQL)
@@ -131,7 +131,7 @@ services:
   
   db:
     image: postgres:15-alpine
-    container_name: slideconfirm-db
+    container_name: snapcheck-db
     
     environment:
       - POSTGRES_DB=${POSTGRES_DB}

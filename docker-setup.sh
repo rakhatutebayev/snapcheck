@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # 🐳 DOCKER INSTALLATION & SETUP SCRIPT
-# Автоматическая установка и запуск Docker для SlideConfirm
+# Автоматическая установка и запуск Docker для SnapCheck
 
 set -e  # Остановить на ошибке
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗"
-echo "║           🐳 DOCKER INSTALLATION FOR SLIDECONFIRM                          ║"
+echo "║           🐳 DOCKER INSTALLATION FOR SNAPCHECK                          ║"
 echo "╚════════════════════════════════════════════════════════════════════════════╝"
 
-PROJECT_DIR="/Users/rakhat/Documents/webhosting/SlideConfirm"
+PROJECT_DIR="/Users/rakhat/Documents/webhosting/SnapCheck"
 
 # Цвета для вывода
 GREEN='\033[0;32m'
@@ -60,7 +60,7 @@ if [ ! -f ".env" ]; then
     cat > .env << 'EOF'
 # Backend Security
 SECRET_KEY=your-random-secret-key-min-64-chars-replace-this
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 ACCESS_TOKEN_EXPIRE=30
 REFRESH_TOKEN_EXPIRE=7
 
@@ -122,7 +122,7 @@ sleep 5
 
 # 1️⃣2️⃣ Проверить статус контейнеров
 echo -e "\n${YELLOW}1️⃣2️⃣ Проверка статуса контейнеров...${NC}"
-docker ps --filter "name=slideconfirm"
+docker ps --filter "name=snapcheck"
 
 # 1️⃣3️⃣ Тестировать API
 echo -e "\n${YELLOW}1️⃣3️⃣ Тестирование API...${NC}"
@@ -131,7 +131,7 @@ if curl -s http://localhost:8000/health | grep -q "ok"; then
 else
     echo -e "${RED}❌ Backend не отвечает${NC}"
     echo "Логи:"
-    docker logs slideconfirm-backend | tail -20
+    docker logs snapcheck-backend | tail -20
 fi
 
 # 1️⃣4️⃣ Финальный вывод

@@ -62,7 +62,7 @@ if (!previewMode) {
 ### Время развёртывания: **5-10 минут**
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 docker-compose build frontend --no-cache
 docker-compose restart frontend
@@ -261,7 +261,7 @@ docker-compose restart frontend
 
 2. **Проверить БД**
    ```bash
-   docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm \
+   docker exec snapcheck-db psql -U snapcheck -d snapcheck \
      -c "SELECT * FROM user_presentation_position LIMIT 5;"
    ```
 

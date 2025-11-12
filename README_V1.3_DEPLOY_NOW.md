@@ -45,7 +45,7 @@
 
 ### Step 1: Build Frontend
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 docker-compose build frontend --no-cache
 ```
@@ -56,7 +56,7 @@ Building frontend
 Step 1/20 : FROM node:18-alpine
 ...
 Successfully built abc123def456
-Successfully tagged slideconfirm:frontend-v1.3
+Successfully tagged snapcheck:frontend-v1.3
 ```
 
 ### Step 2: Restart Frontend
@@ -73,7 +73,7 @@ docker-compose ps
 Expected output:
 ```
 NAME                      STATUS
-slideconfirm-frontend     Up 5 seconds
+snapcheck-frontend     Up 5 seconds
 ```
 
 ### Step 3: Clear Browser Cache
@@ -310,7 +310,7 @@ Before considering deployment complete:
 
 ```bash
 # All-in-one command:
-cd /Users/rakhat/Documents/webhosting/SlideConfirm && \
+cd /Users/rakhat/Documents/webhosting/SnapCheck && \
 docker-compose build frontend --no-cache && \
 docker-compose restart frontend && \
 echo "✅ Done! Open http://localhost:3000"

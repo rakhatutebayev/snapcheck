@@ -1,4 +1,4 @@
-# 📦 SlideConfirm - Production Ready
+# 📦 SnapCheck - Production Ready
 
 Production-готовое приложение для управления презентациями с системой отчетов об ознакомлении.
 
@@ -40,7 +40,7 @@ bash install.sh
 ## 🏗️ Структура проекта
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── backend/                    # FastAPI приложение
 │   ├── main.py                # Главное приложение
 │   ├── admin.py               # API админа
@@ -89,7 +89,7 @@ sudo bash install.sh
 
 ```bash
 # 1. Обновить домен в конфиге Nginx
-sudo nano /etc/nginx/sites-available/slideconfirm
+sudo nano /etc/nginx/sites-available/snapcheck
 
 # 2. Установить SSL сертификат
 sudo certbot certonly --nginx -d yourdomain.com
@@ -127,12 +127,12 @@ sudo systemctl restart nginx
 
 ### Переменные окружения
 
-Создать `/opt/slideconfirm/.env`:
+Создать `/opt/snapcheck/.env`:
 
 ```bash
 ENVIRONMENT=production
 DEBUG=false
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 SECRET_KEY=your-secret-key-here
 LOG_LEVEL=info
 WORKERS=4
@@ -176,12 +176,12 @@ docker stats
 
 ```bash
 # Автоматическое ежедневно в 2:00
-0 2 * * * bash /opt/slideconfirm/scripts/backup.sh
+0 2 * * * bash /opt/snapcheck/scripts/backup.sh
 
 # Или вручную
-bash /opt/slideconfirm/scripts/backup.sh
+bash /opt/snapcheck/scripts/backup.sh
 
-# Файлы сохраняются в: /opt/slideconfirm/data/backups/
+# Файлы сохраняются в: /opt/snapcheck/data/backups/
 ```
 
 ## 🆘 Решение проблем
@@ -246,10 +246,10 @@ sudo netstat -tlnp | grep LISTEN
 
 ```bash
 # Запустить скрипт обновления
-bash /opt/slideconfirm/scripts/update.sh
+bash /opt/snapcheck/scripts/update.sh
 
 # Или вручную
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 git pull
 docker-compose -f docker-compose.prod.yml build
 docker-compose -f docker-compose.prod.yml up -d
@@ -313,7 +313,7 @@ MIT License - смотрите LICENSE файл
 
 ## 🙏 Благодарности
 
-Спасибо всем, кто использует SlideConfirm!
+Спасибо всем, кто использует SnapCheck!
 
 ---
 

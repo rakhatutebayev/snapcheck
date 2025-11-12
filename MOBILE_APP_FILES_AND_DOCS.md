@@ -344,7 +344,7 @@ Backend hosting:   $60-120
 ### Обзорные документы (в корне проекта)
 
 ```
-/SlideConfirm/
+/SnapCheck/
 ├── MOBILE_PRODUCTION_GUIDE.md ................. 🎯 Начните отсюда
 ├── MOBILE_APP_PRODUCTION_COMPLETE.md ........ 📊 Полный отчет
 ├── MOBILE_APP_READY_FOR_PRODUCTION.md ....... 🚀 Финальный отчет

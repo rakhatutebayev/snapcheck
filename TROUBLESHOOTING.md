@@ -1,4 +1,4 @@
-# Troubleshooting Guide — SnapCheck (SlideConfirm)
+# Troubleshooting Guide — SnapCheck (SnapCheck)
 
 Полный справочник всех проблем, возникших при разработке и деплое проекта, с причинами и решениями.
 

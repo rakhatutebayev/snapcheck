@@ -19,7 +19,7 @@ backend/
 ### 1. На локальной машине - протестировать миграции
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm/backend
+cd /Users/rakhat/Documents/webhosting/SnapCheck/backend
 
 # Посмотреть текущую версию (должна быть пустой)
 alembic current
@@ -58,7 +58,7 @@ alembic upgrade head
 
 ```bash
 # Перейти в корневую папку проекта
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Проверить что изменилось
 git status

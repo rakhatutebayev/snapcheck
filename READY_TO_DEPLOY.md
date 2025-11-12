@@ -38,13 +38,13 @@
 
 ### Step 1: Upload to Server
 ```bash
-scp -r /Users/rakhat/Documents/webhosting/SlideConfirm/ user@your-server:/opt/
+scp -r /Users/rakhat/Documents/webhosting/SnapCheck/ user@your-server:/opt/
 ```
 
 ### Step 2: SSH to Server
 ```bash
 ssh user@your-server
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 ```
 
 ### Step 3: Run Deployment Script
@@ -174,17 +174,17 @@ docker-compose -f docker-compose-traefik.yml restart backend
 
 ### One-Line Deploy
 ```bash
-scp -r SlideConfirm/ user@server:/opt/ && ssh user@server "cd /opt/SlideConfirm && sudo ./deploy-to-server.sh"
+scp -r SnapCheck/ user@server:/opt/ && ssh user@server "cd /opt/SnapCheck && sudo ./deploy-to-server.sh"
 ```
 
 ### Check Status
 ```bash
-ssh user@server "cd /opt/SlideConfirm && docker-compose -f docker-compose-traefik.yml ps"
+ssh user@server "cd /opt/SnapCheck && docker-compose -f docker-compose-traefik.yml ps"
 ```
 
 ### View Logs
 ```bash
-ssh user@server "cd /opt/SlideConfirm && docker-compose -f docker-compose-traefik.yml logs -f backend"
+ssh user@server "cd /opt/SnapCheck && docker-compose -f docker-compose-traefik.yml logs -f backend"
 ```
 
 ---

@@ -114,7 +114,7 @@
 ## 🎯 Полный состав проекта SnapCheck:
 
 ```
-/opt/SlideConfirm/
+/opt/SnapCheck/
 ├── backend/                          # Backend код
 │   ├── main.py                      # FastAPI приложение
 │   ├── models.py                    # ORM модели
@@ -221,7 +221,7 @@ npm start
 sudo bash install-prod.sh
 
 # Вариант 2: Вручную
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 docker-compose -f docker-compose.prod.yml up -d
 ```
 

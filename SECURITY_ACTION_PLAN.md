@@ -123,7 +123,7 @@ def login(...):
 ```python
 import logging
 
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
@@ -235,7 +235,7 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
 ```
 # .env
 SECRET_KEY=your-random-string-min-64-chars
-DATABASE_URL=postgresql://user:password@localhost/slideconfirm
+DATABASE_URL=postgresql://user:password@localhost/snapcheck
 FRONTEND_URL=https://your-domain.com
 JWT_EXPIRATION_MINUTES=30
 REFRESH_TOKEN_EXPIRATION_DAYS=7

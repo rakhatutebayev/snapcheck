@@ -5,7 +5,7 @@
 ### Способ A: Через веб-интерфейс GitHub (РЕКОМЕНДУЕТСЯ)
 
 1. Откройте https://github.com/new
-2. Введите **Repository name**: `SlideConfirm`
+2. Введите **Repository name**: `SnapCheck`
 3. Выберите **Description**: `Система управления презентациями с интерактивными отчётами`
 4. Выберите **Public** (публичный) или **Private** (приватный)
 5. ❌ НЕ выбирайте "Add a README file"
@@ -15,7 +15,7 @@
 
 Вы получите что-то вроде:
 ```
-https://github.com/YOUR_USERNAME/SlideConfirm
+https://github.com/YOUR_USERNAME/SnapCheck
 ```
 
 ---
@@ -24,7 +24,7 @@ https://github.com/YOUR_USERNAME/SlideConfirm
 
 ### 2.1 Перейти в папку проекта
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 ```
 
 ### 2.2 Инициализировать git (если ещё не сделано)
@@ -49,12 +49,12 @@ git status
 ## 🔗 Шаг 3: Первый коммит
 
 ```bash
-git commit -m "Initial commit: SlideConfirm production-ready package"
+git commit -m "Initial commit: SnapCheck production-ready package"
 ```
 
 Вывод должен быть примерно таким:
 ```
-[main ...] Initial commit: SlideConfirm production-ready package
+[main ...] Initial commit: SnapCheck production-ready package
  XX files changed, XXXX insertions(+)
  create mode 100644 ...
 ```
@@ -66,7 +66,7 @@ git commit -m "Initial commit: SlideConfirm production-ready package"
 Замените `YOUR_USERNAME` на ваше имя пользователя GitHub:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/SlideConfirm.git
+git remote add origin https://github.com/YOUR_USERNAME/SnapCheck.git
 ```
 
 ### Проверить, что всё правильно:
@@ -76,8 +76,8 @@ git remote -v
 
 Вывод:
 ```
-origin  https://github.com/YOUR_USERNAME/SlideConfirm.git (fetch)
-origin  https://github.com/YOUR_USERNAME/SlideConfirm.git (push)
+origin  https://github.com/YOUR_USERNAME/SnapCheck.git (fetch)
+origin  https://github.com/YOUR_USERNAME/SnapCheck.git (push)
 ```
 
 ---
@@ -99,7 +99,7 @@ origin  https://github.com/YOUR_USERNAME/SlideConfirm.git (push)
 
 Если у вас уже настроен SSH:
 ```bash
-git remote set-url origin git@github.com:YOUR_USERNAME/SlideConfirm.git
+git remote set-url origin git@github.com:YOUR_USERNAME/SnapCheck.git
 ```
 
 ---
@@ -121,7 +121,7 @@ git push -u origin main
 
 После загрузки:
 
-1. Откройте https://github.com/YOUR_USERNAME/SlideConfirm
+1. Откройте https://github.com/YOUR_USERNAME/SnapCheck
 2. Должны видеть ВСЕ ваши файлы
 3. Проверьте структуру:
    ```
@@ -148,7 +148,7 @@ git push -u origin main
 ```bash
 # Переконфигурируйте remote с токеном
 git remote remove origin
-git remote add origin https://YOUR_USERNAME:YOUR_TOKEN@github.com/YOUR_USERNAME/SlideConfirm.git
+git remote add origin https://YOUR_USERNAME:YOUR_TOKEN@github.com/YOUR_USERNAME/SnapCheck.git
 git push -u origin main
 ```
 
@@ -226,7 +226,7 @@ git push
 
 ```bash
 #!/bin/bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 git add .
 git commit -m "Update: $(date)"
 git push
@@ -259,7 +259,7 @@ ls -la README.md
 
 **Ссылка на ваш репозиторий:**
 ```
-https://github.com/YOUR_USERNAME/SlideConfirm
+https://github.com/YOUR_USERNAME/SnapCheck
 ```
 
 ---

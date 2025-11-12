@@ -128,7 +128,7 @@ frontend-mobile/
 ### Документация на уровне проекта
 
 ```
-/SlideConfirm/
+/SnapCheck/
 ├── MOBILE_PRODUCTION_GUIDE.md ........ ✅ Краткий обзор (этот уровень)
 ├── MOBILE_APP_PRODUCTION_COMPLETE.md  ✅ Полный отчет (этот файл)
 ├── COMPLETE_PROJECT_SUMMARY.md ....... ✅ Общая статистика проекта

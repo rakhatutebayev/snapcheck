@@ -127,7 +127,7 @@ User on slide 5 ➜ Presses F5 refresh
 ### 🚀 Deploy Now
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # 1. Rebuild
 docker-compose build frontend --no-cache
@@ -350,7 +350,7 @@ AFTER DEPLOY:
 
 ```bash
 # Go to project
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Deploy
 docker-compose build frontend --no-cache && \

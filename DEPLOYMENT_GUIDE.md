@@ -54,13 +54,13 @@ DATABASE_URL=postgresql://snapcheck_user:your_password@localhost:5432/snapcheck
 
 ```bash
 # Default configuration (no changes needed)
-DATABASE_URL=sqlite:////tmp/slideconfirm.db
+DATABASE_URL=sqlite:////tmp/snapcheck.db
 ```
 
 ### 3. Run Database Migrations
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Apply migrations
 python3 -m backend.migrations.add_user_verification_fields
@@ -178,7 +178,7 @@ docker-compose up -d
 
 ```bash
 # Start backend
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -354,7 +354,7 @@ tail -f /var/log/nginx/error.log
 pg_dump -U snapcheck_user snapcheck > backup_$(date +%Y%m%d).sql
 
 # SQLite
-cp /tmp/slideconfirm.db backup_$(date +%Y%m%d).db
+cp /tmp/snapcheck.db backup_$(date +%Y%m%d).db
 ```
 
 ### Update Application

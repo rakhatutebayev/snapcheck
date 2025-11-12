@@ -4,7 +4,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 
-UPLOADS_DIR = "/tmp/slideconfirm_uploads"
+UPLOADS_DIR = "/tmp/snapcheck_uploads"
 Path(UPLOADS_DIR).mkdir(parents=True, exist_ok=True)
 
 def convert_pptx_to_images(pptx_path: str, output_dir: str) -> list[str]:

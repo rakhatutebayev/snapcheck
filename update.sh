@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# SlideConfirm Production Deployment Script
+# SnapCheck Production Deployment Script
 # Обновление приложения
 
 set -e
 
-echo "╔════════════════════════════════════════════════════╗"
-echo "║   🔄 SlideConfirm Update                           ║"
-echo "╚════════════════════════════════════════════════════╝"
+echo "╔══════════════════════════════════════════════════════╗"
+echo "║   🔄 SnapCheck Update                           ║"
+echo "╚══════════════════════════════════════════════════════╝"
 
 INSTALL_DIR="${1:-.}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -35,8 +35,8 @@ run_cmd() {
 
 # Резервная копия БД
 echo -e "${YELLOW}💾 Шаг 1: Резервная копия БД${NC}"
-if [ -f "$INSTALL_DIR/data/db/slideconfirm.db" ]; then
-    run_cmd "cp $INSTALL_DIR/data/db/slideconfirm.db $BACKUP_DIR/slideconfirm.db.$TIMESTAMP.backup"
+if [ -f "$INSTALL_DIR/data/db/snapcheck.db" ]; then
+    run_cmd "cp $INSTALL_DIR/data/db/snapcheck.db $BACKUP_DIR/snapcheck.db.$TIMESTAMP.backup"
     echo -e "${GREEN}✓ Резервная копия создана${NC}"
 else
     echo -e "${YELLOW}⚠️  БД не найдена${NC}"
@@ -74,7 +74,7 @@ if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
 else
     echo -e "${RED}✗ Backend не ответил${NC}"
     echo -e "${RED}Откатываем резервную копию...${NC}"
-    run_cmd "cp $BACKUP_DIR/slideconfirm.db.$TIMESTAMP.backup $INSTALL_DIR/data/db/slideconfirm.db"
+    run_cmd "cp $BACKUP_DIR/snapcheck.db.$TIMESTAMP.backup $INSTALL_DIR/data/db/snapcheck.db"
     docker-compose -f docker-compose.prod.yml down
     docker-compose -f docker-compose.prod.yml up -d
     exit 1
@@ -93,7 +93,7 @@ echo ""
 echo -e "${YELLOW}📝 Информация:${NC}"
 echo "  Backend:  http://localhost:8000"
 echo "  Frontend: http://localhost:3000"
-echo "  Backup:   $BACKUP_DIR/slideconfirm.db.$TIMESTAMP.backup"
+echo "  Backup:   $BACKUP_DIR/snapcheck.db.$TIMESTAMP.backup"
 echo ""
 echo -e "${YELLOW}🔍 Проверка логов:${NC}"
 echo "  docker-compose logs -f"

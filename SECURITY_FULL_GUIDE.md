@@ -556,7 +556,7 @@ DATABASE_URL = "postgresql://app_user:$(SECRET_DB_PASSWORD)@127.0.0.1:5555/db"
 #!/bin/bash
 
 # Создать бэкап
-pg_dump -h 127.0.0.1 -U app_user -d slideconfirm > backup_$(date +%Y%m%d).sql.gz
+pg_dump -h 127.0.0.1 -U app_user -d snapcheck > backup_$(date +%Y%m%d).sql.gz
 
 # Зашифровать
 gpg --symmetric --cipher-algo aes256 backup_20251019.sql.gz
@@ -624,13 +624,13 @@ sudo systemctl restart ssh
 
 ```bash
 # Создать ключ один раз
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/slideconfirm_key -N ""
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/snapcheck_key -N ""
 
 # Копировать публичный ключ на сервер
-ssh-copy-id -i ~/.ssh/slideconfirm_key.pub -p 2222 slideconfirm@example.com
+ssh-copy-id -i ~/.ssh/snapcheck_key.pub -p 2222 snapcheck@example.com
 
 # Теперь подключение:
-ssh -p 2222 -i ~/.ssh/slideconfirm_key slideconfirm@example.com
+ssh -p 2222 -i ~/.ssh/snapcheck_key snapcheck@example.com
 # Пароль не нужен!
 ```
 
@@ -638,13 +638,13 @@ ssh -p 2222 -i ~/.ssh/slideconfirm_key slideconfirm@example.com
 
 ```bash
 # Папки: 755 (owner: r/w/x, others: r/x)
-sudo chmod 755 /opt/slideconfirm
+sudo chmod 755 /opt/snapcheck
 
 # Конфигурация: 644 (owner: r/w, others: r)
-sudo chmod 644 /opt/slideconfirm/.env
+sudo chmod 644 /opt/snapcheck/.env
 
 # Скрипты: 755 (owner: r/w/x, others: r/x)
-sudo chmod 755 /opt/slideconfirm/start.sh
+sudo chmod 755 /opt/snapcheck/start.sh
 ```
 
 #### B. Docker Security
@@ -991,7 +991,7 @@ Splunk
 import watchtower
 
 cloudwatch_handler = watchtower.CloudWatchLogHandler(
-    log_group='slideconfirm',
+    log_group='snapcheck',
     stream_name='app-logs',
 )
 

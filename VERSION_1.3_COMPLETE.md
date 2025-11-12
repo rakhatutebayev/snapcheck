@@ -141,7 +141,7 @@ Toast messages: All English ✅
 
 ### Option 1: Local Docker
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 docker-compose build frontend --no-cache
 docker-compose restart frontend
 ```
@@ -149,7 +149,7 @@ docker-compose restart frontend
 ### Option 2: Production Server
 ```bash
 ssh root@88.99.124.218
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 docker-compose build frontend --no-cache
 docker-compose restart frontend

@@ -83,7 +83,7 @@ ls -la frontend/src/hooks/useToast.js       # Должен существова�
 ### Вариант 1: На локальной машине
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # 1. Перезагрузить frontend контейнер (если используете Docker)
 docker-compose restart frontend
@@ -105,7 +105,7 @@ docker-compose restart frontend
 ```bash
 ssh root@88.99.124.218
 
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 1. Обновить код
 git pull
@@ -203,7 +203,7 @@ POST-DEPLOY:
 
 2. Проверить БД:
    ```bash
-   docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm \
+   docker exec snapcheck-db psql -U snapcheck -d snapcheck \
      -c "SELECT * FROM user_presentation_position;"
    ```
 

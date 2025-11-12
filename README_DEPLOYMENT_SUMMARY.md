@@ -2,7 +2,7 @@
 
 ## 🎯 ГЛАВНЫЙ ВЫВОД
 
-Ваш проект **SlideConfirm** полностью готов к публикации на сервер!
+Ваш проект **SnapCheck** полностью готов к публикации на сервер!
 
 ```
 ✅ Исходный код: ГОТОВ
@@ -20,7 +20,7 @@
 
 1. **IP адрес сервера** (например: 123.45.67.89)
 2. **Пароль/SSH ключ** для подключения
-3. **Доменное имя** (например: slideconfirm.com)
+3. **Доменное имя** (например: snapcheck.com)
 4. **Email для SSL** (например: admin@company.com)
 5. **GitHub ссылка** на ваш репозиторий
 
@@ -37,11 +37,11 @@
 ssh root@YOUR_IP
 
 # 2. Скачайте и запустите скрипт установки
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy.sh
+curl -O https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy.sh
 chmod +x deploy.sh
 
 # 3. Запустите установку
-./deploy.sh https://github.com/YOUR_USERNAME/slideconfirm.git YOUR_DOMAIN YOUR_DB_PASSWORD
+./deploy.sh https://github.com/YOUR_USERNAME/snapcheck.git YOUR_DOMAIN YOUR_DB_PASSWORD
 
 # 4. Дождитесь завершения (5-10 минут)
 
@@ -133,9 +133,9 @@ chmod +x deploy.sh
 **Способ A (автоматический):**
 ```bash
 ssh root@YOUR_IP
-curl -O https://raw.githubusercontent.com/user/slideconfirm/main/deploy.sh
+curl -O https://raw.githubusercontent.com/user/snapcheck/main/deploy.sh
 chmod +x deploy.sh
-./deploy.sh https://github.com/user/slideconfirm.git YOUR_DOMAIN PASSWORD
+./deploy.sh https://github.com/user/snapcheck.git YOUR_DOMAIN PASSWORD
 ```
 
 **Способ B (пошаговый):**
@@ -251,14 +251,14 @@ docker-compose up -d           # Запуск
 # ПРОВЕРКА ЗДОРОВЬЯ
 curl http://localhost:8000/health
 curl http://localhost/
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # РЕЗЕРВНАЯ КОПИЯ БД
-docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > backup.sql
+docker-compose exec -T db pg_dump -U snapcheck snapcheck > backup.sql
 
 # ВХОД В КОНТЕЙНЕР
 docker-compose exec backend bash
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
 
 # ОЧИСТКА (осторожно!)
 docker-compose down -v

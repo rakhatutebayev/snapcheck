@@ -15,7 +15,7 @@ from .utils.security import decode_access_token
 
 router = APIRouter(prefix="/admin", tags=["admin-slides"])
 
-UPLOADS_DIR = "/tmp/slideconfirm_uploads"
+UPLOADS_DIR = "/tmp/snapcheck_uploads"
 
 def verify_admin(authorization: str = Header(None), db: Session = Depends(get_db)):
     """Проверяет, что пользователь - администратор"""

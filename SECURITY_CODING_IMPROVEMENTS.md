@@ -45,7 +45,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from pydantic import validator
 
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
 # ✅ НОВОЕ: Получать SECRET_KEY из .env
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -235,7 +235,7 @@ from .utils.security import hash_password
 
 # ✅ НОВОЕ: Логирование
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
 # Создание таблиц
 models.Base.metadata.create_all(bind=engine)
@@ -272,7 +272,7 @@ create_initial_data()
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
-    title="SlideConfirm API",
+    title="SnapCheck API",
     description="Corporate Slide Confirmation System",
     version="1.0.0"
 )
@@ -341,7 +341,7 @@ app.include_router(user_router)
 def root():
     return {
         "status": "success",
-        "message": "SlideConfirm API is running",
+        "message": "SnapCheck API is running",
         "version": "1.0.0"
     }
 
@@ -381,7 +381,7 @@ from slowapi.util import get_remote_address
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 limiter = Limiter(key_func=get_remote_address)
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
 # ✅ НОВОЕ: Трекинг неудачных попыток логина
 failed_login_attempts = {}  # {email: [(timestamp, ip), ...]}
@@ -534,7 +534,7 @@ from sqlalchemy.pool import QueuePool
 # ✅ НОВОЕ: Использовать PostgreSQL в production, SQLite для разработки
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:////tmp/slideconfirm.db"  # Для разработки
+    "sqlite:////tmp/snapcheck.db"  # Для разработки
 )
 
 # ✅ НОВОЕ: Дополнительные параметры безопасности для PostgreSQL
@@ -598,9 +598,9 @@ from .user import get_current_user
 from .models import User
 
 router = APIRouter(tags=["files"])
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
-UPLOADS_DIR = Path("/tmp/slideconfirm_uploads")
+UPLOADS_DIR = Path("/tmp/snapcheck_uploads")
 
 def validate_file_path(presentation_id: int, filename: str) -> Path:
     """✅ НОВОЕ: Безопасная валидация пути"""
@@ -693,7 +693,7 @@ from .utils.security import decode_access_token
 
 router = APIRouter(prefix="/user", tags=["user"])
 limiter = Limiter(key_func=get_remote_address)
-logger = logging.getLogger("slideconfirm")
+logger = logging.getLogger("snapcheck")
 
 def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
     """✅ НОВОЕ: Добавлено логирование"""
@@ -916,7 +916,7 @@ export default apiClient;
 
 ```json
 {
-  "name": "slideconfirm-frontend",
+  "name": "snapcheck-frontend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -964,7 +964,7 @@ export default apiClient;
 SECRET_KEY=your-random-secret-key-min-64-chars-replace-this
 
 # Database
-DATABASE_URL=postgresql://user:password@localhost/slideconfirm
+DATABASE_URL=postgresql://user:password@localhost/snapcheck
 
 # Token expiration
 ACCESS_TOKEN_EXPIRE=30              # минуты

@@ -3,7 +3,7 @@
 ## 📍 Шаг 1: Инициализировать Alembic (один раз на локальной машине)
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm/backend
+cd /Users/rakhat/Documents/webhosting/SnapCheck/backend
 
 # Инициализировать Alembic
 alembic init migrations

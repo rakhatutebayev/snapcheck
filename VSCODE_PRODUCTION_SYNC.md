@@ -34,7 +34,7 @@
   "port": 22,
   "username": "root",
   "password": "YOUR_PASSWORD",
-  "remotePath": "/opt/slideconfirm/app",
+  "remotePath": "/opt/snapcheck/app",
   "uploadOnSave": true,
   "downloadOnOpen": false,
   "ignore": [
@@ -52,7 +52,7 @@
 ```
 host          - IP адрес вашего сервера (например: 123.45.67.89)
 port          - SSH порт (обычно 22)
-username      - пользователь на сервере (root или slideconfirm)
+username      - пользователь на сервере (root или snapcheck)
 password      - пароль от сервера
 remotePath    - путь на сервере (где лежит приложение)
 uploadOnSave  - автоматически загружать при сохранении файла
@@ -84,22 +84,22 @@ ssh root@YOUR_SERVER_IP
 
 Создать скрипт:
 ```bash
-nano /opt/slideconfirm/app/.git/hooks/post-receive
+nano /opt/snapcheck/app/.git/hooks/post-receive
 ```
 
 Вставить:
 ```bash
 #!/bin/bash
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 git reset --hard HEAD
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 docker-compose -f docker-compose.prod.yml restart
 echo "✅ Production updated from git push!"
 ```
 
 Сделать исполняемым:
 ```bash
-chmod +x /opt/slideconfirm/app/.git/hooks/post-receive
+chmod +x /opt/snapcheck/app/.git/hooks/post-receive
 exit
 ```
 
@@ -157,7 +157,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /opt/slideconfirm/app
+            cd /opt/snapcheck/app
             git pull origin main
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d
@@ -166,7 +166,7 @@ jobs:
 
 ### Добавить Secrets в GitHub
 
-1. Откройте: https://github.com/YOUR_USERNAME/SlideConfirm/settings/secrets/actions
+1. Откройте: https://github.com/YOUR_USERNAME/SnapCheck/settings/secrets/actions
 2. Добавьте:
    - **SERVER_IP**: IP адрес сервера
    - **SERVER_USER**: username (root)
@@ -187,7 +187,7 @@ jobs:
 ### Создать SSH ключ на вашем компьютере
 
 ```bash
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/slideconfirm_key
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/snapcheck_key
 ```
 
 Нажимайте Enter (без пароля)
@@ -195,14 +195,14 @@ ssh-keygen -t rsa -b 4096 -f ~/.ssh/slideconfirm_key
 Вывод:
 ```
 Generating public/private rsa key pair.
-Your identification has been saved in /Users/rakhat/.ssh/slideconfirm_key
-Your public key has been saved in /Users/rakhat/.ssh/slideconfirm_key.pub
+Your identification has been saved in /Users/rakhat/.ssh/snapcheck_key
+Your public key has been saved in /Users/rakhat/.ssh/snapcheck_key.pub
 ```
 
 ### Скопировать публичный ключ на сервер
 
 ```bash
-cat ~/.ssh/slideconfirm_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authorized_keys"
+cat ~/.ssh/snapcheck_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authorized_keys"
 ```
 
 ### Использовать в VS Code
@@ -210,7 +210,7 @@ cat ~/.ssh/slideconfirm_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authori
 Вместо `password` в sftp.json:
 ```json
 {
-  "privateKeyPath": "/Users/rakhat/.ssh/slideconfirm_key",
+  "privateKeyPath": "/Users/rakhat/.ssh/snapcheck_key",
   "password": "",
   ...
 }
@@ -230,8 +230,8 @@ cat ~/.ssh/slideconfirm_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authori
   "host": "123.45.67.89",
   "port": 22,
   "username": "root",
-  "privateKeyPath": "/Users/rakhat/.ssh/slideconfirm_key",
-  "remotePath": "/opt/slideconfirm/app",
+  "privateKeyPath": "/Users/rakhat/.ssh/snapcheck_key",
+  "remotePath": "/opt/snapcheck/app",
   "uploadOnSave": true,
   "useTempFile": false,
   "openSsh": false,
@@ -317,10 +317,10 @@ cat ~/.ssh/slideconfirm_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authori
 
 ```bash
 # Проверить SSH доступ вручную
-ssh -i ~/.ssh/slideconfirm_key root@YOUR_SERVER_IP
+ssh -i ~/.ssh/snapcheck_key root@YOUR_SERVER_IP
 
 # Если не работает - проверить ключ
-ssh-keygen -y -f ~/.ssh/slideconfirm_key
+ssh-keygen -y -f ~/.ssh/snapcheck_key
 ```
 
 ### GitHub Actions не запускается
@@ -328,7 +328,7 @@ ssh-keygen -y -f ~/.ssh/slideconfirm_key
 1. Проверьте `SERVER_SSH_KEY` в Secrets
 2. Убедитесь что ключ в формате:
    ```bash
-   cat ~/.ssh/slideconfirm_key | base64
+   cat ~/.ssh/snapcheck_key | base64
    ```
    Вставить значение в GitHub Secrets
 
@@ -336,7 +336,7 @@ ssh-keygen -y -f ~/.ssh/slideconfirm_key
 
 Проверьте на сервере:
 ```bash
-docker-compose -f /opt/slideconfirm/app/docker-compose.prod.yml logs -f
+docker-compose -f /opt/snapcheck/app/docker-compose.prod.yml logs -f
 ```
 
 ---

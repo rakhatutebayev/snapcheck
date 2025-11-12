@@ -55,8 +55,8 @@ docker network create traefik-net
 
 ```bash
 # Вариант A: Из GitHub
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git /opt/slideconfirm
-cd /opt/slideconfirm
+git clone https://github.com/YOUR_USERNAME/snapcheck.git /opt/snapcheck
+cd /opt/snapcheck
 
 # Вариант B: Копировать с Mac через SFTP
 # или вручную скопировать файлы
@@ -81,9 +81,9 @@ docker stop <CONTAINER>  # Остановить если нужно
 
 ```bash
 # Создать .env с вашими параметрами
-cat > /opt/slideconfirm/.env << 'EOF'
+cat > /opt/snapcheck/.env << 'EOF'
 # ✅ ИЗМЕНИТЕ ЗНАЧЕНИЯ!
-DOMAIN=slideconfirm.yourdomain.com      # ← Ваш домен
+DOMAIN=snapcheck.yourdomain.com      # ← Ваш домен
 SECRET_KEY=GeneratedSecretKeyHere       # ← Генерировать: python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 DB_PASSWORD=YourStrongPassword123       # ← Сильный пароль БД
 ENVIRONMENT=production
@@ -91,13 +91,13 @@ LOG_LEVEL=info
 EOF
 
 # Проверить содержимое
-cat /opt/slideconfirm/.env
+cat /opt/snapcheck/.env
 ```
 
 ### ЭТАП 6: ПОДГОТОВКА ФАЙЛОВ ПРОЕКТА
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Создать директории
 mkdir -p data/db data/uploads logs/backend logs/nginx
@@ -119,7 +119,7 @@ cp docker-nginx-traefik.conf docker-nginx.conf
 ### ЭТАП 7: СОБРАТЬ ОБРАЗЫ
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Построить Docker образы (ДОЛГО - 10-15 минут)
 docker-compose build
@@ -138,9 +138,9 @@ docker-compose up -d
 docker-compose ps
 
 # Должно показать:
-# slideconfirm-backend    Up
-# slideconfirm-frontend   Up
-# slideconfirm-db         Up
+# snapcheck-backend    Up
+# snapcheck-frontend   Up
+# snapcheck-db         Up
 ```
 
 ### ЭТАП 9: ПРОВЕРИТЬ РАБОТУ
@@ -155,10 +155,10 @@ docker-compose logs -f
 # Остановить просмотр логов: Ctrl+C
 
 # Проверить что backend работает
-docker exec slideconfirm-backend curl http://localhost:8000/health
+docker exec snapcheck-backend curl http://localhost:8000/health
 
 # Проверить подключение к БД
-docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm -c "SELECT 1"
+docker exec snapcheck-db psql -U snapcheck -d snapcheck -c "SELECT 1"
 ```
 
 ### ЭТАП 10: ПРОВЕРИТЬ TRAEFIK
@@ -168,8 +168,8 @@ docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm -c "SELECT 1"
 docker logs traefik | tail -30
 
 # Должны быть строки:
-# "Creating router slideconfirm-backend"
-# "Creating router slideconfirm-frontend"
+# "Creating router snapcheck-backend"
+# "Creating router snapcheck-frontend"
 # "Trying to obtain and store certificate for domain ..."
 
 # Проверить SSL сертификат
@@ -233,7 +233,7 @@ docker-compose restart db
 
 # Проблема: Traefik не видит маршруты
 docker-compose restart backend frontend
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # Проблема: SSL сертификат не выписан
 # Убедиться что DNS настроен: nslookup yourdomain.com
@@ -248,7 +248,7 @@ docker logs traefik | grep slideconfirm
 ## 📊 КОМАНДЫ УПРАВЛЕНИЯ
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Запуск и остановка
 docker-compose up -d          # Запустить
@@ -263,7 +263,7 @@ docker-compose logs -f db                 # БД только
 
 # Отладка
 docker-compose exec backend bash          # Войти в backend
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
                                           # Войти в БД
 
 # Очистка
@@ -284,7 +284,7 @@ docker-compose down -v                    # Удалить с данными (о
 - [ ] Домен указывает на IP сервера
 
 ### Во время установки
-- [ ] Проект загружен в /opt/slideconfirm
+- [ ] Проект загружен в /opt/snapcheck
 - [ ] .env файл создан и заполнен
 - [ ] docker-compose.yml скопирован/переименован
 - [ ] docker-nginx-traefik.conf скопирован/переименован

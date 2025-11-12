@@ -1,4 +1,4 @@
-# SlideConfirm - Система управления корпоративными презентациями
+# SnapCheck - Система управления корпоративными презентациями
 
 ## Статус: ✅ ГОТОВО К РАБОТЕ
 
@@ -8,13 +8,13 @@
 
 ### Бэкенд (FastAPI):
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
 ### Фронтенд (Vite + React):
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm/frontend
+cd /Users/rakhat/Documents/webhosting/SnapCheck/frontend
 npm run dev
 ```
 
@@ -70,7 +70,7 @@ Linux:    /home/john/presentation_slides
 ## 📁 Структура проекта
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── backend/
 │   ├── main.py           # Главное FastAPI приложение
 │   ├── models.py         # ORM модели (User, Presentation, Slide...)
@@ -216,7 +216,7 @@ id (PK) | user_id (FK) | presentation_id (FK) | completed_at
 
 1. Используйте переменные окружения для настроек
 2. Измените SECRET_KEY в `backend/utils/security.py`
-# SnapCheck (SlideConfirm)
+# SnapCheck (SnapCheck)
 3. Используйте PostgreSQL вместо SQLite
 4. Разверните на облачной платформе (Heroku, AWS, DigitalOcean и т.д.)
 5. Используйте HTTPS
@@ -278,7 +278,7 @@ GSS Training System
 ```
 
 ```
-Местоположение: /tmp/slideconfirm_uploads/
+Местоположение: /tmp/snapcheck_uploads/
 Структура:
 │   ├── 1/
 │   │   ├── slide1.jpg
@@ -340,7 +340,7 @@ lsof -i :5173  # Фронтенд
 killall -9 python3 node npm
 
 # Удалите старую БД
-rm /tmp/slideconfirm.db
+rm /tmp/snapcheck.db
 ```
 
 ---
@@ -351,7 +351,7 @@ rm /tmp/slideconfirm.db
 
 ```bash
 # На сервере Ubuntu 20.04+
-sudo bash /opt/SlideConfirm/install-prod.sh
+sudo bash /opt/SnapCheck/install-prod.sh
 ```
 
 Или вручную:
@@ -365,7 +365,7 @@ sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # 3. Запустить контейнеры
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 docker-compose -f docker-compose.prod.yml up -d
 
 # 4. Открыть браузер
@@ -414,7 +414,7 @@ npm start
 
 ### Слайды не показываются
 - Проверьте, что презентация в статусе "Опубликована"
-- Проверьте права доступа на файлы в `/tmp/slideconfirm_uploads/`
+- Проверьте права доступа на файлы в `/tmp/snapcheck_uploads/`
 
 ## 📝 Примеры использования API
 

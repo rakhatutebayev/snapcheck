@@ -17,7 +17,7 @@
 │  │  │ Port 80/443 │  │ Port 8000   │  │ 5432 │ │          │
 │  │  └─────────────┘  └─────────────┘  └──────┘ │          │
 │  │                                               │          │
-│  │      slideconfirm-network (мост)             │          │
+│  │      snapcheck-network (мост)             │          │
 │  └───────────────────────────────────────────────┘          │
 │                        ↓                                     │
 │         ┌─────────────────────────────┐                    │
@@ -67,11 +67,11 @@
 
 ШАГ 4: ЗАГРУЗИТЬ ПРОЕКТ (2 минуты)
    ├─ cd /opt
-   ├─ sudo git clone https://github.com/USERNAME/slideconfirm.git
-   ├─ cd slideconfirm
+   ├─ sudo git clone https://github.com/USERNAME/snapcheck.git
+   ├─ cd snapcheck
    └─ sudo mkdir -p data/db data/uploads logs/{backend,nginx}
 
-   РЕЗУЛЬТАТ: ✅ Проект загружен в /opt/slideconfirm
+   РЕЗУЛЬТАТ: ✅ Проект загружен в /opt/snapcheck
 
 ─────────────────────────────────────────────
 
@@ -127,7 +127,7 @@
 
 ```bash
 # Одна команда делает всё!
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 
 # Время: 20 минут
 # Сложность: Очень легко ✅
@@ -143,7 +143,7 @@ curl -fsSL https://get.docker.com | sudo sh
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
 
 # 2. Загрузить проект (скопировать 3 команды)
-cd /opt && sudo git clone https://github.com/YOUR_USERNAME/slideconfirm.git && cd slideconfirm && sudo mkdir -p data/db data/uploads logs/{backend,nginx}
+cd /opt && sudo git clone https://github.com/YOUR_USERNAME/snapcheck.git && cd snapcheck && sudo mkdir -p data/db data/uploads logs/{backend,nginx}
 
 # 3. Настроить .env (скопировать 1 команду)
 sudo nano .env  # отредактировать
@@ -182,19 +182,19 @@ sudo docker-compose -f docker-compose.prod.yml up -d
   docker-compose --version
 
 ☐ Проект загружен
-  ls /opt/slideconfirm
+  ls /opt/snapcheck
 
 ☐ Директории созданы
-  ls /opt/slideconfirm/data
+  ls /opt/snapcheck/data
 
 ☐ .env файл создан
-  cat /opt/slideconfirm/.env
+  cat /opt/snapcheck/.env
 
 ☐ Образы собраны (10 мин ждать!)
-  docker images | grep slideconfirm
+  docker images | grep snapcheck
 
 ☐ Контейнеры запущены
-  docker ps | grep slideconfirm
+  docker ps | grep snapcheck
 
 ☐ Приложение доступно
   curl https://your-domain.com
@@ -283,7 +283,7 @@ docker-compose restart backend # Перезагрузить backend
 
 ## ✨ ГОТОВО!
 
-Ты готов развернуть SlideConfirm на Docker! 🚀
+Ты готов развернуть SnapCheck на Docker! 🚀
 
 **ВЫБЕРИ:**
 - 👉 **Вариант 1** (Самый быстрый) → Скопировать скрипт deploy-ubuntu.sh

@@ -231,40 +231,40 @@ sudo /tmp/install-docker.sh
 
 ---
 
-## 🐳 РАЗВЕРНУТЬ SLIDECONFIRM НА UBUNTU
+## 🐳 РАЗВЕРНУТЬ SNAPCHECK НА UBUNTU
 
 ### Шаг 1: Загрузить проект
 
 ```bash
 # Вариант A: Клонировать из GitHub
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git /opt/slideconfirm
-cd /opt/slideconfirm
+git clone https://github.com/YOUR_USERNAME/snapcheck.git /opt/snapcheck
+cd /opt/snapcheck
 
 # Вариант B: Скачать zip файл
-wget https://github.com/YOUR_USERNAME/slideconfirm/archive/refs/heads/main.zip
+wget https://github.com/YOUR_USERNAME/snapcheck/archive/refs/heads/main.zip
 unzip main.zip
-mv slideconfirm-main /opt/slideconfirm
-cd /opt/slideconfirm
+mv snapcheck-main /opt/snapcheck
+cd /opt/snapcheck
 ```
 
 ### Шаг 2: Создать необходимые директории
 
 ```bash
-mkdir -p /opt/slideconfirm/data/db
-mkdir -p /opt/slideconfirm/data/uploads
-mkdir -p /opt/slideconfirm/logs/backend
-mkdir -p /opt/slideconfirm/logs/nginx
+mkdir -p /opt/snapcheck/data/db
+mkdir -p /opt/snapcheck/data/uploads
+mkdir -p /opt/snapcheck/logs/backend
+mkdir -p /opt/snapcheck/logs/nginx
 
-chmod -R 755 /opt/slideconfirm
+chmod -R 755 /opt/snapcheck
 ```
 
 ### Шаг 3: Создать .env файл
 
 ```bash
-cat > /opt/slideconfirm/.env << 'EOF'
+cat > /opt/snapcheck/.env << 'EOF'
 # Backend Security
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
-DATABASE_URL=postgresql://slideconfirm:StrongPassword123@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:StrongPassword123@db:5432/snapcheck
 ACCESS_TOKEN_EXPIRE=30
 REFRESH_TOKEN_EXPIRE=7
 
@@ -283,13 +283,13 @@ EOF
 **⚠️ Важно:** Отредактировать пароли!
 
 ```bash
-nano /opt/slideconfirm/.env
+nano /opt/snapcheck/.env
 # Нажать Ctrl+X для выхода, Y для сохранения
 ```
 
 ### Шаг 4: Обновить docker-compose для production
 
-**Файл:** `/opt/slideconfirm/docker-compose.prod.yml`
+**Файл:** `/opt/snapcheck/docker-compose.prod.yml`
 
 ```yaml
 version: '3.8'
@@ -299,20 +299,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
+    container_name: snapcheck-backend
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - ENVIRONMENT=production
       - SECRET_KEY=${SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL}
     volumes:
-      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./data/uploads:/tmp/snapcheck_uploads
       - ./logs/backend:/app/logs
     depends_on:
       - db
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -323,7 +323,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
+    container_name: snapcheck-frontend
     ports:
       - "80:80"
       - "443:443"
@@ -334,7 +334,7 @@ services:
       - backend
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
@@ -343,24 +343,24 @@ services:
 
   db:
     image: postgres:15-alpine
-    container_name: slideconfirm-db
+    container_name: snapcheck-db
     environment:
-      - POSTGRES_DB=slideconfirm
-      - POSTGRES_USER=slideconfirm
+      - POSTGRES_DB=snapcheck
+      - POSTGRES_USER=snapcheck
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U slideconfirm"]
+      test: ["CMD-SHELL", "pg_isready -U snapcheck"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
-  slideconfirm-network:
+  snapcheck-network:
     driver: bridge
 
 volumes:
@@ -371,7 +371,7 @@ volumes:
 ### Шаг 5: Собрать Docker образы
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Собрать образы (первый раз долго, 5-10 минут)
 docker-compose -f docker-compose.prod.yml build
@@ -408,7 +408,7 @@ ls -la /etc/letsencrypt/live/your-domain.com/
 
 ### Шаг 8: Обновить Nginx конфиг
 
-**Файл:** `/opt/slideconfirm/docker-nginx.conf`
+**Файл:** `/opt/snapcheck/docker-nginx.conf`
 
 ```nginx
 server {
@@ -512,16 +512,16 @@ docker-compose -f docker-compose.prod.yml logs -f db
 # ═══════════════════════════════════════════════════════════════
 
 # Войти в контейнер backend
-docker exec -it slideconfirm-backend bash
+docker exec -it snapcheck-backend bash
 
 # Войти в контейнер frontend
-docker exec -it slideconfirm-frontend sh
+docker exec -it snapcheck-frontend sh
 
 # Войти в контейнер БД
-docker exec -it slideconfirm-db psql -U slideconfirm -d slideconfirm
+docker exec -it snapcheck-db psql -U snapcheck -d snapcheck
 
 # Выполнить команду в контейнере
-docker exec slideconfirm-backend python3 -m pip list
+docker exec snapcheck-backend python3 -m pip list
 
 # ═══════════════════════════════════════════════════════════════
 # СТАТУС И ИНФОРМАЦИЯ
@@ -540,7 +540,7 @@ docker images
 docker stats
 
 # Сетевые соединения
-docker network inspect slideconfirm-network
+docker network inspect snapcheck-network
 
 # ═══════════════════════════════════════════════════════════════
 # ОБСЛУЖИВАНИЕ
@@ -570,7 +570,7 @@ docker system prune -a
 crontab -e
 
 # Добавить строку (обновление каждый день в 3 утра):
-0 3 * * * cd /opt/slideconfirm && git pull && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d
+0 3 * * * cd /opt/snapcheck && git pull && docker-compose -f docker-compose.prod.yml build && docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ### Способ 2: GitHub Actions (автоматический CI/CD)
@@ -597,7 +597,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /opt/slideconfirm
+            cd /opt/snapcheck
             git pull
             docker-compose -f docker-compose.prod.yml build --no-cache
             docker-compose -f docker-compose.prod.yml up -d
@@ -645,13 +645,13 @@ sudo journalctl -u docker
 
 ```bash
 # Посмотреть использование
-du -sh /opt/slideconfirm/*
+du -sh /opt/snapcheck/*
 
 # Очистить старые образы
 docker image prune -a
 
 # Очистить старые логи
-docker logs --tail 0 slideconfirm-backend
+docker logs --tail 0 snapcheck-backend
 
 # Очистить систему
 docker system prune -a --volumes
@@ -670,7 +670,7 @@ docker system prune -a --volumes
       sudo ufw allow 443/tcp
 - [ ] Регулярно обновлять систему: sudo apt update && sudo apt upgrade
 - [ ] Сделать бэкап БД:
-      docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > backup.sql
+      docker exec snapcheck-db pg_dump -U snapcheck snapcheck > backup.sql
 - [ ] Настроить SSH ключи (отключить пароль)
 - [ ] Установить fail2ban: sudo apt install fail2ban
 - [ ] Настроить SSL сертификат (Let's Encrypt)

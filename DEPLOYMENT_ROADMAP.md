@@ -40,7 +40,7 @@
 # 2. SSH на сервер
 # 3. Запустить:
 
-curl https://raw.githubusercontent.com/YOUR_REPO/SlideConfirm/main/install-prod.sh | bash
+curl https://raw.githubusercontent.com/YOUR_REPO/SnapCheck/main/install-prod.sh | bash
 
 # 4. Открыть http://YOUR_IP:3000 ✅
 ```
@@ -121,7 +121,7 @@ npm start
 **Способ 1: Ручной (самый безопасный)**
 ```bash
 ssh root@YOUR_IP
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 git pull origin main
 docker-compose -f docker-compose.prod.yml restart
 ```

@@ -100,7 +100,7 @@ User → на слайде 5, нажимает F5
 ### Вариант 1: Локально (Docker)
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Пересобрать frontend
 docker-compose build frontend --no-cache
@@ -116,7 +116,7 @@ docker-compose restart frontend
 ```bash
 ssh root@88.99.124.218
 
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Обновить
 git pull

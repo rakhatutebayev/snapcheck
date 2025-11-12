@@ -27,12 +27,12 @@ Your project is configured to deploy with:
 
 ```bash
 # Upload entire project to server
-scp -r /Users/rakhat/Documents/webhosting/SlideConfirm/ user@your-server:/opt/
+scp -r /Users/rakhat/Documents/webhosting/SnapCheck/ user@your-server:/opt/
 
 # OR use rsync for faster sync (excludes node_modules, .git)
 rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '__pycache__' \
-  /Users/rakhat/Documents/webhosting/SlideConfirm/ \
-  user@your-server:/opt/SlideConfirm/
+  /Users/rakhat/Documents/webhosting/SnapCheck/ \
+  user@your-server:/opt/SnapCheck/
 ```
 
 ---
@@ -44,7 +44,7 @@ rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '__pycache__' \
 ssh user@your-server
 
 # Navigate to project
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 
 # Run automated deployment script
 sudo ./deploy-to-server.sh
@@ -75,9 +75,9 @@ docker-compose -f docker-compose-traefik.yml ps
 **Expected output:**
 ```
 NAME                      STATUS
-slideconfirm-backend      Up (healthy)
-slideconfirm-frontend     Up (healthy)
-slideconfirm-db           Up (healthy)
+snapcheck-backend      Up (healthy)
+snapcheck-frontend     Up (healthy)
+snapcheck-db           Up (healthy)
 ```
 
 ---
@@ -260,7 +260,7 @@ cat backup_20241112.sql | docker-compose -f docker-compose-traefik.yml exec -T d
 crontab -e
 
 # Add this line:
-0 2 * * * cd /opt/SlideConfirm && docker-compose -f docker-compose-traefik.yml exec -T db pg_dump -U snapcheck_user snapcheck | gzip > /opt/backups/snapcheck_$(date +\%Y\%m\%d).sql.gz
+0 2 * * * cd /opt/SnapCheck && docker-compose -f docker-compose-traefik.yml exec -T db pg_dump -U snapcheck_user snapcheck | gzip > /opt/backups/snapcheck_$(date +\%Y\%m\%d).sql.gz
 ```
 
 ---
@@ -271,13 +271,13 @@ crontab -e
 ```bash
 # SSH to server
 ssh user@your-server
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 
 # Pull latest changes (if using git)
 git pull origin main
 
 # Or upload new files
-# scp -r local_files/ user@server:/opt/SlideConfirm/
+# scp -r local_files/ user@server:/opt/SnapCheck/
 
 # Rebuild and restart
 docker-compose -f docker-compose-traefik.yml build
@@ -333,7 +333,7 @@ Deployment is successful when:
 
 ```bash
 # Deploy
-cd /opt/SlideConfirm && sudo ./deploy-to-server.sh
+cd /opt/SnapCheck && sudo ./deploy-to-server.sh
 
 # Status
 docker-compose -f docker-compose-traefik.yml ps

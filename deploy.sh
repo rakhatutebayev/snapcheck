@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # ═══════════════════════════════════════════════════════════════
-# 🚀 АВТОМАТИЧЕСКАЯ УСТАНОВКА SLIDECONFIRM НА СЕРВЕР
+# 🚀 АВТОМАТИЧЕСКАЯ УСТАНОВКА SNAPCHECK НА СЕРВЕР
 # ═══════════════════════════════════════════════════════════════
 
 set -e  # Выход при первой ошибке
 
-echo "╔════════════════════════════════════════════════════════╗"
-echo "║      🚀 SLIDECONFIRM - АВТОМАТИЧЕСКАЯ УСТАНОВКА      ║"
-echo "╚════════════════════════════════════════════════════════╝"
+echo "╔══════════════════════════════════════════════════════╗"
+echo "║      🚀 SNAPCHECK - АВТОМАТИЧЕСКАЯ УСТАНОВКА      ║"
+echo "╚══════════════════════════════════════════════════════╝"
 
 # ═══════════════════════════════════════════════════════════════
 # ПРОВЕРКА ПАРАМЕТРОВ
@@ -18,27 +18,27 @@ if [ "$#" -lt 1 ]; then
     echo "❌ Использование: ./deploy.sh <GITHUB_REPO> [DOMAIN] [DB_PASSWORD]"
     echo ""
     echo "Примеры:"
-    echo "  ./deploy.sh https://github.com/user/slideconfirm.git"
-    echo "  ./deploy.sh https://github.com/user/slideconfirm.git slideconfirm.com"
-    echo "  ./deploy.sh https://github.com/user/slideconfirm.git slideconfirm.com MyStrongPass123"
+    echo "  ./deploy.sh https://github.com/user/snapcheck.git"
+    echo "  ./deploy.sh https://github.com/user/snapcheck.git snapcheck.com"
+    echo "  ./deploy.sh https://github.com/user/snapcheck.git snapcheck.com MyStrongPass123"
     exit 1
 fi
 
 GITHUB_REPO=$1
-DOMAIN=${2:-"slideconfirm.local"}
-DB_PASSWORD=${3:-"SlideConfirm$(date +%s)"}
+DOMAIN=${2:-"snapcheck.local"}
+DB_PASSWORD=${3:-"SnapCheck$(date +%s)"}
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
-INSTALL_DIR="/opt/slideconfirm"
+INSTALL_DIR="/opt/snapcheck"
 
 # ═══════════════════════════════════════════════════════════════
 # ЛОГИРОВАНИЕ
 # ═══════════════════════════════════════════════════════════════
 
-LOG_FILE="/var/log/slideconfirm-install.log"
+LOG_FILE="/var/log/snapcheck-install.log"
 exec > >(tee -a "$LOG_FILE")
 exec 2>&1
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🚀 Начало установки SlideConfirm"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🚀 Начало установки SnapCheck"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] 📦 GitHub репо: $GITHUB_REPO"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🌐 Домен: $DOMAIN"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] 📁 Директория: $INSTALL_DIR"
@@ -153,7 +153,7 @@ echo "📝 Генерирование .env файла..."
 
 sudo tee "$ENV_FILE" > /dev/null << EOF
 # ═══════════════════════════════════════════════════════════════
-# SLIDECONFIRM - КОНФИГУРАЦИЯ PRODUCTION
+# SNAPCHECK - КОНФИГУРАЦИЯ PRODUCTION
 # ═══════════════════════════════════════════════════════════════
 
 # ОСНОВНЫЕ ПАРАМЕТРЫ
@@ -166,7 +166,7 @@ SECRET_KEY=$SECRET_KEY
 DB_PASSWORD=$DB_PASSWORD
 
 # DATABASE
-DATABASE_URL=postgresql://slideconfirm:$DB_PASSWORD@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:$DB_PASSWORD@db:5432/snapcheck
 
 # FRONTEND
 VITE_API_URL=https://$DOMAIN/api
@@ -273,7 +273,7 @@ fi
 
 echo ""
 echo "🔍 Проверка БД..."
-if sudo docker-compose exec -T db pg_isready -U slideconfirm > /dev/null 2>&1; then
+if sudo docker-compose exec -T db pg_isready -U snapcheck > /dev/null 2>&1; then
     echo "✅ БД здорова"
 else
     echo "⚠️  БД еще не готова"
@@ -349,7 +349,7 @@ echo "Проверьте что все контейнеры запущены:"
 echo "  sudo docker-compose ps"
 echo ""
 echo "Проверьте логи Traefik:"
-echo "  sudo docker logs traefik | grep slideconfirm"
+  echo "  sudo docker logs traefik | grep snapcheck"
 echo ""
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✅ Установка завершена успешно"

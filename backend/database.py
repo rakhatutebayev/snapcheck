@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 # ✅ Используем DATABASE_URL из переменных окружения (production PostgreSQL)
 # или SQLite для разработки
 SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    "sqlite:////tmp/slideconfirm.db"
+    "DATABASE_URL",
+    "sqlite:////tmp/snapcheck.db"
 )
 
 # ✅ Для SQLite нужны дополнительные параметры

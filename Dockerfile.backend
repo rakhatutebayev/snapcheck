@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Создание директорий для данных
-RUN mkdir -p /app/data/db /tmp/slideconfirm_uploads
+RUN mkdir -p /app/data/db /tmp/snapcheck_uploads
 
 # Переменные окружения
 ENV PYTHONUNBUFFERED=1

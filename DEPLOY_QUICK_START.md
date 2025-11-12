@@ -6,7 +6,7 @@
 
 ```bash
 # На сервере
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 1. Получить последние изменения (30 сек)
 git pull origin main
@@ -33,7 +33,7 @@ docker-compose logs backend | head -20
 # 1. SFTP extension автоматически загружает файлы при Ctrl+S
 
 # На сервере
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose build --no-cache
 docker-compose restart
 ```
@@ -116,7 +116,7 @@ docker-compose down && docker-compose up -d
 Если что-то сломалось:
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Откатить на предыдущий commit
 git revert HEAD

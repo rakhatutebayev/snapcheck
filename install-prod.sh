@@ -50,11 +50,11 @@ docker --version
 docker-compose --version
 
 print_status "Создание папок..."
-mkdir -p /opt/SlideConfirm
-cd /opt/SlideConfirm
+mkdir -p /opt/SnapCheck
+cd /opt/SnapCheck
 
 print_status "Клонирование репозитория..."
-git clone https://github.com/YOUR_REPO/SlideConfirm.git . 2>/dev/null || print_warning "Git может быть не установлен, следуй инструкциям SFTP"
+git clone https://github.com/YOUR_REPO/SnapCheck.git . 2>/dev/null || print_warning "Git может быть не установлен, следуй инструкциям SFTP"
 
 print_status "Создание необходимых папок..."
 mkdir -p data/db
@@ -65,7 +65,7 @@ chmod -R 755 data logs
 
 print_status "Создание .env файла..."
 cat > .env << 'EOF'
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 ENVIRONMENT=production
 LOG_LEVEL=info
 WORKERS=4
@@ -112,15 +112,15 @@ echo ""
 echo "   Смотреть логи:           docker-compose -f docker-compose.prod.yml logs -f"
 echo "   Перезагрузить:            docker-compose -f docker-compose.prod.yml restart"
 echo "   Остановить:               docker-compose -f docker-compose.prod.yml down"
-echo "   Обновить код:             cd /opt/SlideConfirm && git pull && docker-compose -f docker-compose.prod.yml restart"
+echo "   Обновить код:             cd /opt/SnapCheck && git pull && docker-compose -f docker-compose.prod.yml restart"
 echo ""
 echo "🔒 Для добавления SSL:"
 echo ""
 echo "   sudo apt install -y certbot"
 echo "   sudo certbot certonly --standalone -d YOUR_DOMAIN.com"
 echo ""
-echo "📖 Подробный гайд: /opt/SlideConfirm/PRODUCTION_INSTALL_GUIDE.md"
-echo "❓ FAQ:             /opt/SlideConfirm/PRODUCTION_FAQ.md"
+echo "📖 Подробный гайд: /opt/SnapCheck/PRODUCTION_INSTALL_GUIDE.md"
+echo "❓ FAQ:             /opt/SnapCheck/PRODUCTION_FAQ.md"
 echo ""
 echo "═══════════════════════════════════════════════════════════════════"
 print_status "Готово к работе! 🎉"

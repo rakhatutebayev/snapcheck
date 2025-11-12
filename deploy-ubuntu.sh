@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 🐳 DOCKER DEPLOYMENT FOR UBUNTU
-# Автоматическое развертывание SlideConfirm на Ubuntu сервер
+# Автоматическое развертывание SnapCheck на Ubuntu сервер
 
 set -e  # Остановить на ошибке
 
@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Переменные
-PROJECT_DIR="/opt/slideconfirm"
+PROJECT_DIR="/opt/snapcheck"
 DOMAIN="${1:-your-domain.com}"
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -43,7 +43,7 @@ print_error() {
 # НАЧАЛО УСТАНОВКИ
 # ═══════════════════════════════════════════════════════════════════════════
 
-print_header "DOCKER DEPLOYMENT FOR SLIDECONFIRM"
+print_header "DOCKER DEPLOYMENT FOR SNAPCHECK"
 
 # 1️⃣ Проверка прав администратора
 print_step "1️⃣  Проверка прав администратора..."
@@ -127,7 +127,7 @@ print_step "7️⃣  Загрузка проекта..."
 if [ ! -d "$PROJECT_DIR/.git" ]; then
     print_step "   Клонирую репозиторий..."
     # Замените на ваш GitHub репозиторий
-    git clone https://github.com/YOUR_USERNAME/slideconfirm.git . || \
+    git clone https://github.com/YOUR_USERNAME/snapcheck.git . || \
     print_error "Не удалось клонировать репозиторий. Отредактируйте URL в скрипте"
 else
     print_step "   Обновляю существующий репозиторий..."
@@ -151,7 +151,7 @@ if [ ! -f ".env" ]; then
     cat > .env << EOF
 # Backend Security
 SECRET_KEY=$SECRET_KEY
-DATABASE_URL=postgresql://slideconfirm:$DB_PASSWORD@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:$DB_PASSWORD@db:5432/snapcheck
 ACCESS_TOKEN_EXPIRE=30
 REFRESH_TOKEN_EXPIRE=7
 
@@ -236,23 +236,23 @@ print_success "Firewall настроен"
 
 # 1️⃣8️⃣ Создать backup скрипт
 print_step "1️⃣8️⃣ Создание backup скрипта..."
-cat > /usr/local/bin/slideconfirm-backup.sh << 'BACKUP_EOF'
+cat > /usr/local/bin/snapcheck-backup.sh << 'BACKUP_EOF'
 #!/bin/bash
-BACKUP_DIR="/opt/slideconfirm/backups"
+BACKUP_DIR="/opt/snapcheck/backups"
 mkdir -p $BACKUP_DIR
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 echo "🔄 Creating backup..."
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > $BACKUP_DIR/db_$TIMESTAMP.sql
-tar -czf $BACKUP_DIR/uploads_$TIMESTAMP.tar.gz /opt/slideconfirm/data/uploads
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > $BACKUP_DIR/db_$TIMESTAMP.sql
+tar -czf $BACKUP_DIR/uploads_$TIMESTAMP.tar.gz /opt/snapcheck/data/uploads
 echo "✅ Backup created: $BACKUP_DIR"
 EOF
-chmod +x /usr/local/bin/slideconfirm-backup.sh
+chmod +x /usr/local/bin/snapcheck-backup.sh
 print_success "Backup скрипт создан"
 
 # 1️⃣9️⃣ Добавить в cron (ежедневный backup)
 print_step "1️⃣9️⃣ Настройка автоматического backup (ежедневно в 3 утра)..."
-CRON_ENTRY="0 3 * * * /usr/local/bin/slideconfirm-backup.sh"
-(crontab -l 2>/dev/null | grep -v "slideconfirm-backup" ; echo "$CRON_ENTRY") | crontab - 2>/dev/null || true
+CRON_ENTRY="0 3 * * * /usr/local/bin/snapcheck-backup.sh"
+(crontab -l 2>/dev/null | grep -v "snapcheck-backup" ; echo "$CRON_ENTRY") | crontab - 2>/dev/null || true
 print_success "Cron job добавлен"
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -279,7 +279,7 @@ echo -e "  Перезагрузить все:"
 echo -e "    ${BLUE}docker-compose -f docker-compose.prod.yml restart${NC}"
 echo -e ""
 echo -e "  Backup БД:"
-echo -e "    ${BLUE}/usr/local/bin/slideconfirm-backup.sh${NC}"
+echo -e "    ${BLUE}/usr/local/bin/snapcheck-backup.sh${NC}"
 echo -e ""
 echo -e "  Редактировать .env:"
 echo -e "    ${BLUE}nano $PROJECT_DIR/.env${NC}"
@@ -288,6 +288,6 @@ echo -e "\n${YELLOW}⚠️  ВАЖНО:${NC}"
 echo -e "  1. Отредактируйте $PROJECT_DIR/.env (замените SECRET_KEY, пароли)"
 echo -e "  2. Обновите DNS записи для вашего домена"
 echo -e "  3. Проверьте логи: docker-compose logs -f"
-echo -e "  4. Сделайте первый backup: /usr/local/bin/slideconfirm-backup.sh"
+echo -e "  4. Сделайте первый backup: /usr/local/bin/snapcheck-backup.sh"
 
 echo -e "\n${GREEN}🎉 ГОТОВО! Развертывание завершено.${NC}\n"

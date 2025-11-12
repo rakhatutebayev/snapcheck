@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTabletMode": true,
-      "bundleIdentifier": "com.slideconfirm.snapcheck",
+      "bundleIdentifier": "com.snapcheck.snapcheck",
       "buildNumber": "1",
       "usesNonExemptEncryption": false,
       "infoPlist": {
@@ -32,7 +32,7 @@
     "android": {
       "adaptiveIcon": true,
       "icon": "./assets/adaptive-icon.png",
-      "package": "com.slideconfirm.snapcheck",
+      "package": "com.snapcheck.snapcheck",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
@@ -65,7 +65,7 @@
       "eas": {
         "projectId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       },
-      "apiUrl": "https://api.slideconfirm.com",
+      "apiUrl": "https://api.snapcheck.com",
       "appName": "SnapCheck",
       "appVersion": "1.0.0"
     },

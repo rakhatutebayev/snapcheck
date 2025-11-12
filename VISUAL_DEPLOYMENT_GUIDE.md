@@ -159,7 +159,7 @@
 ## 📁 СТРУКТУРА ФАЙЛОВ НА СЕРВЕРЕ
 
 ```
-/opt/slideconfirm/
+/opt/snapcheck/
 │
 ├─ docker-compose.yml          ← Главная конфигурация
 ├─ docker-nginx-traefik.conf   ← Nginx конфиг
@@ -194,9 +194,9 @@
 
 ```
 ┌────────────────────────────────┐
-│ slideconfirm-frontend          │
+│ snapcheck-frontend          │
 ├────────────────────────────────┤
-│ Образ: slideconfirm:frontend   │
+│ Образ: snapcheck:frontend   │
 │ Порт: 80 (внутри контейнера)   │
 │ ОС: Alpine Linux               │
 │ Размер: ~200MB                 │
@@ -204,9 +204,9 @@
 └────────────────────────────────┘
 
 ┌────────────────────────────────┐
-│ slideconfirm-backend           │
+│ snapcheck-backend           │
 ├────────────────────────────────┤
-│ Образ: slideconfirm:backend    │
+│ Образ: snapcheck:backend    │
 │ Порт: 8000                     │
 │ ОС: Python 3.9 + FastAPI       │
 │ Размер: ~400MB                 │
@@ -214,7 +214,7 @@
 └────────────────────────────────┘
 
 ┌────────────────────────────────┐
-│ slideconfirm-db                │
+│ snapcheck-db                │
 ├────────────────────────────────┤
 │ Образ: postgres:15-alpine      │
 │ Порт: 5432                     │
@@ -264,9 +264,9 @@
 │
 ├─ Собрать:
 │  ├─ IP сервера: 123.45.67.89
-│  ├─ Домен: slideconfirm.com
+│  ├─ Домен: snapcheck.com
 │  ├─ Email: admin@company.com
-│  └─ GitHub: https://github.com/user/slideconfirm.git
+│  └─ GitHub: https://github.com/user/snapcheck.git
 │
 └─ Проверить:
    ├─ DNS настроен
@@ -297,14 +297,14 @@
 │
 ├─ cd /opt
 │
-├─ git clone https://github.com/user/slideconfirm.git
+├─ git clone https://github.com/user/snapcheck.git
 │  └─ Проект загружен
 │
-├─ cd slideconfirm
+├─ cd snapcheck
 │
 ├─ nano .env
 │  └─ Заполнены переменные:
-│     ├─ DOMAIN=slideconfirm.com
+│     ├─ DOMAIN=snapcheck.com
 │     ├─ DB_PASSWORD=strong_password
 │     └─ SECRET_KEY=generated_key
 │
@@ -324,8 +324,8 @@
 │  └─ postgres:15-alpine
 │
 ├─ Сборка образов
-│  ├─ slideconfirm:backend (~400MB)
-│  ├─ slideconfirm:frontend (~200MB)
+│  ├─ snapcheck:backend (~400MB)
+│  ├─ snapcheck:frontend (~200MB)
 │  └─ postgres:15-alpine (~100MB)
 │
 └─ ⏱️ Время: 5-10 минут ✅
@@ -339,9 +339,9 @@
 ├─ docker-compose up -d
 │
 ├─ Контейнеры запущены:
-│  ├─ slideconfirm-frontend (port 80)
-│  ├─ slideconfirm-backend (port 8000)
-│  └─ slideconfirm-db (port 5432)
+│  ├─ snapcheck-frontend (port 80)
+│  ├─ snapcheck-backend (port 8000)
+│  └─ snapcheck-db (port 5432)
 │
 ├─ Traefik получает SSL сертификат
 │  └─ Let's Encrypt (~1 минута)
@@ -354,7 +354,7 @@
 ```
 Ваш браузер
 │
-├─ Откройте: https://slideconfirm.com
+├─ Откройте: https://snapcheck.com
 │
 ├─ Проверьте:
 │  ├─ Страница загружается
@@ -382,8 +382,8 @@
 ### ПОСЛЕ (Production на сервере)
 ```
 Интернет ← SSH → Сервер
-├─ Frontend на https://slideconfirm.com
-├─ Backend на https://slideconfirm.com/api
+├─ Frontend на https://snapcheck.com
+├─ Backend на https://snapcheck.com/api
 ├─ БД защищена внутри контейнера
 ├─ SSL сертификат
 ├─ Доступно для всех пользователей 24/7
@@ -411,7 +411,7 @@
 ```
 Backend:    curl http://localhost:8000/health
 Frontend:   curl http://localhost/
-API:        curl https://slideconfirm.com/api/health -k
+API:        curl https://snapcheck.com/api/health -k
 ```
 
 ---
@@ -424,7 +424,7 @@ API:        curl https://slideconfirm.com/api/health -k
         ↓
 ┌──────────────────────────────┐
 │ БРАУЗЕР                      │
-│ https://slideconfirm.com/    │
+│ https://snapcheck.com/    │
 └──────────────┬───────────────┘
                │ HTTPS
                ↓

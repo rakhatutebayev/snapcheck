@@ -20,7 +20,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-INSTALL_DIR="/opt/SlideConfirm"
+INSTALL_DIR="/opt/snapcheck"
 GITHUB_REPO="https://github.com/rakhatutebayev/snapcheck.git"
 
 echo "╔════════════════════════════════════════════════════════╗"

@@ -15,7 +15,7 @@
 
 ```bash
 # Шаг 1: Перейти в директорию проекта
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Шаг 2: Построить контейнеры (первый раз долго)
 docker-compose -f docker-compose.prod.yml build
@@ -54,7 +54,7 @@ docker-compose --version
 
 ```bash
 # Перейти в директорию проекта
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Создать необходимые директории
 mkdir -p data/db data/uploads logs/backend logs/nginx
@@ -63,7 +63,7 @@ mkdir -p data/db data/uploads logs/backend logs/nginx
 cat > .env << 'EOF'
 # Backend
 SECRET_KEY=your-random-secret-key-min-64-chars
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 ACCESS_TOKEN_EXPIRE=30
 REFRESH_TOKEN_EXPIRE=7
 
@@ -111,8 +111,8 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose -f docker-compose.prod.yml up
 
 # Вывод:
-# ✅ Creating slideconfirm-backend ... done
-# ✅ Creating slideconfirm-frontend ... done
+# ✅ Creating snapcheck-backend ... done
+# ✅ Creating snapcheck-frontend ... done
 ```
 
 ---
@@ -125,14 +125,14 @@ docker ps
 
 # Вывод должен быть:
 # CONTAINER ID  IMAGE          STATUS
-# abc123...     slideconfirm-backend    Up 2 minutes
-# def456...     slideconfirm-frontend   Up 2 minutes
+# abc123...     snapcheck-backend    Up 2 minutes
+# def456...     snapcheck-frontend   Up 2 minutes
 
 # Проверить логи backend
-docker logs slideconfirm-backend
+docker logs snapcheck-backend
 
 # Проверить логи frontend
-docker logs slideconfirm-frontend
+docker logs snapcheck-frontend
 
 # Проверить сетевое подключение
 docker network ls
@@ -168,7 +168,7 @@ docker-compose -f docker-compose.prod.yml down
 docker-compose -f docker-compose.prod.yml down -v
 
 # Удалить образы
-docker rmi slideconfirm-backend slideconfirm-frontend
+docker rmi snapcheck-backend snapcheck-frontend
 ```
 
 ---
@@ -180,7 +180,7 @@ docker rmi slideconfirm-backend slideconfirm-frontend
 │         Docker Desktop              │
 ├─────────────────────────────────────┤
 │                                     │
-│  slideconfirm-network (мост)        │
+│  snapcheck-network (мост)        │
 │  ├─ Backend Container (port 8000)   │
 │  │  ├─ Python 3.9                   │
 │  │  ├─ FastAPI                      │
@@ -236,14 +236,14 @@ docker-compose -f docker-compose.prod.yml exec frontend sh
 
 ```bash
 # Зайти в bash backend контейнера
-docker exec -it slideconfirm-backend bash
+docker exec -it snapcheck-backend bash
 # Теперь внутри контейнера можешь:
 # ls -la
 # python3
 # pip list
 
 # Зайти в sh frontend контейнера
-docker exec -it slideconfirm-frontend sh
+docker exec -it snapcheck-frontend sh
 # Теперь внутри контейнера можешь:
 # ls -la
 # npm list
@@ -287,7 +287,7 @@ ERROR: Service 'backend' failed to build
 docker-compose -f docker-compose.prod.yml build --no-cache
 
 # Посмотреть ошибку
-docker logs slideconfirm-backend
+docker logs snapcheck-backend
 
 # Проверить requirements.txt
 cat backend/requirements.txt
@@ -326,13 +326,13 @@ Cannot connect to API
 **Решение:**
 ```bash
 # Проверить переменные окружения
-docker exec slideconfirm-frontend cat /usr/share/nginx/html/.env
+docker exec snapcheck-frontend cat /usr/share/nginx/html/.env
 
 # Проверить что backend работает
 curl http://localhost:8000/health
 
 # Посмотреть логи Nginx
-docker logs slideconfirm-frontend
+docker logs snapcheck-frontend
 
 # Редактировать .env и пересобрать
 VITE_API_URL=http://localhost:8000
@@ -345,7 +345,7 @@ docker-compose -f docker-compose.prod.yml restart frontend
 ## 📁 СТРУКТУРА ПРОЕКТА ДЛЯ DOCKER
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── backend/                    # Python/FastAPI
 │   ├── main.py
 │   ├── auth.py
@@ -386,22 +386,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
+    container_name: snapcheck-backend
     ports:
       - "8000:8000"  # ⚠️ НЕ ОТКРЫВАТЬ В PRODUCTION!
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/slideconfirm
+      - DATABASE_URL=postgresql://user:password@db:5432/snapcheck
       - ENVIRONMENT=production
       - SECRET_KEY=${SECRET_KEY}
       - LOG_LEVEL=info
     volumes:
-      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./data/uploads:/tmp/snapcheck_uploads
       - ./logs/backend:/app/logs
     depends_on:
       - db
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -412,7 +412,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
+    container_name: snapcheck-frontend
     ports:
       - "80:80"    # ✅ Открываем только 80
       - "443:443"  # ✅ 443 для HTTPS
@@ -423,7 +423,7 @@ services:
       - backend
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
@@ -432,24 +432,24 @@ services:
 
   db:
     image: postgres:15-alpine
-    container_name: slideconfirm-db
+    container_name: snapcheck-db
     environment:
-      - POSTGRES_DB=slideconfirm
-      - POSTGRES_USER=slideconfirm
+      - POSTGRES_DB=snapcheck
+      - POSTGRES_USER=snapcheck
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: always
     networks:
-      - slideconfirm-network
+      - snapcheck-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U slideconfirm"]
+      test: ["CMD-SHELL", "pg_isready -U snapcheck"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 networks:
-  slideconfirm-network:
+  snapcheck-network:
     driver: bridge
 
 volumes:
@@ -465,7 +465,7 @@ volumes:
 SECRET_KEY=your-generated-secret-key
 
 # DATABASE
-DATABASE_URL=postgresql://slideconfirm:password@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:password@db:5432/snapcheck
 DB_PASSWORD=your-strong-postgres-password
 
 # ENVIRONMENT
@@ -482,8 +482,8 @@ VITE_API_URL=https://api.your-domain.com
 # На вашем production сервере:
 
 # 1. Загрузить код
-git clone <your-repo> /opt/slideconfirm
-cd /opt/slideconfirm
+git clone <your-repo> /opt/snapcheck
+cd /opt/snapcheck
 
 # 2. Создать .env
 nano .env  # Заполнить переменные
@@ -514,7 +514,7 @@ docker images
 docker ps -a
 
 # Посмотреть сетевые подключения
-docker network inspect slideconfirm-network
+docker network inspect snapcheck-network
 
 # Посмотреть объем данных
 du -sh data/
@@ -540,7 +540,7 @@ docker-compose -f docker-compose.prod.yml build --no-cache
 docker-compose -f docker-compose.prod.yml up -d
 
 # Проверить
-docker logs slideconfirm-backend
+docker logs snapcheck-backend
 ```
 
 ### Способ 2: GitHub Actions (автоматически)
@@ -564,12 +564,12 @@ jobs:
         run: docker-compose -f docker-compose.prod.yml build --no-cache
       
       - name: Push to registry
-        run: docker push your-registry/slideconfirm
+        run: docker push your-registry/snapcheck
       
       - name: SSH to server
         run: |
           ssh -i ${{ secrets.SSH_KEY }} user@your-server.com << 'EOF'
-          cd /opt/slideconfirm
+          cd /opt/snapcheck
           docker-compose -f docker-compose.prod.yml pull
           docker-compose -f docker-compose.prod.yml up -d
           EOF

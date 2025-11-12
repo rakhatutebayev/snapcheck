@@ -20,7 +20,7 @@
 
 ```bash
 # На локальной машине - проверить что всё синтаксис верен
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Проверить Python синтаксис
 python3 -m py_compile backend/slides.py
@@ -44,16 +44,16 @@ git push origin main
 # Файлы автоматически загружаются через SFTP extension
 
 # Способ 3: Вручную на сервере
-scp backend/slides.py root@88.99.124.218:/opt/slideconfirm/backend/
-scp backend/schemas.py root@88.99.124.218:/opt/slideconfirm/backend/
-scp frontend/src/pages/Slides.jsx root@88.99.124.218:/opt/slideconfirm/frontend/src/pages/
+scp backend/slides.py root@88.99.124.218:/opt/snapcheck/backend/
+scp backend/schemas.py root@88.99.124.218:/opt/snapcheck/backend/
+scp frontend/src/pages/Slides.jsx root@88.99.124.218:/opt/snapcheck/frontend/src/pages/
 ```
 
 ### Шаг 3: Перестроить Docker образы
 
 ```bash
 # На сервере
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Пересоздать образы (займёт 3-5 минут)
 docker-compose build --no-cache
@@ -113,7 +113,7 @@ docker-compose build --no-cache backend
 docker-compose build backend 2>&1 | tail -50
 
 # Проверить синтаксис Python
-docker exec slideconfirm-backend python -m py_compile /app/slides.py
+docker exec snapcheck-backend python -m py_compile /app/slides.py
 ```
 
 ### Проблема: Frontend не перестраивается
@@ -126,7 +126,7 @@ docker-compose build --no-cache frontend
 docker-compose logs frontend | tail -100
 
 # Проверить что файл на месте
-docker exec slideconfirm-frontend ls -la /usr/share/nginx/html/
+docker exec snapcheck-frontend ls -la /usr/share/nginx/html/
 ```
 
 ### Проблема: Слайды не отображаются
@@ -158,7 +158,7 @@ docker-compose restart backend
 
 ```bash
 # На сервере - откатить последний commit
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git log --oneline | head -5  # посмотреть историю
 
 # Откатить на предыдущий commit

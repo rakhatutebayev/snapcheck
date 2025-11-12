@@ -43,7 +43,7 @@
 
 ```bash
 # На сервере
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 git pull origin main
 docker-compose -f docker-compose.prod.yml restart
 # Всё! Без downtime ✅
@@ -56,24 +56,24 @@ docker-compose -f docker-compose.prod.yml restart
 **Автоматический бэкап (рекомендуется):**
 
 ```bash
-# На сервере создать скрипт /opt/SlideConfirm/backup.sh
+# На сервере создать скрипт /opt/SnapCheck/backup.sh
 #!/bin/bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 timestamp=$(date +%Y%m%d_%H%M%S)
-tar czf backups/db_${timestamp}.tar.gz data/db/slideconfirm.db data/uploads/
+tar czf backups/db_${timestamp}.tar.gz data/db/snapcheck.db data/uploads/
 # Хранить 7 дней
 find backups -name "db_*.tar.gz" -mtime +7 -delete
 
 # Добавить в crontab (каждый день в 2:00 AM)
 crontab -e
-# 0 2 * * * /opt/SlideConfirm/backup.sh
+# 0 2 * * * /opt/SnapCheck/backup.sh
 ```
 
 **Ручной бэкап:**
 
 ```bash
 # Скопировать БД на локальный компьютер
-scp -r root@YOUR_IP:/opt/SlideConfirm/data/db ./backup-prod
+scp -r root@YOUR_IP:/opt/SnapCheck/data/db ./backup-prod
 ```
 
 ---
@@ -249,7 +249,7 @@ npm start
    postgres:
      image: postgres:14
      environment:
-       POSTGRES_DB: slideconfirm
+       POSTGRES_DB: snapcheck
        POSTGRES_PASSWORD: secure-password
    ```
 

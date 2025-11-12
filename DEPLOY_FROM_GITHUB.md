@@ -65,8 +65,8 @@ bash <(curl -s https://raw.githubusercontent.com/rakhatutebayev/snapcheck/main/d
 ssh user@your-server
 
 # Clone repository
-sudo git clone https://github.com/rakhatutebayev/snapcheck.git /opt/SlideConfirm
-cd /opt/SlideConfirm
+sudo git clone https://github.com/rakhatutebayev/snapcheck.git /opt/SnapCheck
+cd /opt/SnapCheck
 
 # Create .env file (or copy from template)
 sudo nano .env
@@ -87,7 +87,7 @@ sudo ./deploy-to-server.sh
 
 ### Check Container Status
 ```bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 docker-compose -f docker-compose-traefik.yml ps
 ```
 
@@ -134,7 +134,7 @@ To deploy new changes:
 ```bash
 # SSH to server
 ssh user@your-server
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 
 # Pull latest changes
 sudo git pull origin main
@@ -167,7 +167,7 @@ https://github.com/rakhatutebayev/snapcheck
 
 ### Deployment Scripts
 - **GitHub Deploy:** https://raw.githubusercontent.com/rakhatutebayev/snapcheck/main/deploy-from-github.sh
-- **Server Deploy:** `/opt/SlideConfirm/deploy-to-server.sh`
+- **Server Deploy:** `/opt/SnapCheck/deploy-to-server.sh`
 
 ---
 
@@ -175,7 +175,7 @@ https://github.com/rakhatutebayev/snapcheck
 
 ### View Logs
 ```bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 docker-compose -f docker-compose-traefik.yml logs -f backend
 ```
 
@@ -186,14 +186,14 @@ docker-compose -f docker-compose-traefik.yml restart
 
 ### Check Git Status
 ```bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 git status
 git log --oneline -5
 ```
 
 ### Rebuild from Scratch
 ```bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 docker-compose -f docker-compose-traefik.yml down
 docker-compose -f docker-compose-traefik.yml build --no-cache
 docker-compose -f docker-compose-traefik.yml up -d

@@ -21,11 +21,11 @@ sudo bash install.sh
 
 ```bash
 # На вашей машине
-scp -r /path/to/slideconfirm root@your-server:/opt/slideconfirm/app
+scp -r /path/to/snapcheck root@your-server:/opt/snapcheck/app
 
 # Или на сервере
-cd /opt/slideconfirm/app
-git clone https://github.com/yourrepo/slideconfirm .
+cd /opt/snapcheck/app
+git clone https://github.com/yourrepo/snapcheck .
 ```
 
 #### Шаг 3: Запустить приложение
@@ -33,7 +33,7 @@ git clone https://github.com/yourrepo/slideconfirm .
 ```bash
 # Скрипт установки уже запустит приложение
 # Проверить статус:
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 docker-compose -f docker-compose.prod.yml ps
 ```
 
@@ -48,15 +48,15 @@ http://your-server:3000
 ```
 ✓ Backend работает на :8000
 ✓ Frontend работает на :3000
-✓ SQLite БД в: /opt/slideconfirm/data/db/
-✓ Загруженные файлы в: /opt/slideconfirm/data/uploads/
-✓ Логи в: /opt/slideconfirm/logs/
+✓ SQLite БД в: /opt/snapcheck/data/db/
+✓ Загруженные файлы в: /opt/snapcheck/data/uploads/
+✓ Логи в: /opt/snapcheck/logs/
 ```
 
 ### 🔧 Полезные команды
 
 ```bash
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 
 # Статус контейнеров
 docker-compose -f docker-compose.prod.yml ps
@@ -89,7 +89,7 @@ sudo apt-get install -y nginx certbot python3-certbot-nginx
 sudo certbot certonly --standalone -d yourdomain.com
 
 # Настроить Nginx (смотри PRODUCTION_DEPLOY.md)
-sudo nano /etc/nginx/sites-enabled/slideconfirm.conf
+sudo nano /etc/nginx/sites-enabled/snapcheck.conf
 
 # Перезагрузить Nginx
 sudo systemctl restart nginx
@@ -113,8 +113,8 @@ traefik:
 
 frontend:
   labels:
-    - "traefik.http.routers.slideconfirm.rule=Host(`yourdomain.com`)"
-    - "traefik.http.services.slideconfirm.loadbalancer.server.port=80"
+    - "traefik.http.routers.snapcheck.rule=Host(`yourdomain.com`)"
+    - "traefik.http.services.snapcheck.loadbalancer.server.port=80"
 ```
 
 ### 📊 Мониторинг
@@ -127,7 +127,7 @@ curl http://localhost:8000/health
 docker stats
 
 # Использование диска
-du -sh /opt/slideconfirm
+du -sh /opt/snapcheck
 
 # Список запущенных контейнеров
 docker ps
@@ -137,14 +137,14 @@ docker ps
 
 ```bash
 # Создать резервную копию
-tar -czf slideconfirm-backup-$(date +%Y%m%d).tar.gz /opt/slideconfirm/data/
+tar -czf snapcheck-backup-$(date +%Y%m%d).tar.gz /opt/snapcheck/data/
 
 # Восстановить
-tar -xzf slideconfirm-backup-*.tar.gz -C /
+tar -xzf snapcheck-backup-*.tar.gz -C /
 
 # Автоматическое резервное копирование
 # Добавить в crontab
-0 2 * * * tar -czf /opt/slideconfirm/data/backups/backup-$(date +\%Y\%m\%d).tar.gz /opt/slideconfirm/data/
+0 2 * * * tar -czf /opt/snapcheck/data/backups/backup-$(date +\%Y\%m\%d).tar.gz /opt/snapcheck/data/
 ```
 
 ### 🆘 Решение проблем
@@ -179,10 +179,10 @@ sudo netstat -tlnp | grep LISTEN
 
 ```bash
 # Проверить права доступа
-ls -la /opt/slideconfirm/data/
+ls -la /opt/snapcheck/data/
 
 # Исправить права
-sudo chown -R slideconfirm:slideconfirm /opt/slideconfirm/
+sudo chown -R snapcheck:snapcheck /opt/snapcheck/
 ```
 
 ### 📈 Масштабирование
@@ -209,7 +209,7 @@ sudo ufw enable
 sudo apt-get update && sudo apt-get upgrade -y
 
 # Регулярное резервное копирование
-0 2 * * * bash /opt/slideconfirm/scripts/backup.sh
+0 2 * * * bash /opt/snapcheck/scripts/backup.sh
 ```
 
 ### 📱 Мобильный доступ

@@ -5,9 +5,9 @@
 # ═══════════════════════════════════════════════════════════════
 #
 # Usage:
-#   1. Upload this project to server: scp -r SlideConfirm/ user@server:/opt/
+#   1. Upload this project to server: scp -r SnapCheck/ user@server:/opt/
 #   2. SSH to server: ssh user@server
-#   3. Run: cd /opt/SlideConfirm && ./deploy-to-server.sh
+#   3. Run: cd /opt/SnapCheck && ./deploy-to-server.sh
 #
 # Or run remotely:
 #   ssh user@server 'bash -s' < deploy-to-server.sh

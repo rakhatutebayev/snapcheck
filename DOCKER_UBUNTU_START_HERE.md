@@ -12,7 +12,7 @@ ssh root@YOUR_SERVER_IP
 
 # Затем скопируйте и вставьте (одну строку):
 
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 
 # ВСЁ! Приложение развернуто и работает на https://your-domain.com
 ```
@@ -28,9 +28,9 @@ sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Шаг 3: Загрузить проект
-mkdir -p /opt/slideconfirm
-cd /opt/slideconfirm
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git .
+mkdir -p /opt/snapcheck
+cd /opt/snapcheck
+git clone https://github.com/YOUR_USERNAME/snapcheck.git .
 mkdir -p data/db data/uploads logs/backend logs/nginx
 
 # Шаг 4: Отредактировать .env
@@ -104,7 +104,7 @@ docker-compose logs -f backend
 
 ```bash
 # Открыть .env
-sudo nano /opt/slideconfirm/.env
+sudo nano /opt/snapcheck/.env
 
 # ОБЯЗАТЕЛЬНО ИЗМЕНИ эти строки:
 
@@ -130,9 +130,9 @@ VITE_API_URL=https://api.your-domain.com
 docker ps
 
 # Должно быть:
-# slideconfirm-backend    Up (healthy)
-# slideconfirm-frontend   Up (healthy)
-# slideconfirm-db         Up (healthy)
+# snapcheck-backend    Up (healthy)
+# snapcheck-frontend   Up (healthy)
+# snapcheck-db         Up (healthy)
 
 # Посмотреть логи
 docker-compose logs -f backend
@@ -160,18 +160,18 @@ docker-compose restart                      # Перезагрузить
 docker-compose down -v                      # Удалить всё
 
 # ОБНОВЛЕНИЕ КОДА
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 docker-compose build --no-cache
 docker-compose up -d
 
 # ВХОД В КОНТЕЙНЕР
-docker exec -it slideconfirm-backend bash   # В backend
-docker exec -it slideconfirm-db psql -U slideconfirm  # В БД
+docker exec -it snapcheck-backend bash   # В backend
+docker exec -it snapcheck-db psql -U snapcheck  # В БД
 
 # BACKUP
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > backup.sql
-tar -czf uploads_backup.tar.gz /opt/slideconfirm/data/uploads
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > backup.sql
+tar -czf uploads_backup.tar.gz /opt/snapcheck/data/uploads
 ```
 
 ---
@@ -250,7 +250,7 @@ DOCKER_UBUNTU_INSTALLATION.md → "⚠️ ПРОБЛЕМЫ И РЕШЕНИЯ"
 docker-compose.prod.yml → WORKERS=8
 
 # Увеличить RAM
-docker update --memory=4g slideconfirm-backend
+docker update --memory=4g snapcheck-backend
 
 # Кэширование
 docker-compose up -d redis
@@ -266,7 +266,7 @@ docker-compose up -d redis
 ```bash
 # Когда вышла новая версия:
 
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 1. Скачать новый код
 git pull
@@ -287,12 +287,12 @@ docker-compose logs -f backend
 
 ```bash
 # СОЗДАТЬ BACKUP
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > db_backup_$(date +%Y%m%d).sql
-tar -czf uploads_backup_$(date +%Y%m%d).tar.gz /opt/slideconfirm/data/uploads
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > db_backup_$(date +%Y%m%d).sql
+tar -czf uploads_backup_$(date +%Y%m%d).tar.gz /opt/snapcheck/data/uploads
 
 # ВОССТАНОВИТЬ ИЗ BACKUP
-docker exec -i slideconfirm-db psql -U slideconfirm slideconfirm < db_backup_20250101.sql
-tar -xzf uploads_backup_20250101.tar.gz -C /opt/slideconfirm/
+docker exec -i snapcheck-db psql -U snapcheck snapcheck < db_backup_20250101.sql
+tar -xzf uploads_backup_20250101.tar.gz -C /opt/snapcheck/
 
 # АВТОМАТИЧЕСКИЙ BACKUP (каждый день в 3 утра)
 # Уже добавлено скриптом deploy-ubuntu.sh!
@@ -311,21 +311,21 @@ tar -xzf uploads_backup_20250101.tar.gz -C /opt/slideconfirm/
 **Логи:**
 ```bash
 docker-compose logs backend
-docker logs slideconfirm-backend
+docker logs snapcheck-backend
 ```
 
 **Проверить:**
 ```bash
 docker ps
 docker stats
-docker network inspect slideconfirm-network
+docker network inspect snapcheck-network
 ```
 
 ---
 
 ## ✨ ГОТОВО!
 
-Теперь у тебя есть всё что нужно для установки SlideConfirm на Docker! 🎉
+Теперь у тебя есть всё что нужно для установки SnapCheck на Docker! 🎉
 
 **ВЫБЕРИ ВАРИАНТ И НАЧНИ:** 👆
 

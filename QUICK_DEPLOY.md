@@ -46,11 +46,11 @@ docker-compose --version
 cd /opt
 
 # Если есть GitHub
-git clone https://github.com/YOUR_REPO/SlideConfirm.git
-cd SlideConfirm
+git clone https://github.com/YOUR_REPO/SnapCheck.git
+cd SnapCheck
 
 # ИЛИ если используешь SSH (через SFTP)
-# Просто загрузи папку целиком на сервер в /opt/SlideConfirm
+# Просто загрузи папку целиком на сервер в /opt/SnapCheck
 
 # Создать папки
 mkdir -p data/db data/uploads logs/backend logs/nginx
@@ -62,7 +62,7 @@ chmod -R 755 data logs
 ```bash
 # На сервере
 cat > .env << 'EOF'
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 ENVIRONMENT=production
 LOG_LEVEL=info
 WORKERS=4
@@ -73,7 +73,7 @@ EOF
 ### 6️⃣ Запустить Docker (1 минута)
 
 ```bash
-# На сервере (в папке /opt/SlideConfirm)
+# На сервере (в папке /opt/SnapCheck)
 docker-compose -f docker-compose.prod.yml up -d
 
 # Подождать 30 секунд на сборку...
@@ -82,8 +82,8 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose -f docker-compose.prod.yml ps
 
 # Должно быть:
-# slideconfirm-backend  ... Up
-# slideconfirm-frontend ... Up
+# snapcheck-backend  ... Up
+# snapcheck-frontend ... Up
 ```
 
 ### 7️⃣ Готово! 🎉

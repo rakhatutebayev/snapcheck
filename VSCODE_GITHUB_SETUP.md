@@ -21,7 +21,7 @@
 
 1. В VS Code откройте нашу папку:
    ```
-   File → Open Folder → SlideConfirm
+   File → Open Folder → SnapCheck
    ```
 
 2. В левой панели нажмите **Source Control** (иконка с 3 кружками)
@@ -29,7 +29,7 @@
 3. Нажмите **"Publish to GitHub"** (большая синяя кнопка)
 
 4. Выберите:
-   - **Repo name**: `SlideConfirm`
+   - **Repo name**: `SnapCheck`
    - **Public** или **Private** (на выбор)
 
 5. Нажмите **"Publish to GitHub"**
@@ -47,7 +47,7 @@
 
 2. Выполните:
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/SlideConfirm.git
+   git remote add origin https://github.com/YOUR_USERNAME/SnapCheck.git
    git branch -M main
    git push -u origin main
    ```
@@ -110,7 +110,7 @@ git push
 
 ```bash
 # Открыть папку в VS Code
-code /Users/rakhat/Documents/webhosting/SlideConfirm
+code /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Или открыть VS Code и выбрать папку через File → Open Folder
 ```
@@ -178,7 +178,7 @@ GitHub отменил возможность использовать парол
 
 ```bash
 # При первом push'е:
-git remote add origin https://YOUR_USERNAME:YOUR_TOKEN@github.com/YOUR_USERNAME/SlideConfirm.git
+git remote add origin https://YOUR_USERNAME:YOUR_TOKEN@github.com/YOUR_USERNAME/SnapCheck.git
 ```
 
 ---
@@ -237,7 +237,7 @@ git config --global user.name "Your Name"
 1. **Ctrl+Shift+G** (Source Control)
 2. Если пусто - откройте папку:
    ```
-   File → Open Folder → SlideConfirm
+   File → Open Folder → SnapCheck
    ```
 3. Попробуйте снова
 
@@ -249,7 +249,7 @@ git config --global user.name "Your Name"
 Ctrl+`
 
 # Выполнить команды
-git remote add origin https://github.com/YOUR_USERNAME/SlideConfirm.git
+git remote add origin https://github.com/YOUR_USERNAME/SnapCheck.git
 git branch -M main
 git push -u origin main
 ```
@@ -261,7 +261,7 @@ git push -u origin main
 ### Посмотреть репозиторий:
 
 ```
-https://github.com/YOUR_USERNAME/SlideConfirm
+https://github.com/YOUR_USERNAME/SnapCheck
 ```
 
 ### Делать обновления в VS Code:
@@ -302,7 +302,7 @@ git push
 - [ ] Выбрал Public/Private
 - [ ] Репозиторий создан на GitHub
 - [ ] Все файлы загружены
-- [ ] Могу видеть репо на https://github.com/YOUR_USERNAME/SlideConfirm
+- [ ] Могу видеть репо на https://github.com/YOUR_USERNAME/SnapCheck
 - [ ] Могу делать коммиты и push'ить через VS Code
 
 ---

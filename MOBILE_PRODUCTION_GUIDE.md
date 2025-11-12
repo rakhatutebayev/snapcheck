@@ -297,7 +297,7 @@ Android: 📊 In Review → Published ✅ (2-4 часа)
 
 ```
 iOS: https://apps.apple.com/app/snapcheck
-Android: https://play.google.com/store/apps/details?id=com.slideconfirm.snapcheck
+Android: https://play.google.com/store/apps/details?id=com.snapcheck.snapcheck
 ```
 
 ---

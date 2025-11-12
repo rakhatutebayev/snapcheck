@@ -198,7 +198,7 @@ git push origin main
 ### На сервере
 ```bash
 # 1. Получить последние изменения
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull origin main
 
 # 2. Пересоздать образы

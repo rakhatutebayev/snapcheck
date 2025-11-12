@@ -235,7 +235,7 @@ iOS App Store:
   https://apps.apple.com/app/snapcheck
 
 Google Play Store:
-  https://play.google.com/store/apps/details?id=com.slideconfirm.snapcheck
+  https://play.google.com/store/apps/details?id=com.snapcheck.snapcheck
 
 
 🎉 ПОЗДРАВЛЯЕМ!

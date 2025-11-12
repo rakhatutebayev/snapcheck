@@ -1,4 +1,4 @@
-# 📖 ПОЛНЫЙ ИНДЕКС ДОКУМЕНТАЦИИ - SlideConfirm v1.1
+# 📖 ПОЛНЫЙ ИНДЕКС ДОКУМЕНТАЦИИ - SnapCheck v1.1
 
 ## 🎯 Быстрый выбор
 
@@ -390,7 +390,7 @@ A: **Да, полностью** (см. FINAL_SUMMARY.md → Status)
 
 ---
 
-**SlideConfirm v1.1 Documentation Index**
+**SnapCheck v1.1 Documentation Index**
 **October 20, 2025**
 **Status: ✅ Complete & Ready for Production**
 

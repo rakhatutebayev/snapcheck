@@ -1,4 +1,4 @@
-# 📦 Production Package - SlideConfirm
+# 📦 Production Package - SnapCheck
 
 ## ✅ Что входит в production пакет
 
@@ -60,10 +60,10 @@ sudo bash install.sh
 
 ```bash
 # 1. Скопировать файлы на сервер
-scp -r ./* root@your-server:/opt/slideconfirm/
+scp -r ./* root@your-server:/opt/snapcheck/
 
 # 2. На сервере
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 3. Собрать и запустить
 docker-compose -f docker-compose.prod.yml build
@@ -90,7 +90,7 @@ kubectl get services
 ## 📊 Структура production пакета
 
 ```
-SlideConfirm/
+SnapCheck/
 │
 ├── 🐳 Docker Files
 │   ├── Dockerfile.backend           # Backend контейнер
@@ -119,7 +119,7 @@ SlideConfirm/
 │
 └── 📋 Configuration
     ├── .env.example                 # Пример переменных окружения
-    ├── systemd/slideconfirm.service # SystemD юнит
+    ├── systemd/snapcheck.service # SystemD юнит
     └── config/                      # Дополнительные конфиги
 ```
 
@@ -137,7 +137,7 @@ sudo bash install.sh
 ### Управление
 
 ```bash
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 
 # Запуск
 docker-compose -f docker-compose.prod.yml up -d
@@ -156,28 +156,28 @@ docker-compose -f docker-compose.prod.yml logs -f
 
 ```bash
 # Автоматическое обновление
-bash /opt/slideconfirm/scripts/update.sh
+bash /opt/snapcheck/scripts/update.sh
 ```
 
 ### Резервная копия
 
 ```bash
 # Создать резервную копию
-bash /opt/slideconfirm/scripts/backup.sh
+bash /opt/snapcheck/scripts/backup.sh
 
 # Восстановить
-tar -xzf /opt/slideconfirm/data/backups/slideconfirm.db.*.backup -C /
+tar -xzf /opt/snapcheck/data/backups/snapcheck.db.*.backup -C /
 ```
 
 ### Мониторинг
 
 ```bash
 # Проверка здоровья
-bash /opt/slideconfirm/scripts/health-check.sh
+bash /opt/snapcheck/scripts/health-check.sh
 
 # Логи
-tail -f /opt/slideconfirm/logs/backend/backend.log
-tail -f /opt/slideconfirm/logs/nginx/access.log
+tail -f /opt/snapcheck/logs/backend/backend.log
+tail -f /opt/snapcheck/logs/nginx/access.log
 ```
 
 ---
@@ -211,7 +211,7 @@ services:
   backend:    # FastAPI на :8000
   frontend:   # Nginx на :3000
 networks:
-  slideconfirm-network
+  snapcheck-network
 volumes:
   db_data:    # SQLite БД
   uploads_data: # Загруженные файлы
@@ -239,9 +239,9 @@ volumes:
 |----------|---------|
 | Приложение не запускается | `docker-compose logs -f backend` |
 | Порты заняты | `sudo netstat -tlnp \| grep LISTEN` |
-| Нет доступа к файлам | `sudo chown -R slideconfirm:slideconfirm /opt/slideconfirm/` |
+| Нет доступа к файлам | `sudo chown -R snapcheck:snapcheck /opt/snapcheck/` |
 | Забыли пароль | Пересоздать пользователя в БД |
-| Нужно обновить | `bash /opt/slideconfirm/scripts/update.sh` |
+| Нужно обновить | `bash /opt/snapcheck/scripts/update.sh` |
 
 ---
 

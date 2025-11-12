@@ -16,7 +16,7 @@
 ### Step 1: Verify Files Created
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Check if new files exist
 ls -la frontend/src/components/ConfirmModal.jsx
@@ -36,7 +36,7 @@ ls -la frontend/src/pages/Slides.jsx
 ### Step 2: Rebuild Frontend Docker Image
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Rebuild without cache
 docker-compose build frontend --no-cache
@@ -57,7 +57,7 @@ docker-compose restart frontend
 docker-compose ps
 
 # Expected output:
-# slideconfirm-frontend  slideconfirm:frontend-v1.3  Up 10 seconds
+# snapcheck-frontend  snapcheck:frontend-v1.3  Up 10 seconds
 ```
 
 ### Step 4: Check Logs
@@ -280,7 +280,7 @@ On page refresh (F5):
 ```bash
 ssh root@88.99.124.218
 
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Update code
 git pull origin main
@@ -305,7 +305,7 @@ curl -I http://localhost:80/
 # Should return: HTTP/1.1 200 OK
 
 # Via Traefik (production domain)
-curl -I https://slideconfirm.yourdomain.com
+curl -I https://snapcheck.yourdomain.com
 
 # Should return: HTTP/2 200
 ```

@@ -44,20 +44,20 @@ exit
 
 ```bash
 # На локальном компьютере
-scp -r /Users/rakhat/Documents/webhosting/SlideConfirm root@YOUR_SERVER_IP:/opt/
+scp -r /Users/rakhat/Documents/webhosting/SnapCheck root@YOUR_SERVER_IP:/opt/
 
 # Или через git
 ssh root@YOUR_SERVER_IP
 cd /opt
-git clone https://github.com/YOUR_REPO/SlideConfirm.git
-cd SlideConfirm
+git clone https://github.com/YOUR_REPO/SnapCheck.git
+cd SnapCheck
 ```
 
 ### Шаг 3: Создать папки для данных
 
 ```bash
 # На сервере
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 
 mkdir -p data/db
 mkdir -p data/uploads
@@ -74,7 +74,7 @@ chmod -R 755 logs/
 # На сервере
 cat > .env << 'EOF'
 # Backend
-DATABASE_URL=sqlite:///./data/db/slideconfirm.db
+DATABASE_URL=sqlite:///./data/db/snapcheck.db
 ENVIRONMENT=production
 LOG_LEVEL=info
 WORKERS=4
@@ -92,7 +92,7 @@ EOF
 ### Шаг 5: Запустить Docker контейнеры
 
 ```bash
-# На сервере (в папке /opt/SlideConfirm)
+# На сервере (в папке /opt/SnapCheck)
 docker-compose -f docker-compose.prod.yml up -d
 
 # Проверить статус
@@ -261,19 +261,19 @@ server {
 
 ```bash
 # На сервере, создать скрипт обновления
-cat > /opt/SlideConfirm/auto-update.sh << 'EOF'
+cat > /opt/SnapCheck/auto-update.sh << 'EOF'
 #!/bin/bash
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 git pull origin main
 docker-compose -f docker-compose.prod.yml down
 docker-compose -f docker-compose.prod.yml up -d
 EOF
 
-chmod +x /opt/SlideConfirm/auto-update.sh
+chmod +x /opt/SnapCheck/auto-update.sh
 
 # Добавить в crontab для ежедневного обновления в 3:00 AM
 crontab -e
-# 0 3 * * * /opt/SlideConfirm/auto-update.sh >> /opt/SlideConfirm/logs/auto-update.log 2>&1
+# 0 3 * * * /opt/SnapCheck/auto-update.sh >> /opt/SnapCheck/logs/auto-update.log 2>&1
 ```
 
 ### Вариант Б: GitHub Actions CI/CD
@@ -299,7 +299,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /opt/SlideConfirm
+            cd /opt/SnapCheck
             git pull origin main
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d
@@ -324,7 +324,7 @@ docker-compose -f docker-compose.prod.yml exec backend \
   tar czf /tmp/db-backup.tar.gz data/db/
 
 # Скопировать бэкап локально
-docker cp slideconfirm-backend:/tmp/db-backup.tar.gz ./db-backup.tar.gz
+docker cp snapcheck-backend:/tmp/db-backup.tar.gz ./db-backup.tar.gz
 ```
 
 ---
@@ -397,7 +397,7 @@ sudo kill -9 PID
 ```bash
 # Сбросить БД (осторожно!)
 docker-compose -f docker-compose.prod.yml exec backend \
-  rm -rf data/db/slideconfirm.db
+  rm -rf data/db/snapcheck.db
 
 # Перезагрузить контейнеры
 docker-compose -f docker-compose.prod.yml restart
@@ -408,7 +408,7 @@ docker-compose -f docker-compose.prod.yml restart
 ```bash
 # Очистить кэш
 docker-compose -f docker-compose.prod.yml down
-docker image rm slideconfirm-frontend
+docker image rm snapcheck-frontend
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -429,7 +429,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ## Контакты для помощи 📞
 
 Если нужна помощь с развертыванием:
-- GitHub Issues: https://github.com/YOUR_REPO/SlideConfirm/issues
+- GitHub Issues: https://github.com/YOUR_REPO/SnapCheck/issues
 - Документация: PRODUCTION_DEPLOY.md
 - Email: support@example.com
 

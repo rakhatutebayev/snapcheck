@@ -153,7 +153,7 @@ async def upload_slides_from_files(
 ### 3️⃣ Структура проекта
 
 ```
-/Users/rakhat/Documents/webhosting/SlideConfirm/
+/Users/rakhat/Documents/webhosting/SnapCheck/
 ├── backend/
 │   ├── main.py                 # ← Главное приложение FastAPI
 │   ├── slides_admin.py         # ← ✏️ ОБНОВЛЕН: новый endpoint

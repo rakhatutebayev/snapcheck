@@ -1,4 +1,4 @@
-# 🚀 ПОЛНОЕ РУКОВОДСТВО ПО РАЗВЕРТЫВАНИЮ SLIDECONFIRM
+# 🚀 ПОЛНОЕ РУКОВОДСТВО ПО РАЗВЕРТЫВАНИЮ SNAPCHECK
 
 ## 📊 НЕОБХОДИМЫЕ ДАННЫЕ (Соберите их ПЕРЕД началом)
 
@@ -16,9 +16,9 @@
 
 | Параметр | Значение | Пример |
 |----------|----------|--------|
-| **Домен** | `_________` | `slideconfirm.com` |
-| **Поддомен (опционально)** | `_________` | `app.slideconfirm.com` |
-| **Email для SSL** | `_________` | `admin@slideconfirm.com` |
+| **Домен** | `_________` | `snapcheck.com` |
+| **Поддомен (опционально)** | `_________` | `app.snapcheck.com` |
+| **Email для SSL** | `_________` | `admin@snapcheck.com` |
 
 ### ✅ ПАРАМЕТРЫ ПРИЛОЖЕНИЯ
 
@@ -113,19 +113,19 @@ nslookup YOUR_DOMAIN
 cd /opt
 
 # СПОСОБ A: Если ваш репозиторий публичный
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git slideconfirm
-cd slideconfirm
+git clone https://github.com/YOUR_USERNAME/snapcheck.git snapcheck
+cd snapcheck
 
 # СПОСОБ B: Если репозиторий приватный (нужен GitHub SSH ключ)
-git clone git@github.com:YOUR_USERNAME/slideconfirm.git slideconfirm
-cd slideconfirm
+git clone git@github.com:YOUR_USERNAME/snapcheck.git snapcheck
+cd snapcheck
 
 # СПОСОБ C: Загрузить через SCP с вашего ПК
 # На вашем ПК выполните:
-# scp -r /Users/rakhat/Documents/webhosting/SlideConfirm root@YOUR_IP:/opt/slideconfirm
+# scp -r /Users/rakhat/Documents/webhosting/SnapCheck root@YOUR_IP:/opt/snapcheck
 
 # Проверить что всё загружено
-ls -la /opt/slideconfirm
+ls -la /opt/snapcheck
 ```
 
 ---
@@ -137,12 +137,12 @@ ls -la /opt/slideconfirm
 На сервере выполните:
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Создать .env файл
 cat > .env << 'EOF'
 # ═══════════════════════════════════════════════════════════════
-# SLIDECONFIRM - PRODUCTION КОНФИГУРАЦИЯ
+# SNAPCHECK - PRODUCTION КОНФИГУРАЦИЯ
 # ═══════════════════════════════════════════════════════════════
 
 # ОСНОВНЫЕ ПАРАМЕТРЫ
@@ -155,7 +155,7 @@ SECRET_KEY=GENERATE_THIS
 DB_PASSWORD=GENERATE_THIS
 
 # DATABASE
-DATABASE_URL=postgresql://slideconfirm:DB_PASSWORD@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:DB_PASSWORD@db:5432/snapcheck
 
 # FRONTEND
 VITE_API_URL=https://YOUR_DOMAIN_HERE/api
@@ -174,7 +174,7 @@ nano .env
 
 В файле `.env` замените:
 
-1. `YOUR_DOMAIN_HERE` → ваш домен (например: `slideconfirm.com`)
+1. `YOUR_DOMAIN_HERE` → ваш домен (например: `snapcheck.com`)
 2. `GENERATE_THIS` для `SECRET_KEY` → выполните:
    ```bash
    python3 -c "import secrets; print(secrets.token_urlsafe(32))"
@@ -201,20 +201,20 @@ cat .env
 
 ```bash
 # Скачать и выполнить скрипт установки
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy.sh
+curl -O https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy.sh
 chmod +x deploy.sh
 
 # Запустить установку
-./deploy.sh https://github.com/YOUR_USERNAME/slideconfirm.git YOUR_DOMAIN DB_PASSWORD
+./deploy.sh https://github.com/YOUR_USERNAME/snapcheck.git YOUR_DOMAIN DB_PASSWORD
 
 # Примеры:
-./deploy.sh https://github.com/rakhat/slideconfirm.git slideconfirm.com MyPassword123
+./deploy.sh https://github.com/rakhat/snapcheck.git snapcheck.com MyPassword123
 ```
 
 ### 5.2 Ручная установка (если автоматический скрипт не работает)
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Проверить что Docker сеть существует
 docker network inspect traefik-net || docker network create traefik-net
@@ -229,9 +229,9 @@ docker-compose up -d
 docker-compose ps
 
 # Должны быть запущены 3 контейнера:
-# - slideconfirm-backend      (Up)
-# - slideconfirm-frontend     (Up)
-# - slideconfirm-db           (Up)
+# - snapcheck-backend      (Up)
+# - snapcheck-frontend     (Up)
+# - snapcheck-db           (Up)
 ```
 
 ---
@@ -241,16 +241,16 @@ docker-compose ps
 ### 6.1 Проверить статус контейнеров
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Все ли запущены?
 docker-compose ps
 
 # Вывод должен быть:
 # NAME                    STATUS
-# slideconfirm-backend    Up (healthy)
-# slideconfirm-frontend   Up (healthy)
-# slideconfirm-db         Up (healthy)
+# snapcheck-backend    Up (healthy)
+# snapcheck-frontend   Up (healthy)
+# snapcheck-db         Up (healthy)
 ```
 
 ### 6.2 Посмотреть логи
@@ -276,11 +276,11 @@ docker-compose logs --tail 20
 
 ```bash
 # Видит ли Traefik ваше приложение?
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # Должны быть строки типа:
-# "Creating router slideconfirm-frontend"
-# "Creating router slideconfirm-backend"
+# "Creating router snapcheck-frontend"
+# "Creating router snapcheck-backend"
 ```
 
 ### 6.4 Проверить SSL сертификат
@@ -325,7 +325,7 @@ https://YOUR_DOMAIN/
 ## 🔧 ПОЛЕЗНЫЕ КОМАНДЫ ДЛЯ УПРАВЛЕНИЯ
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 🏃 ЗАПУСК / ОСТАНОВКА
 docker-compose up -d                # Запустить
@@ -346,7 +346,7 @@ docker stats                        # Использование ресурсо�
 
 # 🔍 ОТЛАДКА
 docker-compose exec backend bash    # Войти в контейнер backend
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
                                     # Подключиться к БД
 
 # 🗑️ ОЧИСТКА
@@ -432,10 +432,10 @@ docker-compose restart frontend
 ### Создать резервную копию вручную
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Сделать дамп БД
-docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > backup-$(date +%Y%m%d-%H%M%S).sql
+docker-compose exec -T db pg_dump -U snapcheck snapcheck > backup-$(date +%Y%m%d-%H%M%S).sql
 
 # Проверить резервную копию
 ls -lh backup-*.sql
@@ -448,7 +448,7 @@ ls -lh backup-*.sql
 sudo crontab -e
 
 # Добавить строку (резервная копия каждый день в 2:00 ночи):
-0 2 * * * cd /opt/slideconfirm && docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > /opt/slideconfirm/backups/backup-$(date +\%Y\%m\%d).sql
+0 2 * * * cd /opt/snapcheck && docker-compose exec -T db pg_dump -U snapcheck snapcheck > /opt/snapcheck/backups/backup-$(date +\%Y\%m\%d).sql
 ```
 
 ---
@@ -458,7 +458,7 @@ sudo crontab -e
 ### Убедиться что всё правильно настроено
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 1. Проверить .env
 echo "=== КОНФИГУРАЦИЯ ==="

@@ -126,7 +126,7 @@ If not showing:
 
 ### For Production (Docker)
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Rebuild
 docker-compose build frontend --no-cache
@@ -136,7 +136,7 @@ docker-compose restart frontend
 
 # On server:
 ssh root@88.99.124.218
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose build frontend --no-cache
 docker-compose restart frontend
 ```

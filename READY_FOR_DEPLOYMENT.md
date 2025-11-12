@@ -2,7 +2,7 @@
 
 ## ✅ Everything is Ready!
 
-**Project:** SlideConfirm (SnapCheck)  
+**Project:** SnapCheck (SnapCheck)  
 **Domain:** lms.it-uae.com  
 **Status:** 100% Ready for Production  
 **Date:** November 12, 2024
@@ -41,17 +41,17 @@
 ### Step 1: Upload to Server
 ```bash
 # Option A: SCP
-scp -r SlideConfirm/ user@your-server:/opt/
+scp -r SnapCheck/ user@your-server:/opt/
 
 # Option B: Rsync (faster, excludes unnecessary files)
 rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '__pycache__' \
-  SlideConfirm/ user@your-server:/opt/SlideConfirm/
+  SnapCheck/ user@your-server:/opt/SnapCheck/
 ```
 
 ### Step 2: Run Deployment Script
 ```bash
 ssh user@your-server
-cd /opt/SlideConfirm
+cd /opt/SnapCheck
 sudo ./deploy-to-server.sh
 ```
 

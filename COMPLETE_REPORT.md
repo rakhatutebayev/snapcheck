@@ -1,4 +1,4 @@
-# 🎓 ПОЛНЫЙ ОТЧЁТ - SlideConfirm v1.1 Refresh Bug Fix
+# 🎓 ПОЛНЫЙ ОТЧЁТ - SnapCheck v1.1 Refresh Bug Fix
 
 ## 📌 Что было
 
@@ -89,7 +89,7 @@ if (!previewMode) {
 ### Время: 5-10 минут
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 docker-compose build frontend --no-cache
 docker-compose restart frontend

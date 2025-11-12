@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# SlideConfirm Quick Start Script для Mac/Linux
+# SnapCheck Quick Start Script для Mac/Linux
 # Используйте: chmod +x start.sh && ./start.sh
 
-echo "🚀 SlideConfirm - Запуск системы"
+echo "🚀 SnapCheck - Запуск системы"
 echo "================================"
 
 # Цвета для вывода

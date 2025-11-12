@@ -13,7 +13,7 @@ from .utils.security import decode_access_token, hash_password
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-UPLOADS_DIR = "/tmp/slideconfirm_uploads"
+UPLOADS_DIR = "/tmp/snapcheck_uploads"
 Path(UPLOADS_DIR).mkdir(parents=True, exist_ok=True)
 
 

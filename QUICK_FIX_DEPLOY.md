@@ -28,7 +28,7 @@
 
 ```bash
 # 1. Перезагрузить frontend контейнер
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose restart frontend
 
 # 2. Очистить кэш браузера (Ctrl + Shift + Del)
@@ -46,7 +46,7 @@ docker-compose restart frontend
 ssh root@88.99.124.218
 
 # 2. Перейти в директорию
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # 3. Обновить код (если используется git)
 git pull

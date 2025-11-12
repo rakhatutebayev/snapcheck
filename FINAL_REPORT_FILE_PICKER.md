@@ -68,7 +68,7 @@ async def upload_slides_from_files(
 - Валидирует имена файлов (должны быть `slide1.jpg`, `slide2.jpg` и т.д.)
 - Проверяет что все файлы - JPG
 - Проверяет что слайды идут по порядку (нет пропусков)
-- Сохраняет файлы в `/tmp/slideconfirm_uploads/slides/{presentation_id}/`
+- Сохраняет файлы в `/tmp/snapcheck_uploads/slides/{presentation_id}/`
 - Создает записи в БД
 - Возвращает информацию о созданной презентации
 
@@ -289,11 +289,11 @@ curl -X POST http://localhost:8000/admin/slides/upload-from-files \
 ⚠️ **Что нужно учитывать:**
 - Максимальный размер загрузки зависит от настроек сервера
 - Администратор должен убедиться в безопасности файлов
-- Слайды хранятся в `/tmp/slideconfirm_uploads/` - может быть недостаточно защищено для production
+- Слайды хранятся в `/tmp/snapcheck_uploads/` - может быть недостаточно защищено для production
 
 ## 📝 Версия
 
-**SlideConfirm v2.0**
+**SnapCheck v2.0**
 - Стабильная версия
 - Все компоненты работают
 - Готово к использованию

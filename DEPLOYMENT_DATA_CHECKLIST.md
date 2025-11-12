@@ -127,17 +127,17 @@ docker --version
 docker-compose --version
 
 # 3. Создать директорию
-mkdir -p /opt/slideconfirm
-cd /opt/slideconfirm
+mkdir -p /opt/snapcheck
+cd /opt/snapcheck
 
 # 4. Загрузить проект (выберите один способ):
 
 # Способ A: Git (если репозиторий публичный)
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git .
+git clone https://github.com/YOUR_USERNAME/snapcheck.git .
 
 # Способ B: SFTP (если хотите загрузить локальный код)
 # На вашем ПК: sftp -P 22 root@YOUR_IP
-# sftp> put -r /Users/rakhat/Documents/webhosting/SlideConfirm /opt/slideconfirm
+# sftp> put -r /Users/rakhat/Documents/webhosting/SnapCheck /opt/snapcheck
 
 # 5. Создать .env файл
 cat > .env << 'EOF'

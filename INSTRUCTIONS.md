@@ -1,4 +1,4 @@
-# 🎯 ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ SlideConfirm
+# 🎯 ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ SnapCheck
 
 ## ✅ Система полностью готова к использованию!
 
@@ -9,22 +9,22 @@
 ### На Mac/Linux:
 ```bash
 # Терминал 1 - Бэкенд
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 
 # Терминал 2 - Фронтенд
-cd /Users/rakhat/Documents/webhosting/SlideConfirm/frontend
+cd /Users/rakhat/Documents/webhosting/SnapCheck/frontend
 npm run dev
 ```
 
 ### На Windows (PowerShell):
 ```powershell
 # Терминал 1 - Бэкенд
-cd "C:\path\to\SlideConfirm"
+cd "C:\path\to\SnapCheck"
 python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 
 # Терминал 2 - Фронтенд
-cd "C:\path\to\SlideConfirm\frontend"
+cd "C:\path\to\SnapCheck\frontend"
 npm run dev
 ```
 

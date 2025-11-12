@@ -31,7 +31,7 @@
 **DOCKER_UBUNTU_INSTALLATION.md** (2500+ строк) - ПОДРОБНОЕ
 - Требования к серверу
 - Пошаговая установка Docker
-- Развертывание SlideConfirm
+- Развертывание SnapCheck
 - SSL сертификат Let's Encrypt
 - PostgreSQL конфигурация
 - CI/CD pipeline
@@ -56,7 +56,7 @@
 ### **deploy-ubuntu.sh** - ПОЛНАЯ АВТОМАТИЗАЦИЯ ⭐
 **Одна команда решает всё!**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/USER/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/USER/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 ```
 
 Что делает:
@@ -81,7 +81,7 @@ curl -fsSL https://raw.githubusercontent.com/USER/slideconfirm/main/deploy-ubunt
 
 ### **docker-setup.sh** - macOS автоматизация
 ```bash
-chmod +x /Users/rakhat/Documents/webhosting/SlideConfirm/docker-setup.sh
+chmod +x /Users/rakhat/Documents/webhosting/SnapCheck/docker-setup.sh
 ./docker-setup.sh
 ```
 
@@ -154,7 +154,7 @@ chmod +x /Users/rakhat/Documents/webhosting/SlideConfirm/docker-setup.sh
 ## ✅ ПОЛНЫЙ СПИСОК ФАЙЛОВ
 
 ```
-/Users/rakhat/Documents/webhosting/SlideConfirm/
+/Users/rakhat/Documents/webhosting/SnapCheck/
 
 📄 ОСНОВНЫЕ ГАЙДЫ:
   ├─ DOCKER_UBUNTU_START_HERE.md           👈 НАЧНИ ОТСЮДА!
@@ -183,7 +183,7 @@ chmod +x /Users/rakhat/Documents/webhosting/SlideConfirm/docker-setup.sh
 ### Вариант 1: МАКСИМАЛЬНО БЫСТРО (10 мин)
 ```bash
 # Одна команда всё делает:
-curl -fsSL https://raw.githubusercontent.com/USER/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/USER/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 ```
 
 ### Вариант 2: БЫСТРО (15 мин)

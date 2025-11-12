@@ -167,10 +167,10 @@ bash scripts/publish.sh
     "slug": "snapcheck",
     "version": "1.0.0",
     "ios": {
-      "bundleIdentifier": "com.slideconfirm.snapcheck"
+      "bundleIdentifier": "com.snapcheck.snapcheck"
     },
     "android": {
-      "package": "com.slideconfirm.snapcheck"
+      "package": "com.snapcheck.snapcheck"
     }
   }
 }

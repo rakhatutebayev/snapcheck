@@ -25,7 +25,7 @@ class EmailSettings(Base):
     
     # From settings
     from_email = Column(String(255), nullable=False)
-    from_name = Column(String(255), nullable=True, default="SlideConfirm System")
+    from_name = Column(String(255), nullable=True, default="SnapCheck System")
     
     # Notifications configuration
     notifications_enabled = Column(Boolean, default=False)

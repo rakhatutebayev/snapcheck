@@ -29,7 +29,7 @@
 
 2. ✅ **Обновлён**: `POST /admin/slides/upload-from-folder`
    - Теперь загружает слайды из указанной папки
-   - Копирует файлы в /tmp/slideconfirm_uploads/slides/{id}/
+   - Копирует файлы в /tmp/snapcheck_uploads/slides/{id}/
    - Создаёт записи в БД с порядком слайдов
 
 3. ✅ **Новые функции**: 
@@ -70,7 +70,7 @@
 
 ### Быстрый запуск (Mac/Linux):
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 chmod +x start.sh
 ./start.sh
 ```
@@ -78,11 +78,11 @@ chmod +x start.sh
 ### Ручной запуск:
 ```bash
 # Терминал 1 - Бэкенд
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 
 # Терминал 2 - Фронтенд
-cd /Users/rakhat/Documents/webhosting/SlideConfirm/frontend
+cd /Users/rakhat/Documents/webhosting/SnapCheck/frontend
 npm run dev
 ```
 
@@ -102,7 +102,7 @@ npm run dev
 ## 📁 Файловая структура
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── backend/
 │   ├── main.py              # FastAPI приложение ✅
 │   ├── models.py            # ORM модели (добавлено поле title) ✅
@@ -258,4 +258,4 @@ SlideConfirm/
 
 ---
 
-*Спасибо за использование SlideConfirm!*
+*Спасибо за использование SnapCheck!*

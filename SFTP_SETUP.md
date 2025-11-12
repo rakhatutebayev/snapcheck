@@ -35,12 +35,12 @@
 
 ```json
 {
-  "name": "SlideConfirm Production",
+  "name": "SnapCheck Production",
   "host": "YOUR_SERVER_IP",
   "port": 22,
   "username": "root",
   "password": "YOUR_SERVER_PASSWORD",
-  "remotePath": "/opt/slideconfirm/app",
+  "remotePath": "/opt/snapcheck/app",
   "uploadOnSave": true,
   "useTempFile": false,
   "openSsh": false,
@@ -65,12 +65,12 @@
 Например:
 ```json
 {
-  "name": "SlideConfirm Production",
+  "name": "SnapCheck Production",
   "host": "138.201.154.92",
   "port": 22,
   "username": "root",
   "password": "mySecurePassword123",
-  "remotePath": "/opt/slideconfirm/app",
+  "remotePath": "/opt/snapcheck/app",
   ...
 }
 ```
@@ -122,7 +122,7 @@ ssh root@YOUR_SERVER_IP
 # Если не работает - проблема с сервером
 ```
 
-### Проблема #3: Путь `/opt/slideconfirm/app` не существует
+### Проблема #3: Путь `/opt/snapcheck/app` не существует
 
 **Решение:**
 ```bash
@@ -130,7 +130,7 @@ ssh root@YOUR_SERVER_IP
 ssh root@YOUR_SERVER_IP
 
 # Проверьте где находится приложение
-ls -la /opt/slideconfirm/app/
+ls -la /opt/snapcheck/app/
 
 # Если там ничего нет - замените путь в sftp.json
 ```
@@ -204,12 +204,12 @@ ls -la /opt/slideconfirm/app/
 
 ```json
 {
-  "name": "SlideConfirm Production",
+  "name": "SnapCheck Production",
   "host": "YOUR_SERVER_IP",
   "port": 22,
   "username": "root",
   "privateKeyPath": "/Users/rakhat/.ssh/id_rsa",
-  "remotePath": "/opt/slideconfirm/app",
+  "remotePath": "/opt/snapcheck/app",
   "uploadOnSave": true,
   ...
 }
@@ -236,7 +236,7 @@ ls -la /opt/slideconfirm/app/
 ```bash
 # На сервере:
 ssh root@YOUR_SERVER_IP
-cd /opt/slideconfirm/app
+cd /opt/snapcheck/app
 docker-compose -f docker-compose.prod.yml down
 docker-compose -f docker-compose.prod.yml up -d
 ```
@@ -249,32 +249,32 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ```bash
 # На вашем компьютере
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/slideconfirm_key
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/snapcheck_key
 ```
 
 Нажимайте Enter (без пароля).
 
 Вывод:
 ```
-Your public key has been saved in /Users/rakhat/.ssh/slideconfirm_key.pub
+Your public key has been saved in /Users/rakhat/.ssh/snapcheck_key.pub
 ```
 
 ### Добавить публичный ключ на сервер:
 
 ```bash
-cat ~/.ssh/slideconfirm_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authorized_keys"
+cat ~/.ssh/snapcheck_key.pub | ssh root@YOUR_SERVER_IP "cat >> ~/.ssh/authorized_keys"
 ```
 
 ### Обновить sftp.json:
 
 ```json
 {
-  "name": "SlideConfirm Production",
+  "name": "SnapCheck Production",
   "host": "YOUR_SERVER_IP",
   "port": 22,
   "username": "root",
-  "privateKeyPath": "/Users/rakhat/.ssh/slideconfirm_key",
-  "remotePath": "/opt/slideconfirm/app",
+  "privateKeyPath": "/Users/rakhat/.ssh/snapcheck_key",
+  "remotePath": "/opt/snapcheck/app",
   "uploadOnSave": true,
   ...
 }

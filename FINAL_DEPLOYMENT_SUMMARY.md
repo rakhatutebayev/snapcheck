@@ -20,7 +20,7 @@
 
 ```bash
 # Один скрипт делает всё:
-./deploy.sh https://github.com/user/slideconfirm.git YOUR_DOMAIN PASSWORD
+./deploy.sh https://github.com/user/snapcheck.git YOUR_DOMAIN PASSWORD
 # Результат через 10 минут! ✅
 ```
 
@@ -43,9 +43,9 @@
 ```
 1. IP адрес сервера         (пример: 123.45.67.89)
 2. SSH пароль/ключ          (для подключения)
-3. Доменное имя             (пример: slideconfirm.com)
+3. Доменное имя             (пример: snapcheck.com)
 4. Email для SSL            (пример: admin@company.com)
-5. GitHub репо              (пример: https://github.com/user/slideconfirm.git)
+5. GitHub репо              (пример: https://github.com/user/snapcheck.git)
 ```
 
 ---
@@ -61,10 +61,10 @@
 # На сервере выполните:
 ssh root@YOUR_IP
 
-curl -O https://raw.githubusercontent.com/user/slideconfirm/main/deploy.sh
+curl -O https://raw.githubusercontent.com/user/snapcheck/main/deploy.sh
 chmod +x deploy.sh
 
-./deploy.sh https://github.com/user/slideconfirm.git YOUR_DOMAIN PASSWORD
+./deploy.sh https://github.com/user/snapcheck.git YOUR_DOMAIN PASSWORD
 
 # Готово! Приложение на https://YOUR_DOMAIN/
 ```
@@ -164,11 +164,11 @@ docker-compose up -d                 # Запустить
 curl https://YOUR_DOMAIN/api/health -k
 
 # РЕЗЕРВНАЯ КОПИЯ БД
-docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > backup.sql
+docker-compose exec -T db pg_dump -U snapcheck snapcheck > backup.sql
 
 # ВХОДЯЩИЕ КОНТЕЙНЕРЫ
 docker-compose exec backend bash
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
 
 # ОЧИСТКА (осторожно!)
 docker-compose down -v

@@ -1,4 +1,4 @@
-# 🎓 SlideConfirm v1.1 - Полное исправление Refresh Bug
+# 🎓 SnapCheck v1.1 - Полное исправление Refresh Bug
 
 > **Версия:** 1.1  
 > **Дата:** October 20, 2025  
@@ -90,7 +90,7 @@ if (validPosition > 0) {
 
 ```bash
 # 1. Обновить код
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 
 # 2. Пересобрать
@@ -309,7 +309,7 @@ DEPLOY:
 ## 📚 Файлы документации
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── 📄 README.md (этот файл)
 ├── ⚡ QUICK_FIX_DEPLOY.md (5 мин)
 ├── 🔍 FIX_REFRESH_BUG.md (подробно)
@@ -342,7 +342,7 @@ SlideConfirm/
 
 ---
 
-**SlideConfirm v1.1 - Refresh Bug Fix**  
+**SnapCheck v1.1 - Refresh Bug Fix**  
 **October 20, 2025**  
 **Status: ✅ Production Ready**
 

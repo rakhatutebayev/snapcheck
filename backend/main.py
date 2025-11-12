@@ -37,7 +37,7 @@ def create_initial_data():
                     first_name="Admin",
                     last_name="GSS",
                     email="admin@gss.aero",
-                    password_hash=hash_password("123456"),
+                    password_hash=hash_password("admin123"),
                     role="admin"
                 ))
             
@@ -53,9 +53,9 @@ create_initial_data()
 API_VERSION = "1.1.0"  # 🔄 Updated after adding report filtering & docs improvements
 
 app = FastAPI(
-    title="SlideConfirm API",
-    description="Corporate Slide Confirmation System",
-    version=API_VERSION,
+    title="SnapCheck API",
+    description="API для работы с презентациями",
+    version="1.0.0",
 )
 
 # CORS конфигурация
@@ -77,13 +77,16 @@ app.include_router(user_router)
 app.include_router(email_router)
 
 @app.get("/")
-def root():
+async def root():
     return {
-        "status": "success",
-        "message": "SlideConfirm API is running",
-        "version": API_VERSION
-    }
-
-@app.get("/health")
+        "message": "SnapCheck API is running",
+        "status": "ok",
+        "version": "1.0.0"
+    }@app.get("/health")
 def health():
+    return {"status": "ok"}
+
+# Fallback for environments where reverse proxy doesn't strip `/api` prefix
+@app.get("/api/health")
+def health_api_prefixed():
     return {"status": "ok"}

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # 🐳 DOCKER TRAEFIK DEPLOYMENT SCRIPT
-# Проверяет конфликты портов, устанавливает SlideConfirm с Traefik
+# Проверяет конфликты портов, устанавливает SnapCheck с Traefik
 
 set -e
 
 echo "╔════════════════════════════════════════════════════════════════════════════╗"
-echo "║          🐳 DOCKER TRAEFIK - SLIDECONFIRM DEPLOYMENT                       ║"
+echo "║          🐳 DOCKER TRAEFIK - SNAPCHECK DEPLOYMENT                       ║"
 echo "╚════════════════════════════════════════════════════════════════════════════╝"
 
 # Цвета
@@ -146,7 +146,7 @@ if docker ps --format "{{.Names}}" | grep -q "^traefik$"; then
     docker exec traefik traefik config 2>/dev/null | grep -i "rule\|service" | head -5 | sed 's/^/    /' || echo "    (не удалось получить маршруты)"
 else
     echo -e "  ${YELLOW}⚠️  Traefik НЕ ЗАПУЩЕН${NC}"
-    echo "  Убедитесь что Traefik запущен перед запуском SlideConfirm"
+    echo "  Убедитесь что Traefik запущен перед запуском SnapCheck"
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -181,14 +181,14 @@ if [ $TRAEFIK_NET_EXISTS -eq 0 ]; then
     echo "     docker network create traefik-net"
 fi
 
-echo -e "  2. Загрузить SlideConfirm проект:"
-echo "     git clone https://github.com/YOUR_USERNAME/slideconfirm.git /opt/slideconfirm"
+echo -e "  2. Загрузить SnapCheck проект:"
+echo "     git clone https://github.com/YOUR_USERNAME/snapcheck.git /opt/snapcheck"
 
 echo -e "  3. Создать .env файл с вашими параметрами:"
-echo "     nano /opt/slideconfirm/.env"
+echo "     nano /opt/snapcheck/.env"
 
 echo -e "  4. Собрать Docker образы:"
-echo "     cd /opt/slideconfirm && docker-compose build"
+echo "     cd /opt/snapcheck && docker-compose build"
 
 echo -e "  5. Запустить контейнеры:"
 echo "     docker-compose up -d"
@@ -206,7 +206,7 @@ echo -e "╚══════════════════════�
 
 echo -e "${YELLOW}📋 ИТОГОВЫЙ СТАТУС:${NC}"
 if [ $PORTS_OK -eq 1 ] && [ $TRAEFIK_NET_EXISTS -eq 1 ]; then
-    echo -e "  ${GREEN}✅ Система готова к установке SlideConfirm${NC}"
+    echo -e "  ${GREEN}✅ Система готова к установке SnapCheck${NC}"
 else
     echo -e "  ${YELLOW}⚠️  Требуются дополнительные действия перед установкой${NC}"
 fi

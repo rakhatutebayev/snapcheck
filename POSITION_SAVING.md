@@ -365,7 +365,7 @@ CREATE INDEX idx_presentation_id ON user_presentation_position(presentation_id);
 
 4. **Deploy:**
    ```bash
-   cd /opt/slideconfirm
+   cd /opt/snapcheck
    git pull
    docker-compose build --no-cache
    docker-compose down && docker-compose up -d

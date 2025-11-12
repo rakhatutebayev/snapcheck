@@ -1,4 +1,4 @@
-# 📋 ЛОГ ИЗМЕНЕНИЙ - SlideConfirm v2.0
+# 📋 ЛОГ ИЗМЕНЕНИЙ - SnapCheck v2.0
 
 ## 🔄 Обновления в этой сессии (18 октября 2025)
 
@@ -156,7 +156,7 @@ const [checkingFolder, setCheckingFolder] = useState(false);  // Статус п
 
 1. **Удалить старую БД:**
    ```bash
-   rm /tmp/slideconfirm.db
+   rm /tmp/snapcheck.db
    ```
    При следующем запуске создастся новая БД с полем `title` для слайдов
 
@@ -167,7 +167,7 @@ const [checkingFolder, setCheckingFolder] = useState(false);  // Статус п
 
 3. **Перезапустить систему:**
    ```bash
-   cd /Users/rakhat/Documents/webhosting/SlideConfirm
+   cd /Users/rakhat/Documents/webhosting/SnapCheck
    ./start.sh  # или start.bat на Windows
    ```
 

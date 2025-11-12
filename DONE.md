@@ -47,7 +47,7 @@
 ### Шаг 1: Коммитить в Git
 
 ```bash
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 git add backend/migrations/
 git add backend/database.py

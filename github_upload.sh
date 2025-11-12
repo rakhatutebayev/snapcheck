@@ -3,7 +3,7 @@
 # 🚀 GitHub Upload Helper - Быстрая загрузка проекта на GitHub
 
 echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║       SlideConfirm - GitHub Upload Helper                      ║"
+echo "║       SnapCheck - GitHub Upload Helper                      ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -23,7 +23,7 @@ echo ""
 
 echo "🔧 ШАГ 2: Создать репозиторий на GitHub"
 echo "   1. Откройте https://github.com/new"
-echo "   2. Repository name: SlideConfirm"
+echo "   2. Repository name: SnapCheck"
 echo "   3. Description: Presentation management system"
 echo "   4. Выберите Public или Private"
 echo "   5. НЕ выбирайте README, .gitignore, License"
@@ -34,7 +34,7 @@ echo "📝 ШАГ 3: Скопируйте команду для загрузки
 echo ""
 echo "   Замените YOUR_USERNAME на ваше имя пользователя GitHub:"
 echo ""
-echo "   git remote add origin https://github.com/YOUR_USERNAME/SlideConfirm.git"
+echo "   git remote add origin https://github.com/YOUR_USERNAME/SnapCheck.git"
 echo "   git branch -M main"
 echo "   git push -u origin main"
 echo ""
@@ -50,8 +50,8 @@ if [ ! -z "$github_username" ]; then
     echo ""
     
     # Установить remote
-    git remote add origin https://github.com/$github_username/SlideConfirm.git 2>/dev/null || \
-    git remote set-url origin https://github.com/$github_username/SlideConfirm.git
+    git remote add origin https://github.com/$github_username/SnapCheck.git 2>/dev/null || \
+    git remote set-url origin https://github.com/$github_username/SnapCheck.git
     
     # Установить main branch
     git branch -M main
@@ -64,7 +64,7 @@ if [ ! -z "$github_username" ]; then
         echo ""
         echo "✅ УСПЕШНО! Ваш проект загружен на GitHub!"
         echo ""
-        echo "🔗 Ссылка: https://github.com/$github_username/SlideConfirm"
+        echo "🔗 Ссылка: https://github.com/$github_username/SnapCheck"
         echo ""
     else
         echo ""

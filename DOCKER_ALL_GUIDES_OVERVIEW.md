@@ -3,7 +3,7 @@
 ## 📂 СОЗДАННЫЕ ФАЙЛЫ
 
 ```
-SlideConfirm/
+SnapCheck/
 ├── DOCKER_INSTALLATION_GUIDE.md          ← Подробное руководство для macOS
 ├── docker-setup.sh                       ← Скрипт автоматизации для macOS
 ├── DOCKER_UBUNTU_INSTALLATION.md         ← Подробное руководство для Ubuntu
@@ -53,7 +53,7 @@ SlideConfirm/
 ssh root@YOUR_SERVER_IP
 
 # Скачать и запустить скрипт
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 
 # Готово! Все установлено и запущено
 ```
@@ -71,7 +71,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker
 sudo chmod +x /usr/local/bin/docker-compose
 
 # Шаг 3: Загрузить проект (2 минуты)
-cd /opt && sudo git clone https://github.com/YOUR_USERNAME/slideconfirm.git && cd slideconfirm
+cd /opt && sudo git clone https://github.com/YOUR_USERNAME/snapcheck.git && cd snapcheck
 sudo mkdir -p data/db data/uploads logs/{backend,nginx}
 
 # Шаг 4: Создать .env (1 минута)
@@ -92,7 +92,7 @@ sudo docker-compose -f docker-compose.prod.yml up -d
 # Шаг 1: Установить Docker Desktop с https://www.docker.com/products/docker-desktop
 
 # Шаг 2: В терминале
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 
 # Шаг 3: Запустить
 docker-compose -f docker-compose.prod.yml build
@@ -140,13 +140,13 @@ docker-compose restart               # Перезагрузить
 docker-compose up -d                 # Запустить
 
 # Обновление
-cd /opt/slideconfirm
+cd /opt/snapcheck
 git pull
 docker-compose build --no-cache
 docker-compose up -d
 
 # Backup
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > backup.sql
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > backup.sql
 ```
 
 ---
@@ -169,7 +169,7 @@ docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > backup.sql
 ├─ Быстрая установка
 ├─ Пошаговая установка
 ├─ Автоматический скрипт
-├─ Развертывание SlideConfirm
+├─ Развертывание SnapCheck
 ├─ SSL сертификат
 ├─ Production конфигурация
 ├─ Команды
@@ -285,7 +285,7 @@ DOCKER_UBUNTU_INSTALLATION.md → "⚠️ ПРОБЛЕМЫ И РЕШЕНИЯ"
 
 ```
 ┌─────────────────────────────────────┐
-│ 🎉 SlideConfirm на Docker готов!  │
+│ 🎉 SnapCheck на Docker готов!  │
 │                                     │
 │ https://your-domain.com             │
 └─────────────────────────────────────┘

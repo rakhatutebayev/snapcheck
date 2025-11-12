@@ -2,7 +2,7 @@
 
 ## 🎯 КРАТКИЙ ОБЗОР
 
-Для публикации вашего проекта **SlideConfirm** на сервер вам нужны эти **5 основных вещей**:
+Для публикации вашего проекта **SnapCheck** на сервер вам нужны эти **5 основных вещей**:
 
 ---
 
@@ -44,7 +44,7 @@
 
 ```
 🔹 Доменное имя
-   Пример: slideconfirm.com
+   Пример: snapcheck.com
    
 🔹 Email для SSL сертификата
    Пример: admin@company.com
@@ -57,7 +57,7 @@
 
 ```
 🔹 Ссылка на GitHub репозиторий
-   Пример: https://github.com/username/slideconfirm.git
+   Пример: https://github.com/username/snapcheck.git
    
 🔹 Репозиторий должен быть:
    ✅ Публичный (чтобы сервер мог его скачать)
@@ -92,7 +92,7 @@
 ssh root@YOUR_IP
 
 # 2. Выполните одну команду
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy.sh && chmod +x deploy.sh && ./deploy.sh https://github.com/YOUR_USERNAME/slideconfirm.git YOUR_DOMAIN DB_PASSWORD
+curl -O https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy.sh && chmod +x deploy.sh && ./deploy.sh https://github.com/YOUR_USERNAME/snapcheck.git YOUR_DOMAIN DB_PASSWORD
 
 # 3. Дождитесь завершения (5-10 минут)
 # Скрипт сам установит Docker, загрузит проект и запустит приложение
@@ -156,7 +156,7 @@ docker-compose ps
 
 ```bash
 # Одна команда делает всё:
-ssh root@YOUR_IP "$(cat deploy.sh)" https://github.com/user/slideconfirm.git YOUR_DOMAIN PASSWORD
+ssh root@YOUR_IP "$(cat deploy.sh)" https://github.com/user/snapcheck.git YOUR_DOMAIN PASSWORD
 
 # Время: ~10 минут
 # Результат: Полностью рабочее приложение
@@ -177,7 +177,7 @@ ssh root@YOUR_IP "$(cat deploy.sh)" https://github.com/user/slideconfirm.git YOU
 
 ```bash
 # На вашем ПК (macOS/Linux/Windows):
-cd /Users/rakhat/Documents/webhosting/SlideConfirm
+cd /Users/rakhat/Documents/webhosting/SnapCheck
 docker-compose -f docker-compose.prod.yml up -d
 
 # Откройте браузер: http://localhost:3000
@@ -278,7 +278,7 @@ docker-compose restart
 docker-compose logs -f
 
 # Сделать резервную копию БД
-docker-compose exec -T db pg_dump -U slideconfirm slideconfirm > backup.sql
+docker-compose exec -T db pg_dump -U snapcheck snapcheck > backup.sql
 
 # Удалить всё (осторожно!)
 docker-compose down -v

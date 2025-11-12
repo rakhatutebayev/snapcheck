@@ -5,7 +5,7 @@ from pathlib import Path
 
 router = APIRouter(tags=["files"])
 
-UPLOADS_DIR = "/tmp/slideconfirm_uploads"
+UPLOADS_DIR = "/tmp/snapcheck_uploads"
 
 @router.get("/slides/image/{presentation_id}/{filename}")
 def get_slide_image(presentation_id: int, filename: str):

@@ -7,16 +7,16 @@
 ssh root@YOUR_SERVER_IP
 
 # 2. Загрузить и запустить скрипт установки
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/slideconfirm/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/snapcheck/main/deploy-ubuntu.sh | sudo bash -s your-domain.com
 
 # Или вручную:
-sudo bash /opt/slideconfirm/deploy-ubuntu.sh your-domain.com
+sudo bash /opt/snapcheck/deploy-ubuntu.sh your-domain.com
 
 # 3. Отредактировать .env (замените пароли и keys)
-sudo nano /opt/slideconfirm/.env
+sudo nano /opt/snapcheck/.env
 
 # 4. Перезагрузить контейнеры
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose -f docker-compose.prod.yml restart
 
 # 5. Проверить что работает
@@ -49,13 +49,13 @@ docker-compose --version
 
 ---
 
-## 📦 РАЗВЕРНУТЬ SLIDECONFIRM
+## 📦 РАЗВЕРНУТЬ SNAPCHECK
 
 ```bash
 # 1. Загрузить проект
 cd /opt
-sudo git clone https://github.com/YOUR_USERNAME/slideconfirm.git
-cd slideconfirm
+sudo git clone https://github.com/YOUR_USERNAME/snapcheck.git
+cd snapcheck
 
 # 2. Создать директории
 sudo mkdir -p data/db data/uploads logs/backend logs/nginx
@@ -63,7 +63,7 @@ sudo mkdir -p data/db data/uploads logs/backend logs/nginx
 # 3. Создать .env
 sudo cat > .env << 'EOF'
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
-DATABASE_URL=postgresql://slideconfirm:password@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:password@db:5432/snapcheck
 VITE_API_URL=https://api.your-domain.com
 ENVIRONMENT=production
 DB_PASSWORD=password
@@ -105,8 +105,8 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose -f docker-compose.prod.yml restart
 
 # Вход в контейнер
-docker exec -it slideconfirm-backend bash
-docker exec -it slideconfirm-db psql -U slideconfirm -d slideconfirm
+docker exec -it snapcheck-backend bash
+docker exec -it snapcheck-db psql -U snapcheck -d snapcheck
 
 # Удалить (осторожно!)
 docker-compose -f docker-compose.prod.yml down -v
@@ -135,7 +135,7 @@ ls -la /etc/letsencrypt/live/your-domain.com/
 
 ```bash
 # Загрузить новый код
-cd /opt/slideconfirm
+cd /opt/snapcheck
 sudo git pull
 
 # Пересобрать образы
@@ -154,13 +154,13 @@ sudo docker-compose -f docker-compose.prod.yml logs -f backend
 
 ```bash
 # Создать backup вручную
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > /opt/slideconfirm/backup_$(date +%Y%m%d).sql
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > /opt/snapcheck/backup_$(date +%Y%m%d).sql
 
 # Или использовать готовый скрипт
-/usr/local/bin/slideconfirm-backup.sh
+/usr/local/bin/snapcheck-backup.sh
 
 # Восстановить из backup
-docker exec -i slideconfirm-db psql -U slideconfirm slideconfirm < /opt/slideconfirm/backup.sql
+docker exec -i snapcheck-db psql -U snapcheck snapcheck < /opt/snapcheck/backup.sql
 ```
 
 ---
@@ -204,7 +204,7 @@ newgrp docker
 
 ```bash
 # Посмотреть использование
-du -sh /opt/slideconfirm/*
+du -sh /opt/snapcheck/*
 
 # Очистить старые образы
 docker image prune -a
@@ -220,7 +220,7 @@ docker system prune -a --volumes
 ```
 ✅ Docker установлен
 ✅ Docker Compose установлен
-✅ Проект загружен в /opt/slideconfirm
+✅ Проект загружен в /opt/snapcheck
 ✅ Директории созданы (data/, logs/)
 ✅ .env файл создан и отредактирован
 ✅ Образы собраны
@@ -247,7 +247,7 @@ docker-compose logs
 docker-compose logs -f backend
 
 # Получить последние 100 строк
-docker logs --tail 100 slideconfirm-backend
+docker logs --tail 100 snapcheck-backend
 
 # Посмотреть статус Docker
 sudo systemctl status docker
@@ -260,4 +260,4 @@ docker stats
 
 **Готово!** 🚀
 
-Ваш SlideConfirm теперь работает на Docker на Ubuntu сервере!
+Ваш SnapCheck теперь работает на Docker на Ubuntu сервере!

@@ -59,7 +59,7 @@
    - Принимает файлы загруженные через браузер
    - Валидирует имена файлов (должны быть `slide1.jpg`, `slide2.jpg` и т.д.)
    - Проверяет что слайды идут по порядку
-   - Сохраняет файлы в `/tmp/slideconfirm_uploads/slides/{presentation_id}/`
+   - Сохраняет файлы в `/tmp/snapcheck_uploads/slides/{presentation_id}/`
    - Создает записи в БД
 
 2. **Импорты**

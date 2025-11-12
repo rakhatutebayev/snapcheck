@@ -82,23 +82,23 @@ done
 
 ---
 
-## 🔧 УСТАНОВКА SLIDECONFIRM С TRAEFIK
+## 🔧 УСТАНОВКА SNAPCHECK С TRAEFIK
 
 ### ШАГ 1: Загрузить проект
 
 ```bash
 # Клонировать проект
-git clone https://github.com/rakhatutebayev-create/slideconfirm.git /opt/slideconfirm
-cd /opt/slideconfirm
+git clone https://github.com/rakhatutebayev-create/snapcheck.git /opt/snapcheck
+cd /opt/snapcheck
 
 # Создать необходимые директории
 mkdir -p data/db data/uploads logs/backend logs/nginx
-chmod -R 755 /opt/slideconfirm
+chmod -R 755 /opt/snapcheck
 ```
 
 ### ШАГ 2: Создать docker-compose.yml для Traefik
 
-**Файл:** `/opt/slideconfirm/docker-compose.yml`
+**Файл:** `/opt/snapcheck/docker-compose.yml`
 
 ```yaml
 version: '3.8'
@@ -108,15 +108,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: slideconfirm-backend
+    container_name: snapcheck-backend
     environment:
-      - DATABASE_URL=postgresql://slideconfirm:${DB_PASSWORD}@db:5432/slideconfirm
+      - DATABASE_URL=postgresql://snapcheck:${DB_PASSWORD}@db:5432/snapcheck
       - ENVIRONMENT=production
       - SECRET_KEY=${SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL}
       - VITE_API_URL=https://${DOMAIN}/api
     volumes:
-      - ./data/uploads:/tmp/slideconfirm_uploads
+      - ./data/uploads:/tmp/snapcheck_uploads
       - ./logs/backend:/app/logs
     depends_on:
       - db
@@ -131,19 +131,19 @@ services:
     labels:
       # ✅ Traefik конфигурация для backend
       - "traefik.enable=true"
-      - "traefik.http.routers.slideconfirm-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.slideconfirm-backend.entrypoints=websecure"
-      - "traefik.http.routers.slideconfirm-backend.tls.certresolver=${TRAEFIK_RESOLVER}"
-      - "traefik.http.services.slideconfirm-backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.snapcheck-backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.snapcheck-backend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-backend.tls.certresolver=${TRAEFIK_RESOLVER}"
+      - "traefik.http.services.snapcheck-backend.loadbalancer.server.port=8000"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"  # ✅ КРИТИЧНО: Явно указываем сеть для Traefik (исключает 504)
       - "traefik.http.middlewares.api-prefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.slideconfirm-backend.middlewares=api-prefix"
+      - "traefik.http.routers.snapcheck-backend.middlewares=api-prefix"
 
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: slideconfirm-frontend
+    container_name: snapcheck-frontend
     restart: always
     networks:
       - traefik-net  # ✅ ВАЖНО: Использовать сеть Traefik
@@ -157,19 +157,19 @@ services:
     labels:
       # ✅ Traefik конфигурация для frontend
       - "traefik.enable=true"
-      - "traefik.http.routers.slideconfirm-frontend.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.slideconfirm-frontend.entrypoints=websecure"
-      - "traefik.http.routers.slideconfirm-frontend.tls.certresolver=${TRAEFIK_RESOLVER}"
-      - "traefik.http.services.slideconfirm-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.snapcheck-frontend.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.snapcheck-frontend.entrypoints=websecure"
+      - "traefik.http.routers.snapcheck-frontend.tls.certresolver=${TRAEFIK_RESOLVER}"
+      - "traefik.http.services.snapcheck-frontend.loadbalancer.server.port=80"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"  # ✅ КРИТИЧНО: Явно указываем сеть для Traefik
-      - "traefik.http.routers.slideconfirm-frontend.priority=1"
+      - "traefik.http.routers.snapcheck-frontend.priority=1"
 
   db:
     image: postgres:15-alpine
-    container_name: slideconfirm-db
+    container_name: snapcheck-db
     environment:
-      - POSTGRES_DB=slideconfirm
-      - POSTGRES_USER=slideconfirm
+      - POSTGRES_DB=snapcheck
+      - POSTGRES_USER=snapcheck
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -178,7 +178,7 @@ services:
     networks:
       - traefik-net  # ✅ БД в общей сети
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U slideconfirm"]
+      test: ["CMD-SHELL", "pg_isready -U snapcheck"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -195,13 +195,13 @@ volumes:
 ### ШАГ 3: Создать .env файл
 
 ```bash
-cat > /opt/slideconfirm/.env << 'EOF'
+cat > /opt/snapcheck/.env << 'EOF'
 # ═══════════════════════════════════════════════════════════════
 # ОСНОВНЫЕ ПАРАМЕТРЫ
 # ═══════════════════════════════════════════════════════════════
 
 # ✅ Ваш домен
-DOMAIN=slideconfirm.yourdomain.com
+DOMAIN=snapcheck.yourdomain.com
 
 # ✅ Генерировать так:
 # python3 -c "import secrets; print(secrets.token_urlsafe(32))"
@@ -211,14 +211,14 @@ SECRET_KEY=your-random-secret-key-min-64-chars-replace-this
 # DATABASE
 # ═══════════════════════════════════════════════════════════════
 
-DATABASE_URL=postgresql://slideconfirm:StrongDbPassword123@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:StrongDbPassword123@db:5432/snapcheck
 DB_PASSWORD=StrongDbPassword123
 
 # ═══════════════════════════════════════════════════════════════
 # FRONTEND
 # ═══════════════════════════════════════════════════════════════
 
-VITE_API_URL=https://slideconfirm.yourdomain.com/api
+VITE_API_URL=https://snapcheck.yourdomain.com/api
 
 # ═══════════════════════════════════════════════════════════════
 # TRAEFIK
@@ -239,7 +239,7 @@ LOG_LEVEL=info
 EOF
 
 # ⚠️ ВАЖНО: Отредактировать .env
-nano /opt/slideconfirm/.env
+nano /opt/snapcheck/.env
 ```
 
 ### ШАГ 4: Проверить что Traefik сеть существует
@@ -281,7 +281,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 
 # Создание директорий для данных
-RUN mkdir -p /app/data/db /tmp/slideconfirm_uploads
+RUN mkdir -p /app/data/db /tmp/snapcheck_uploads
 
 # Переменные окружения
 ENV PYTHONUNBUFFERED=1
@@ -409,13 +409,13 @@ docker-compose ps
 4) Проверьте доступ к backend внутри сети:
 
 ```bash
-docker exec -it slideconfirm-frontend wget -qO- http://backend:8000/health || true
+docker exec -it snapcheck-frontend wget -qO- http://backend:8000/health || true
 ```
 
 5) Если API в приложении смонтирован на `/`, а роут Traefik — `/api`, включите удаление префикса:
 
 - `traefik.http.middlewares.api-prefix.stripprefix.prefixes=/api`
-- `traefik.http.routers.slideconfirm-backend.middlewares=api-prefix`
+- `traefik.http.routers.snapcheck-backend.middlewares=api-prefix`
 
 Ожидаемый результат после исправлений:
 
@@ -426,7 +426,7 @@ docker exec -it slideconfirm-frontend wget -qO- http://backend:8000/health || tr
 ### ШАГ 8: Построить образы
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Построить образы (ДОЛГО на первый раз)
 docker-compose build
@@ -446,9 +446,9 @@ docker-compose ps
 
 # Вывод должен показать:
 # NAME                  STATUS
-# slideconfirm-backend  Up
-# slideconfirm-frontend Up
-# slideconfirm-db       Up
+# snapcheck-backend  Up
+# snapcheck-frontend Up
+# snapcheck-db       Up
 ```
 
 ### ШАГ 10: Проверить работу
@@ -467,7 +467,7 @@ docker-compose logs -f db
 curl http://localhost:8000/health
 
 # Проверить подключение к БД
-docker exec slideconfirm-db psql -U slideconfirm -d slideconfirm -c "SELECT 1"
+docker exec snapcheck-db psql -U snapcheck -d snapcheck -c "SELECT 1"
 ```
 
 ---
@@ -487,9 +487,9 @@ docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 # NAMES                     IMAGE                    STATUS         PORTS
 # traefik                   traefik:latest           Up 30 days     0.0.0.0:80->80/tcp,0.0.0.0:443->443/tcp
 # portainer                 portainer/portainer      Up 30 days     0.0.0.0:9000->9000/tcp
-# slideconfirm-backend      slideconfirm:backend     Up 2 minutes
-# slideconfirm-frontend     slideconfirm:frontend    Up 2 minutes
-# slideconfirm-db           postgres:15-alpine       Up 2 minutes
+# snapcheck-backend      snapcheck:backend     Up 2 minutes
+# snapcheck-frontend     snapcheck:frontend    Up 2 minutes
+# snapcheck-db           postgres:15-alpine       Up 2 minutes
 
 # ═══════════════════════════════════════════════════════════════
 # 2. Посмотреть слушающие порты на хосте
@@ -527,7 +527,7 @@ docker network inspect traefik-net
 #     "IPv4Address": "172.18.0.2/16"
 #   },
 #   "ghi789...": {
-#     "Name": "slideconfirm-backend",
+#     "Name": "snapcheck-backend",
 #     "IPv4Address": "172.18.0.5/16"
 #   },
 #   ...
@@ -541,9 +541,9 @@ docker stats
 
 # Вывод (real-time):
 # CONTAINER             CPU %   MEM USAGE      MEM %
-# slideconfirm-backend  0.05%   120MiB/2GiB    6%
-# slideconfirm-frontend 0.01%   45MiB/2GiB     2%
-# slideconfirm-db       0.08%   200MiB/2GiB    10%
+# snapcheck-backend  0.05%   120MiB/2GiB    6%
+# snapcheck-frontend 0.01%   45MiB/2GiB     2%
+# snapcheck-db       0.08%   200MiB/2GiB    10%
 # traefik               0.02%   80MiB/2GiB     4%
 
 # ═══════════════════════════════════════════════════════════════
@@ -553,8 +553,8 @@ docker stats
 docker logs traefik
 
 # Вывод должен показать что роуты добавлены:
-# time="2025-10-19T10:00:00Z" level=info msg="Creating router slideconfirm-frontend"
-# time="2025-10-19T10:00:00Z" level=info msg="Creating router slideconfirm-backend"
+# time="2025-10-19T10:00:00Z" level=info msg="Creating router snapcheck-frontend"
+# time="2025-10-19T10:00:00Z" level=info msg="Creating router snapcheck-backend"
 ```
 
 ---
@@ -585,9 +585,9 @@ docker stop <CONTAINER_NAME>
 docker network inspect traefik-net
 
 # Если контейнера нет в списке, подключить вручную:
-docker network connect traefik-net slideconfirm-backend
-docker network connect traefik-net slideconfirm-frontend
-docker network connect traefik-net slideconfirm-db
+docker network connect traefik-net snapcheck-backend
+docker network connect traefik-net snapcheck-frontend
+docker network connect traefik-net snapcheck-db
 ```
 
 ### Проблема 3: Traefik не видит labels
@@ -597,7 +597,7 @@ docker network connect traefik-net slideconfirm-db
 docker-compose restart backend frontend
 
 # Проверить логи Traefik
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # Должно показать что роуты созданы
 ```
@@ -609,7 +609,7 @@ docker logs traefik | grep slideconfirm
 docker logs traefik | grep letsencrypt
 
 # Может быть проблема с DNS - убедиться что домен указывает на сервер
-nslookup slideconfirm.yourdomain.com
+nslookup snapcheck.yourdomain.com
 
 # Если нужно, переписать сертификат
 docker exec traefik traefik-renew-certificates
@@ -632,8 +632,8 @@ docker-compose restart
 - [ ] Сеть traefik-net существует: docker network ls | grep traefik
 - [ ] Порты 80/443 свободны: sudo ss -tlnp | grep :80
 
-УСТАНОВКА SLIDECONFIRM:
-- [ ] Проект загружен в /opt/slideconfirm
+УСТАНОВКА SNAPCHECK:
+- [ ] Проект загружен в /opt/snapcheck
 - [ ] Директории созданы: data/, logs/
 - [ ] .env файл создан и отредактирован
 - [ ] docker-compose.yml обновлен для Traefik
@@ -648,8 +648,8 @@ docker-compose restart
 - [ ] docker logs показывает нормальный старт
 
 ПРОВЕРКА TRAEFIK:
-- [ ] Traefik обнаружил slideconfirm-backend label
-- [ ] Traefik обнаружил slideconfirm-frontend label
+- [ ] Traefik обнаружил snapcheck-backend label
+- [ ] Traefik обнаружил snapcheck-frontend label
 - [ ] SSL сертификат выписан для домена
 - [ ] https://yourdomain.com доступен
 - [ ] https://yourdomain.com/api/health работает
@@ -667,7 +667,7 @@ docker-compose restart
 ## 📊 СТРУКТУРА НА PRODUCTION СЕРВЕРЕ
 
 ```
-/opt/slideconfirm/
+/opt/snapcheck/
 ├── .env                          # ⚠️ Переменные окружения
 ├── docker-compose.yml            # ✅ Обновлено для Traefik
 ├── Dockerfile.backend            # ✅ Обновлено
@@ -696,9 +696,9 @@ docker-compose restart
 
 Docker:
 ├── traefik-net (сеть)            # ✅ Общая сеть для всех контейнеров
-├── slideconfirm-backend
-├── slideconfirm-frontend
-├── slideconfirm-db
+├── snapcheck-backend
+├── snapcheck-frontend
+├── snapcheck-db
 ├── traefik
 ├── portainer
 └── (другие приложения)
@@ -710,7 +710,7 @@ Docker:
 
 ```bash
 # 📦 СБОРКА И ЗАПУСК
-cd /opt/slideconfirm
+cd /opt/snapcheck
 docker-compose build                    # Построить образы
 docker-compose build --no-cache         # Пересоздать образы
 docker-compose up -d                    # Запустить
@@ -726,7 +726,7 @@ docker stats                            # Использование ресур�
 # 🔧 УПРАВЛЕНИЕ
 docker-compose restart backend          # Перезагрузить backend
 docker-compose exec backend bash        # Войти в контейнер backend
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
                                         # Подключиться к БД
 
 # 🗑️ ОЧИСТКА

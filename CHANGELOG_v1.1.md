@@ -347,7 +347,7 @@ CREATE INDEX idx_presentation_id ON user_presentation_position(presentation_id);
 
 1. **Backend**
    ```bash
-   cd /opt/slideconfirm
+   cd /opt/snapcheck
    # Миграция БД (если нужна)
    alembic revision --autogenerate -m "Add user_presentation_position"
    alembic upgrade head
@@ -463,5 +463,5 @@ curl "http://localhost:8000/slides/progress?presentation_id=1" \
 
 **Версия:** 1.1  
 **Дата:** October 20, 2025  
-**Автор:** SlideConfirm Team  
+**Автор:** SnapCheck Team  
 **Статус:** ✅ Ready for Production

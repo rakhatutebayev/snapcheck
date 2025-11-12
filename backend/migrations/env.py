@@ -9,7 +9,7 @@ from ..database import Base
 from ..models import User, Presentation, Slide, UserSlideProgress, UserCompletion, UserPresentationPosition
 
 # ✅ Получить DATABASE_URL из переменных окружения
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/db/slideconfirm.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/db/snapcheck.db")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -88,7 +88,7 @@ def send_verification_email(email: str, code: str) -> bool:
         msg = MIMEMultipart()
         msg['From'] = SMTP_EMAIL
         msg['To'] = email
-        msg['Subject'] = 'SlideConfirm - Email Verification'
+        msg['Subject'] = 'SnapCheck - Email Verification'
         
         body = f"""
         <html>
@@ -391,7 +391,7 @@ def send_sms_code(phone: str, code: str) -> bool:
     """Отправить SMS с кодом"""
     try:
         message = client.messages.create(
-            body=f"SlideConfirm verification code: {code}",
+            body=f"SnapCheck verification code: {code}",
             from_=TWILIO_FROM,
             to=phone
         )

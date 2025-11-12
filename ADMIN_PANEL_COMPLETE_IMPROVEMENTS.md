@@ -188,9 +188,9 @@ Password: 123456
 ## 📚 Документация
 
 Созданные файлы документации:
-- `/Users/rakhat/Documents/webhosting/SlideConfirm/USERS_MODAL_IMPROVEMENTS.md`
-- `/Users/rakhat/Documents/webhosting/SlideConfirm/UPLOAD_SUCCESS_MESSAGE.md`
-- `/Users/rakhat/Documents/webhosting/SlideConfirm/UPLOAD_SUCCESS_IMPROVEMENTS.md` (этот файл)
+- `/Users/rakhat/Documents/webhosting/SnapCheck/USERS_MODAL_IMPROVEMENTS.md`
+- `/Users/rakhat/Documents/webhosting/SnapCheck/UPLOAD_SUCCESS_MESSAGE.md`
+- `/Users/rakhat/Documents/webhosting/SnapCheck/UPLOAD_SUCCESS_IMPROVEMENTS.md` (этот файл)
 
 ---
 

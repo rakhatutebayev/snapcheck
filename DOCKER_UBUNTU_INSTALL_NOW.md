@@ -13,12 +13,12 @@ curl -fsSL https://get.docker.com -o get-docker.sh && \
 sudo sh get-docker.sh && \
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
 sudo chmod +x /usr/local/bin/docker-compose && \
-sudo mkdir -p /opt/slideconfirm && \
-cd /opt/slideconfirm && \
-sudo git clone https://github.com/YOUR_USERNAME/slideconfirm.git . 2>/dev/null || sudo git pull && \
+sudo mkdir -p /opt/snapcheck && \
+cd /opt/snapcheck && \
+sudo git clone https://github.com/YOUR_USERNAME/snapcheck.git . 2>/dev/null || sudo git pull && \
 sudo mkdir -p data/db data/uploads logs/backend logs/nginx && \
 echo "✅ Docker готов! Теперь выполните:" && \
-echo "cd /opt/slideconfirm && sudo nano .env"
+echo "cd /opt/snapcheck && sudo nano .env"
 ```
 
 ---
@@ -37,7 +37,7 @@ sudo bash -c 'cat > /tmp/install-docker.sh << '\''EOF'\''
 curl -fsSL https://get.docker.com | sh
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
-mkdir -p /opt/slideconfirm/data/db /opt/slideconfirm/data/uploads /opt/slideconfirm/logs
+mkdir -p /opt/snapcheck/data/db /opt/snapcheck/data/uploads /opt/snapcheck/logs
 echo "✅ Docker установлен!"
 EOF
 bash /tmp/install-docker.sh'
@@ -45,15 +45,15 @@ bash /tmp/install-docker.sh'
 
 ### Шаг 3: Загрузить проект
 ```bash
-cd /opt/slideconfirm
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git . 2>/dev/null || git pull
+cd /opt/snapcheck
+git clone https://github.com/YOUR_USERNAME/snapcheck.git . 2>/dev/null || git pull
 ```
 
 ### Шаг 4: Создать .env
 ```bash
 sudo cat > .env << 'EOF'
 SECRET_KEY=your-generated-key-64-chars
-DATABASE_URL=postgresql://slideconfirm:password@db:5432/slideconfirm
+DATABASE_URL=postgresql://snapcheck:password@db:5432/snapcheck
 VITE_API_URL=https://api.your-domain.com
 ENVIRONMENT=production
 DB_PASSWORD=password
@@ -109,4 +109,4 @@ docker-compose down -v
 
 ## ✅ ГОТОВО!
 
-Ваш SlideConfirm развернут на Docker! 🎉
+Ваш SnapCheck развернут на Docker! 🎉

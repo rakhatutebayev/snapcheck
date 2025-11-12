@@ -11,12 +11,12 @@ sudo ss -tlnp | grep :80
 sudo ss -tlnp | grep :443
 
 # 3. Клонировать проект
-git clone https://github.com/YOUR_USERNAME/slideconfirm.git /opt/slideconfirm
-cd /opt/slideconfirm
+git clone https://github.com/YOUR_USERNAME/snapcheck.git /opt/snapcheck
+cd /opt/snapcheck
 
 # 4. Создать .env
 cat > .env << 'EOF'
-DOMAIN=slideconfirm.yourdomain.com
+DOMAIN=snapcheck.yourdomain.com
 SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
 DB_PASSWORD=StrongPassword123
 ENVIRONMENT=production
@@ -65,7 +65,7 @@ docker stats
 ## 🛠️ ОСНОВНЫЕ КОМАНДЫ
 
 ```bash
-cd /opt/slideconfirm
+cd /opt/snapcheck
 
 # Запустить
 docker-compose up -d
@@ -87,7 +87,7 @@ docker-compose logs -f db               # Только БД
 
 # Зайти в контейнер
 docker-compose exec backend bash
-docker-compose exec db psql -U slideconfirm -d slideconfirm
+docker-compose exec db psql -U snapcheck -d snapcheck
 
 # Удалить (осторожно!)
 docker-compose down -v                  # С данными
@@ -104,10 +104,10 @@ docker-compose ps
 # Должны быть Up: backend, frontend, db
 
 # 2. Traefik знает о маршрутах?
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 # Должны быть строки вроде:
-# "Creating router slideconfirm-frontend"
-# "Creating router slideconfirm-backend"
+# "Creating router snapcheck-frontend"
+# "Creating router snapcheck-backend"
 
 # 3. SSL сертификат получен?
 docker logs traefik | grep letsencrypt
@@ -137,7 +137,7 @@ sudo ss -tlnp | grep :443
 
 # Проблема: Traefik не видит маршруты
 docker-compose restart backend frontend
-docker logs traefik | grep slideconfirm
+docker logs traefik | grep snapcheck
 
 # Проблема: SSL не выписан
 docker logs traefik | grep letsencrypt
@@ -190,10 +190,10 @@ sudo ufw enable
 # (Traefik сам следит за Let's Encrypt сертификатами)
 
 # 4. Резервное копирование БД
-docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > backup.sql
+docker exec snapcheck-db pg_dump -U snapcheck snapcheck > backup.sql
 
 # 5. Логирование
-docker-compose logs -f > /var/log/slideconfirm.log &
+docker-compose logs -f > /var/log/snapcheck.log &
 ```
 
 ---
@@ -225,12 +225,12 @@ https://yourdomain.com          # Frontend
 https://yourdomain.com/api/health  # API
 
 # 4. Слегка отредактировать если нужно
-nano /opt/slideconfirm/.env
+nano /opt/snapcheck/.env
 docker-compose restart
 
 # 5. Установить backup (рекомендуется)
 crontab -e
-# Добавить: 0 2 * * * docker exec slideconfirm-db pg_dump -U slideconfirm slideconfirm > /opt/backup-$(date +%Y%m%d).sql
+# Добавить: 0 2 * * * docker exec snapcheck-db pg_dump -U snapcheck snapcheck > /opt/backup-$(date +%Y%m%d).sql
 ```
 
 ---

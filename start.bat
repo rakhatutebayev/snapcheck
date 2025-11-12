@@ -1,10 +1,10 @@
 @echo off
-REM SlideConfirm Quick Start Script для Windows (PowerShell compatible)
+REM SnapCheck Quick Start Script для Windows (PowerShell compatible)
 REM Используйте: start.bat
 
 setlocal enabledelayedexpansion
 
-echo 🚀 SlideConfirm - Запуск системы
+echo 🚀 SnapCheck - Запуск системы
 echo ================================
 
 REM Ищем текущую директорию
@@ -41,13 +41,13 @@ REM Запускаем бэкенд
 echo.
 echo 🔧 Запуск бэкенда на порту 8000...
 cd /d "%SCRIPT_DIR%"
-start "SlideConfirm Backend" python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+start "SnapCheck Backend" python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 timeout /t 3 /nobreak >nul
 
 REM Запускаем фронтенд
 echo 🎨 Запуск фронтенда на порту 5173...
-cd /d "%SCRIPT_DIR%frontend"
-start "SlideConfirm Frontend" cmd /k npm run dev
+cd frontend
+start "SnapCheck Frontend" cmd /k npm run dev
 
 REM Ждём перед открытием браузера
 timeout /t 4 /nobreak >nul
