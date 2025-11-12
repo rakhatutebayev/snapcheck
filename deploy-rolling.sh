@@ -44,15 +44,17 @@ fi
 # Detect dynamically to stay robust.
 detect_container_name() {
   local service="$1"
-  # Try matching running container first
+  # Compose v2 default pattern: <project>-<service>-<index>
   local name
-  name=$(docker ps --format '{{.Names}}' | grep -E "_${service}_" | head -n1 || true)
+  name=$(docker ps --format '{{.Names}}' | grep -E "-${service}-[0-9]+$" | head -n1 || true)
   if [[ -n "$name" ]]; then echo "$name"; return; fi
-  # Fallback: any container (including exiting)
-  name=$(docker ps -a --format '{{.Names}}' | grep -E "_${service}_" | head -n1 || true)
+  # Fallback: any container (including exited)
+  name=$(docker ps -a --format '{{.Names}}' | grep -E "-${service}-[0-9]+$" | head -n1 || true)
   if [[ -n "$name" ]]; then echo "$name"; return; fi
-  # Last resort: original explicit name if still present
-  echo "snapcheck-${service}";
+  # Legacy explicit container_name (if still present)
+  name=$(docker ps --format '{{.Names}}' | grep -E "^snapcheck-${service}$" | head -n1 || true)
+  if [[ -n "$name" ]]; then echo "$name"; return; fi
+  echo ""  # Return empty if not found; caller should handle
 }
 
 BACKEND_CONTAINER="$(detect_container_name backend)"
@@ -82,6 +84,9 @@ health_status() {
 
 wait_healthy() {
   local name="$1"; local timeout="${2:-90}"; local waited=0
+  if [[ -z "$name" ]]; then
+    warn "No container name detected for health wait; skipping health check."; return 0;
+  fi
   log "Waiting for healthy: $name (timeout=${timeout}s)"
   while true; do
     local st; st=$(health_status "$name")
