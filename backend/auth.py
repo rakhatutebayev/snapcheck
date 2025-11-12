@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, EmailStr
 import secrets
 from .database import get_db
@@ -39,7 +39,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     
     # Генерация токена верификации
     verification_token = secrets.token_urlsafe(32)
-    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    # Use timezone-aware UTC to match DB (timezone=True columns)
+    verification_expires = datetime.now(timezone.utc) + timedelta(hours=24)
     
     db_user = User(
         first_name=user.first_name,
@@ -102,7 +103,12 @@ def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
     if user.is_verified:
         return {"message": "Email already verified"}
     
-    if user.verification_token_expires < datetime.utcnow():
+    # Normalize comparison: both should be aware. If DB returned naive, assume UTC.
+    expires = user.verification_token_expires
+    if expires and expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    now_utc = datetime.now(timezone.utc)
+    if expires and expires < now_utc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification token expired")
     
     user.is_verified = True
@@ -127,7 +133,7 @@ def resend_verification(request: ForgotPasswordRequest, db: Session = Depends(ge
     
     # Генерация нового токена
     verification_token = secrets.token_urlsafe(32)
-    verification_expires = datetime.utcnow() + timedelta(hours=24)
+    verification_expires = datetime.now(timezone.utc) + timedelta(hours=24)
     
     user.verification_token = verification_token
     user.verification_token_expires = verification_expires
