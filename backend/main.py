@@ -30,7 +30,8 @@ def create_initial_data():
                     last_name="GSS",
                     email="user@gss.aero",
                     password_hash=hash_password("123456"),
-                    role="user"
+                    role="user",
+                    is_verified=True
                 ))
             if not db.query(User).filter_by(email="admin@gss.aero").first():
                 db.add(User(
@@ -38,7 +39,8 @@ def create_initial_data():
                     last_name="GSS",
                     email="admin@gss.aero",
                     password_hash=hash_password("admin123"),
-                    role="admin"
+                    role="admin",
+                    is_verified=True
                 ))
             
             db.commit()

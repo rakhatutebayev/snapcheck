@@ -4,6 +4,7 @@ API для управления слайдами (загрузка из папк
 from fastapi import APIRouter, Depends, HTTPException, status, Header, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
 import os
+import time
 from pathlib import Path
 import shutil
 from typing import List
@@ -11,7 +12,7 @@ import re
 
 from .database import get_db
 from .models import Presentation, Slide, User
-from .utils.security import decode_access_token
+from .utils.security import decode_access_token, get_current_user
 
 router = APIRouter(prefix="/admin", tags=["admin-slides"])
 
@@ -19,16 +20,10 @@ UPLOADS_DIR = "/tmp/snapcheck_uploads"
 
 def verify_admin(authorization: str = Header(None), db: Session = Depends(get_db)):
     """Проверяет, что пользователь - администратор"""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    
-    token = authorization.replace("Bearer ", "")
-    payload = decode_access_token(token)
-    
-    user = db.query(User).filter(User.id == int(payload["sub"])).first()
+    # Переиспользуем общую логику получения пользователя из токена
+    user = get_current_user(authorization, db)
     if not user or user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not admin")
-    
     return user
 
 
@@ -208,18 +203,36 @@ async def upload_slides_from_files(
     dest_dir = os.path.join(UPLOADS_DIR, "slides", str(presentation.id))
     os.makedirs(dest_dir, exist_ok=True)
     
-    # Сохраняем файлы и создаем записи в БД
+    # Сохраняем файлы и создаем записи в БД с диагностикой
     created_slides = []
+    total_bytes = 0
+    started_at = time.time()
     for order in sorted_slides:
         file = slide_mapping[order]
         filename = f"slide{order}.jpg"
         dest_path = os.path.join(dest_dir, filename)
-        
-        # Сохраняем файл
-        content = await file.read()
-        with open(dest_path, 'wb') as f:
-            f.write(content)
-        
+
+        try:
+            # Потоковая запись в файл (без загрузки всего содержимого в память)
+            chunk_start = time.time()
+            written = 0
+            CHUNK_SIZE = 1024 * 1024  # 1MB
+            with open(dest_path, 'wb') as f:
+                while True:
+                    chunk = await file.read(CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    written += len(chunk)
+            size = written
+            total_bytes += size
+            chunk_elapsed = (time.time() - chunk_start) * 1000
+        except Exception as e:
+            # Логируем ошибку и пробрасываем понятное сообщение
+            print(f"[upload-from-files] Failed saving {filename}: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Ошибка сохранения файла {filename}") from e
+
         # Создаем запись в БД
         slide = Slide(
             presentation_id=presentation.id,
@@ -229,6 +242,10 @@ async def upload_slides_from_files(
         )
         db.add(slide)
         created_slides.append(slide)
+        print(f"[upload-from-files] Stored {filename} size={size}B time={chunk_elapsed:.2f}ms")
+
+    elapsed_ms = (time.time() - started_at) * 1000
+    print(f"[upload-from-files] Completed presentation_id={presentation.id} slides={len(created_slides)} total_bytes={total_bytes} elapsed={elapsed_ms:.2f}ms")
     
     db.commit()
     db.refresh(presentation)
@@ -241,6 +258,7 @@ async def upload_slides_from_files(
             "status": presentation.status,
             "slides_count": len(created_slides)
         },
+        "presentation_id": presentation.id,
         "slides_count": len(created_slides),
         "message": f"Загружено {len(created_slides)} слайдов"
     }

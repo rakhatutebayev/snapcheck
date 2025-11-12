@@ -13,8 +13,9 @@ function joinUrl(base, path) {
 
 // Create axios instance with sane defaults to avoid infinite hangs in UI
 const api = axios.create({
-  // 6s to fail fast when backend is unreachable/misconfigured
-  timeout: 6000,
+  // Increase timeout to allow large multi-file uploads via Traefik/ASGI
+  // Still finite to prevent infinite hangs in UI. 30s is a pragmatic default.
+  timeout: 30000,
   // Do not send XSRF cookies; we use Bearer tokens
   withCredentials: false,
 });
