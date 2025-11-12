@@ -16,6 +16,14 @@
 
 set -e
 
+# Prefer docker compose v2 if available, else fallback to docker-compose v1
+if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+    DC=(docker compose -f docker-compose-traefik.yml)
+    echo -e "${GREEN}✅${NC} docker compose v2 detected"
+else
+    DC=(docker-compose -f docker-compose-traefik.yml)
+fi
+
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║        🚀 SNAPCHECK PRODUCTION DEPLOYMENT             ║"
 echo "╚════════════════════════════════════════════════════════╝"
@@ -70,12 +78,12 @@ fi
 echo -e "${GREEN}✅${NC} Docker installed"
 
 # Check Docker Compose
-if ! command -v docker-compose &> /dev/null; then
+if ! ( command -v docker-compose &> /dev/null || docker compose version &> /dev/null ); then
     echo -e "${RED}❌ Docker Compose not installed${NC}"
-    echo "Install: sudo apt install docker-compose"
+    echo "Install docker compose v2 plugin (recommended). See DEPLOYMENT_PARTIAL_ROLLING.md"
     exit 1
 fi
-echo -e "${GREEN}✅${NC} Docker Compose installed"
+echo -e "${GREEN}✅${NC} Docker Compose available"
 
 # Check if Docker is running
 if ! docker info &> /dev/null; then
@@ -125,7 +133,7 @@ echo "════════════════════════�
 echo "This may take 5-10 minutes on first build..."
 echo ""
 
-docker-compose -f docker-compose-traefik.yml build
+"${DC[@]}" build
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅${NC} Docker images built successfully"
@@ -144,7 +152,7 @@ echo "════════════════════════�
 echo "STEP 4: Start Docker Containers"
 echo "═══════════════════════════════════════════════════════"
 
-docker-compose -f docker-compose-traefik.yml up -d
+"${DC[@]}" up -d
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅${NC} Containers started successfully"
@@ -167,7 +175,7 @@ echo "════════════════════════�
 echo "STEP 5: Container Status"
 echo "═══════════════════════════════════════════════════════"
 
-docker-compose -f docker-compose-traefik.yml ps
+"${DC[@]}" ps
 
 echo ""
 
@@ -179,7 +187,7 @@ echo "════════════════════════�
 echo "STEP 6: Run Database Migrations"
 echo "═══════════════════════════════════════════════════════"
 
-docker-compose -f docker-compose-traefik.yml exec -T backend python -m backend.migrations.add_user_verification_fields
+"${DC[@]}" exec -T backend python -m backend.migrations.add_user_verification_fields
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅${NC} Database migrations completed"
@@ -239,7 +247,7 @@ echo "STEP 8: Health Check"
 echo "═══════════════════════════════════════════════════════"
 
 echo "Checking backend health..."
-if docker-compose -f docker-compose-traefik.yml exec -T backend curl -sf http://localhost:8000/health > /dev/null; then
+if "${DC[@]}" exec -T backend curl -sf http://localhost:8000/health > /dev/null; then
     echo -e "${GREEN}✅${NC} Backend is healthy"
 else
     echo -e "${YELLOW}⚠️  Backend not responding yet (may need more time)${NC}"
@@ -247,7 +255,7 @@ fi
 
 echo ""
 echo "Checking database..."
-if docker-compose -f docker-compose-traefik.yml exec -T db pg_isready -U snapcheck_user > /dev/null 2>&1; then
+if "${DC[@]}" exec -T db pg_isready -U snapcheck_user > /dev/null 2>&1; then
     echo -e "${GREEN}✅${NC} Database is healthy"
 else
     echo -e "${YELLOW}⚠️  Database not ready yet${NC}"
@@ -283,12 +291,12 @@ echo ""
 echo "═══════════════════════════════════════════════════════"
 echo "📊 USEFUL COMMANDS"
 echo "═══════════════════════════════════════════════════════"
-echo "View logs:         docker-compose -f docker-compose-traefik.yml logs -f"
-echo "View backend logs: docker-compose -f docker-compose-traefik.yml logs -f backend"
-echo "Container status:  docker-compose -f docker-compose-traefik.yml ps"
-echo "Restart:           docker-compose -f docker-compose-traefik.yml restart"
-echo "Stop:              docker-compose -f docker-compose-traefik.yml stop"
-echo "Start:             docker-compose -f docker-compose-traefik.yml start"
+echo "View logs:         ${DC[*]} logs -f"
+echo "View backend logs: ${DC[*]} logs -f backend"
+echo "Container status:  ${DC[*]} ps"
+echo "Restart:           ${DC[*]} restart"
+echo "Stop:              ${DC[*]} stop"
+echo "Start:             ${DC[*]} start"
 echo ""
 echo "═══════════════════════════════════════════════════════"
 echo "⏭️  NEXT STEPS"

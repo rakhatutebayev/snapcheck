@@ -16,7 +16,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: snapcheck-backend
     
     environment:
       # Database
@@ -90,7 +89,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: snapcheck-frontend
     
     restart: unless-stopped
     
@@ -135,7 +133,6 @@ services:
   
   db:
     image: postgres:15-alpine
-    container_name: snapcheck-db
     
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
