@@ -115,6 +115,7 @@ DATABASE_URL=postgresql://snapcheck_user:$DB_PASSWORD@db:5432/snapcheck
 
 # Domain Configuration
 DOMAIN=lms.it-uae.com
+FRONTEND_URL=https://lms.it-uae.com
 ENVIRONMENT=production
 ALLOWED_ORIGINS=https://lms.it-uae.com
 FRONTEND_URL=https://lms.it-uae.com
@@ -126,6 +127,7 @@ ACME_EMAIL=admin@lms.it-uae.com
 WORKERS=4
 LOG_LEVEL=info
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+# (Optional) override FRONTEND_URL later if domain changes; emails will adapt automatically.
 NODE_ENV=production
 EOF
 

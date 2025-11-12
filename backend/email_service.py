@@ -5,6 +5,7 @@ SMTP-only configuration
 import smtplib
 import json
 import os
+from urllib.parse import quote
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -236,11 +237,11 @@ class EmailService:
     
     def send_verification_email(self, user_email: str, user_name: str, verification_token: str):
         """Send email verification message to user"""
-        # Получить базовый URL приложения
-        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-        verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+        # Получить базовый URL приложения (универсально)
+        frontend_url = self._get_frontend_base_url()
+        verification_link = f"{frontend_url}/verify-email?token={quote(verification_token)}"
         
-        subject = "✅ Verify your email - Training System"
+        subject = "✅ Verify your email - SnapCheck"
         html_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -285,10 +286,10 @@ class EmailService:
     
     def send_password_reset_email(self, user_email: str, user_name: str, reset_token: str):
         """Send password reset email to user"""
-        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+        frontend_url = self._get_frontend_base_url()
+        reset_link = f"{frontend_url}/reset-password?token={quote(reset_token)}"
         
-        subject = "🔐 Password reset - Training System"
+        subject = "🔐 Password reset - SnapCheck"
         html_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -332,3 +333,27 @@ class EmailService:
         """
         
         self.send_email([user_email], subject, html_body, "password_reset")
+
+    # ---------------------------------------------------------------------
+    # Internal helpers
+    # ---------------------------------------------------------------------
+    def _get_frontend_base_url(self) -> str:
+        """Derive a universal frontend base URL.
+        Priority:
+        1. FRONTEND_URL env (explicit full URL)
+        2. DOMAIN env (scheme inferred: https in production, http otherwise)
+        3. localhost dev default
+        Normalizes trailing slashes.
+        """
+        env_frontend = os.getenv("FRONTEND_URL", "").strip()
+        if env_frontend:
+            base = env_frontend.rstrip('/')
+            return base
+        domain = os.getenv("DOMAIN", "").strip()
+        if domain:
+            if not domain.startswith("http://") and not domain.startswith("https://"):
+                scheme = "https" if os.getenv("ENVIRONMENT", "").lower() == "production" else "http"
+                domain = f"{scheme}://{domain}"
+            return domain.rstrip('/')
+        # Fallback dev
+        return "http://localhost:5173"

@@ -37,9 +37,26 @@ echo "════════════════════════�
 
 # Check if .env exists
 if [ ! -f .env ]; then
-    echo -e "${RED}❌ .env file not found!${NC}"
-    echo "Please create .env file with production configuration"
-    exit 1
+    echo -e "${RED}❌ .env file not found! Creating a minimal one...${NC}"
+    SEC_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+    DB_PASS=$(python3 -c "import secrets; print(secrets.token_urlsafe(24))")
+    cat > .env << EOF
+DOMAIN=${DOMAIN:-lms.it-uae.com}
+FRONTEND_URL=https://${DOMAIN:-lms.it-uae.com}
+ENVIRONMENT=production
+SECRET_KEY=$SEC_KEY
+POSTGRES_DB=snapcheck
+POSTGRES_USER=snapcheck_user
+POSTGRES_PASSWORD=$DB_PASS
+DATABASE_URL=postgresql://snapcheck_user:$DB_PASS@db:5432/snapcheck
+LOG_LEVEL=info
+WORKERS=4
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+NODE_ENV=production
+ACME_EMAIL=admin@${DOMAIN:-lms.it-uae.com}
+EOF
+    chmod 600 .env
+    echo -e "${GREEN}✅ Minimal .env created${NC}"
 fi
 
 echo -e "${GREEN}✅${NC} .env file found"

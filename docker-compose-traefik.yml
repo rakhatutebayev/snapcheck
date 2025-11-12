@@ -25,6 +25,10 @@ services:
       # Security
       - SECRET_KEY=${SECRET_KEY}
       - ENVIRONMENT=${ENVIRONMENT}
+      # Frontend base URL for links in emails (preferred)
+      - FRONTEND_URL=${FRONTEND_URL}
+      # Domain fallback if FRONTEND_URL is not set
+      - DOMAIN=${DOMAIN}
       
       # API
       - VITE_API_URL=https://${DOMAIN}/api
