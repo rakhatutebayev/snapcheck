@@ -46,10 +46,10 @@ detect_container_name() {
   local service="$1"
   # Compose v2 default pattern: <project>-<service>-<index>
   local name
-  name=$(docker ps --format '{{.Names}}' | grep -E "-${service}-[0-9]+$" | head -n1 || true)
+  name=$(docker ps --format '{{.Names}}' | grep -E -- "-${service}-[0-9]+$" | head -n1 || true)
   if [[ -n "$name" ]]; then echo "$name"; return; fi
   # Fallback: any container (including exited)
-  name=$(docker ps -a --format '{{.Names}}' | grep -E "-${service}-[0-9]+$" | head -n1 || true)
+  name=$(docker ps -a --format '{{.Names}}' | grep -E -- "-${service}-[0-9]+$" | head -n1 || true)
   if [[ -n "$name" ]]; then echo "$name"; return; fi
   # Legacy explicit container_name (if still present)
   name=$(docker ps --format '{{.Names}}' | grep -E "^snapcheck-${service}$" | head -n1 || true)
