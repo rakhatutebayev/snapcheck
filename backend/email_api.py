@@ -65,6 +65,8 @@ class EmailSettingsResponse(BaseModel):
     smtp_host: str
     smtp_port: int
     encryption: str
+    smtp_username: Optional[str] = None  # include username for editing
+    has_smtp_password: bool              # indicates password is set (not returned)
     from_email: str
     from_name: str
     notifications_enabled: bool
@@ -180,6 +182,8 @@ async def get_email_settings(
         smtp_host=settings.smtp_host,
         smtp_port=settings.smtp_port,
         encryption=settings.encryption,
+        smtp_username=settings.smtp_username,
+        has_smtp_password=bool(settings.smtp_password),
         from_email=settings.from_email,
         from_name=settings.from_name,
         notifications_enabled=settings.notifications_enabled,
@@ -190,7 +194,7 @@ async def get_email_settings(
     )
 
 
-@router.post("/settings")
+@router.post("/settings", response_model=EmailSettingsResponse)
 async def create_or_update_email_settings(
     settings_data: EmailSettingsCreate,
     db: Session = Depends(get_db),
@@ -231,11 +235,21 @@ async def create_or_update_email_settings(
     
     db.commit()
     db.refresh(settings)
-    
-    return settings
-    db.refresh(settings)
-    
-    return {"status": "success", "message": "Email settings saved"}
+    return EmailSettingsResponse(
+        id=settings.id,
+        smtp_host=settings.smtp_host,
+        smtp_port=settings.smtp_port,
+        encryption=settings.encryption,
+        smtp_username=settings.smtp_username,
+        has_smtp_password=bool(settings.smtp_password),
+        from_email=settings.from_email,
+        from_name=settings.from_name,
+        notifications_enabled=settings.notifications_enabled,
+        notify_on_registration=settings.notify_on_registration,
+        notify_on_completion=settings.notify_on_completion,
+        is_verified=settings.is_verified,
+        last_test_at=settings.last_test_at
+    )
 
 
 @router.post("/oauth/init")

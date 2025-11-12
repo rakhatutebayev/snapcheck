@@ -74,16 +74,17 @@ const EmailSettings = () => {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/email/settings');
-      const data = response.data;
+  const response = await api.get('/admin/email/settings');
+  const data = response.data;
       
       if (data) {
         setSettings(data);
         setSmtpHost(data.smtp_host || '');
         setSmtpPort(data.smtp_port || 587);
         setEncryption(data.encryption || 'starttls');
-        setSmtpUsername(data.smtp_username || '');
-        setSmtpPassword(data.smtp_password || '');
+  setSmtpUsername(data.smtp_username || '');
+  // Do not set password field from backend (never returned). Keep blank.
+  setSmtpPassword('');
         setFromEmail(data.from_email || '');
         setFromName(data.from_name || DEFAULT_SENDER_NAME);
         setNotificationsEnabled(data.notifications_enabled ?? true);
@@ -208,8 +209,13 @@ const EmailSettings = () => {
         notify_on_completion: notifyOnCompletion
       };
 
-      await api.post('/admin/email/settings', payload);
-      setSuccess('✅ Settings saved successfully');
+      const resp = await api.post('/admin/email/settings', payload);
+      if (resp.data) {
+        setSuccess('✅ Settings saved successfully');
+      } else {
+        setSuccess('✅ Settings saved');
+      }
+      // Refresh without overwriting local password input
       fetchSettings();
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to save settings');
@@ -359,13 +365,20 @@ const EmailSettings = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Password / App Password *
                 </label>
-                <input
-                  type="password"
-                  value={smtpPassword}
-                  onChange={(e) => setSmtpPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={smtpPassword}
+                    onChange={(e) => setSmtpPassword(e.target.value)}
+                    placeholder={settings?.has_smtp_password ? '•••• (stored – enter to replace)' : 'App Password'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {settings?.has_smtp_password && !smtpPassword && (
+                    <div className="absolute top-1/2 -translate-y-1/2 right-3 text-xs text-gray-500">
+                      Saved
+                    </div>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
                   For Gmail/Office 365: use App Password, not regular password
                 </p>
