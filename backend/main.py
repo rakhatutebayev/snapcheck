@@ -92,3 +92,12 @@ def health():
 @app.get("/api/health")
 def health_api_prefixed():
     return {"status": "ok"}
+
+# Явные HEAD эндпоинты (иногда Traefik healthcheck использует HEAD)
+@app.head("/health")
+def health_head():
+    return {"status": "ok"}
+
+@app.head("/api/health")
+def health_api_head():
+    return {"status": "ok"}
