@@ -302,7 +302,20 @@ const AdminPanel = () => {
       });
 
       console.log('Sending request to server...');
-      const response = await api.post('/admin/slides/upload-from-files', formData);
+      // Increase timeout specifically for bulk uploads (many slides / slow network)
+      // 120s chosen to exceed proxy 60s and avoid client aborts on larger batches.
+      const response = await api.post('/admin/slides/upload-from-files', formData, {
+        timeout: 120000,
+        // Basic progress indicator (optional). Only logs now; could be wired into UI state later.
+        onUploadProgress: (evt) => {
+          if (!evt.total) return;
+          const pct = Math.round((evt.loaded / evt.total) * 100);
+          if (pct % 10 === 0) {
+            // Throttle console spam: log only every ~10%
+            console.log(`Uploading slides... ${pct}%`);
+          }
+        }
+      });
       
       console.log('Server response:', response.data);
       setSuccess(`✅ Presentation uploaded successfully! Total slides: ${response.data.slides_count}`);
