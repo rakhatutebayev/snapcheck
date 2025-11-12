@@ -82,7 +82,9 @@ async def root():
         "message": "SnapCheck API is running",
         "status": "ok",
         "version": "1.0.0"
-    }@app.get("/health")
+    }
+
+@app.get("/health")
 def health():
     return {"status": "ok"}
 
