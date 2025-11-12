@@ -4,6 +4,49 @@ import api from '../api/client';
 import { Upload, Users, LogOut, AlertCircle, CheckCircle, Trash2, FileUp, Play, X, Eye, EyeOff, Plus } from 'lucide-react';
 import EmailSettings from './EmailSettings';
 
+// Utility: compress an image file in browser to JPEG for faster uploads
+async function compressImageFile(file, { maxWidth = 1920, quality = 0.8, minBytesToCompress = 300 * 1024 } = {}) {
+  try {
+    // Skip tiny files
+    if (file.size <= minBytesToCompress) return file;
+
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const img = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = dataUrl;
+    });
+
+    const scale = Math.min(1, maxWidth / (img.width || maxWidth));
+    const targetW = Math.max(1, Math.round((img.width || maxWidth) * scale));
+    const targetH = Math.max(1, Math.round((img.height || maxWidth) * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    if (!blob) return file; // fallback
+    // Only use compressed if it's actually smaller
+    if (blob.size >= file.size) return file;
+
+    return new File([blob], file.name.replace(/\.(jpeg|jpg|png)$/i, '.jpg'), { type: 'image/jpeg' });
+  } catch (e) {
+    console.warn('Compression failed, using original file:', e);
+    return file;
+  }
+}
+
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('presentations');
   const [file, setFile] = useState(null);
@@ -293,13 +336,17 @@ const AdminPanel = () => {
       const formData = new FormData();
       formData.append('presentation_title', presentationTitle);
       
-      // Add slide files with renaming
-      console.log('Adding files (with renaming):');
-      checkedSlides.forEach((slide, index) => {
+      // Add slide files with renaming and client-side compression to speed up uploads
+      console.log('Adding files (with renaming & compression if useful):');
+      for (let index = 0; index < checkedSlides.length; index++) {
+        const slide = checkedSlides[index];
         const newFilename = `slide${index + 1}.jpg`;
-        console.log(`  ${index + 1}. ${slide.filename} → ${newFilename}`);
-        formData.append('slides', slide.file, newFilename);
-      });
+        const compressed = await compressImageFile(slide.file, { maxWidth: 1920, quality: 0.8 });
+        const beforeKB = Math.round(slide.file.size / 1024);
+        const afterKB = Math.round(compressed.size / 1024);
+        console.log(`  ${index + 1}. ${slide.filename} → ${newFilename} ( ${beforeKB}KB -> ${afterKB}KB )`);
+        formData.append('slides', compressed, newFilename);
+      }
 
       console.log('Sending request to server...');
       // Increase timeout specifically for bulk uploads (many slides / slow network)
